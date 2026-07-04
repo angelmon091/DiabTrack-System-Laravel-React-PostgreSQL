@@ -12,6 +12,7 @@ use App\Http\Controllers\Tracking\NutritionLogController;
 use App\Http\Controllers\Tracking\SymptomLogController;
 use App\Services\TipService;
 use App\Http\Controllers\PatientNotificationController;
+use App\Http\Controllers\SearchController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -29,6 +30,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Notificaciones
     Route::post('/notifications/{notification}/read', [PatientNotificationController::class, 'markRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [PatientNotificationController::class, 'markAllRead'])->name('notifications.read-all');
+    Route::delete('/notifications/all', [PatientNotificationController::class, 'destroyAll'])->name('notifications.destroy-all');
+    Route::delete('/notifications/{notification}', [PatientNotificationController::class, 'destroy'])->name('notifications.destroy');
 
     // Onboarding Routes
     Route::get('/onboarding', [OnboardingController::class, 'index'])->name('onboarding.index');
@@ -43,6 +46,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['role:paciente'])->group(function () {
         Route::post('/dashboard/weight', [DashboardController::class, 'storeWeight'])->name('dashboard.weight.store');
         Route::post('/dashboard/invite', [DashboardController::class, 'generateInviteCode'])->name('dashboard.invite');
+
+        Route::get('/search', [SearchController::class, 'index'])->middleware('throttle:60,1')->name('search');
 
         Route::prefix('tracking')->middleware('throttle:30,1')->name('tracking.')->group(function () {
             Route::get('/summary', [DashboardController::class, 'summary'])->name('summary');

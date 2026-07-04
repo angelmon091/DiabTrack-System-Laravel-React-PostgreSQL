@@ -36,8 +36,10 @@
                     </a>
                     
                     @if(auth()->user()->isPatient())
-                    <div class="nav-search d-none d-lg-block">
-                        <input type="text" class="form-control" placeholder="Buscar...">
+                    <div class="nav-search d-none d-lg-block position-relative">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" id="globalSearch" class="form-control" placeholder="Buscar secciones o registros..." autocomplete="off">
+                        <div id="searchResults" class="search-results shadow"></div>
                     </div>
                     @endif
 
@@ -77,10 +79,17 @@
                             <div class="dropdown-menu dropdown-menu-end shadow border-0 p-0" id="notif-dropdown-menu" style="width:340px;max-width:95vw;border-radius:16px;overflow:hidden;">
                                 <div class="d-flex justify-content-between align-items-center px-4 py-3 border-bottom">
                                     <span class="fw-bold" style="font-size:0.95rem;">Notificaciones</span>
-                                    @if($notifUnread > 0)
-                                    <button class="btn btn-link btn-sm p-0 text-muted text-decoration-none" style="font-size:0.75rem;" onclick="markAllRead()">
-                                        Marcar todas como leídas
-                                    </button>
+                                    @if($notifs->isNotEmpty())
+                                    <div class="d-flex align-items-center gap-3">
+                                        @if($notifUnread > 0)
+                                        <button class="notif-action btn p-0 border-0 bg-transparent text-muted" title="Marcar todas como leídas" onclick="markAllRead()">
+                                            <i class="fa-solid fa-check-double"></i>
+                                        </button>
+                                        @endif
+                                        <button class="notif-action notif-action-danger btn p-0 border-0 bg-transparent text-muted" title="Borrar todas" onclick="deleteAllNotifs()">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </button>
+                                    </div>
                                     @endif
                                 </div>
                                 <div style="max-height:360px;overflow-y:auto;">
@@ -105,6 +114,9 @@
                                             <p class="mb-1 text-muted" style="font-size:0.78rem;line-height:1.4;">{{ $notif->body }}</p>
                                             <span class="text-muted" style="font-size:0.7rem;">{{ $notif->created_at->diffForHumans() }}</span>
                                         </div>
+                                        <button type="button" class="notif-delete btn p-0 border-0 bg-transparent text-muted flex-shrink-0 align-self-start" title="Eliminar" onclick="deleteNotif({{ $notif->id }}, event)">
+                                            <i class="fa-solid fa-xmark" style="font-size:0.8rem;"></i>
+                                        </button>
                                     </div>
                                     @empty
                                     <div class="text-center py-5 text-muted">
@@ -403,6 +415,121 @@
             document.querySelector('[onclick="markAllRead()"]')?.remove();
         });
     }
+    function decrementNotifBadge() {
+        const badge = document.querySelector('#notifDropdown .badge');
+        if (!badge) return;
+        const n = parseInt(badge.textContent) - 1;
+        n <= 0 ? badge.remove() : badge.textContent = n;
+    }
+    function renderEmptyNotifsIfNeeded() {
+        const list = document.querySelector('#notif-dropdown-menu > div[style*="overflow-y"]');
+        if (list && !list.querySelector('.notif-item')) {
+            list.innerHTML = '<div class="text-center py-5 text-muted">' +
+                '<i class="fa-solid fa-bell-slash mb-2" style="font-size:1.5rem;opacity:0.3;"></i>' +
+                '<p class="small mb-0">Sin notificaciones</p></div>';
+        }
+    }
+    function deleteNotif(id, event) {
+        event.stopPropagation();
+        const el = document.getElementById('notif-' + id);
+        const wasUnread = el?.classList.contains('notif-unread');
+        fetch('/notifications/' + id, {
+            method: 'DELETE',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+        }).then(() => {
+            el?.remove();
+            if (wasUnread) decrementNotifBadge();
+            renderEmptyNotifsIfNeeded();
+        });
+    }
+    function deleteAllNotifs() {
+        fetch('/notifications/all', {
+            method: 'DELETE',
+            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'Accept': 'application/json' }
+        }).then(() => {
+            document.querySelectorAll('.notif-item').forEach(el => el.remove());
+            document.querySelector('#notifDropdown .badge')?.remove();
+            document.querySelector('[onclick="markAllRead()"]')?.remove();
+            document.querySelector('[onclick="deleteAllNotifs()"]')?.remove();
+            renderEmptyNotifsIfNeeded();
+        });
+    }
+    </script>
+    <script>
+    (function () {
+        const input   = document.getElementById('globalSearch');
+        const panel   = document.getElementById('searchResults');
+        if (!input || !panel) return;
+
+        let timer = null;
+        let items = [];      // enlaces navegables actuales
+        let active = -1;
+
+        const esc = (s) => (s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+        function close() { panel.classList.remove('show'); panel.innerHTML = ''; active = -1; items = []; }
+
+        function renderItem(it) {
+            return '<a class="search-item" href="' + esc(it.url) + '">' +
+                '<span class="search-item-icon"><i class="' + esc(it.icon) + '"></i></span>' +
+                '<span style="min-width:0;">' +
+                    '<span class="search-item-title d-block">' + esc(it.title || it.label) + '</span>' +
+                    (it.subtitle ? '<span class="search-item-sub d-block">' + esc(it.subtitle) + '</span>' : '') +
+                '</span></a>';
+        }
+
+        function render(data) {
+            let html = '';
+            if (data.sections.length) {
+                html += '<div class="search-group-title">Secciones</div>';
+                data.sections.forEach(s => html += renderItem(s));
+            }
+            if (data.records.length) {
+                html += '<div class="search-group-title">Mis registros</div>';
+                data.records.forEach(r => html += renderItem(r));
+            }
+            if (!html) html = '<div class="search-empty">Sin resultados para tu búsqueda</div>';
+            panel.innerHTML = html;
+            panel.classList.add('show');
+            items = Array.from(panel.querySelectorAll('.search-item'));
+            active = -1;
+        }
+
+        function run(q) {
+            fetch('/search?q=' + encodeURIComponent(q), {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.ok ? r.json() : { sections: [], records: [] })
+            .then(render)
+            .catch(() => close());
+        }
+
+        input.addEventListener('input', function () {
+            const q = this.value.trim();
+            clearTimeout(timer);
+            if (q.length < 2) { close(); return; }
+            timer = setTimeout(() => run(q), 250);
+        });
+
+        input.addEventListener('keydown', function (e) {
+            if (!panel.classList.contains('show') || !items.length) return;
+            if (e.key === 'ArrowDown') { e.preventDefault(); active = (active + 1) % items.length; }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); active = (active - 1 + items.length) % items.length; }
+            else if (e.key === 'Enter') { if (active >= 0) { e.preventDefault(); items[active].click(); } return; }
+            else if (e.key === 'Escape') { close(); return; }
+            else return;
+            items.forEach((el, i) => el.classList.toggle('active', i === active));
+            items[active]?.scrollIntoView({ block: 'nearest' });
+        });
+
+        input.addEventListener('focus', function () {
+            if (this.value.trim().length >= 2 && panel.innerHTML) panel.classList.add('show');
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!e.target.closest('.nav-search')) close();
+        });
+    })();
     </script>
     <style>
     .notif-item { cursor: pointer; transition: background 0.15s; }
@@ -410,6 +537,24 @@
     .notif-unread { background: rgba(0,180,216,0.04); }
     .notif-unread:hover { background: rgba(0,180,216,0.08); }
     .text-indigo { color: #6366f1; }
+    .notif-delete { opacity: 0; transition: opacity 0.15s, color 0.15s; }
+    .notif-item:hover .notif-delete { opacity: 0.6; }
+    .notif-delete:hover { opacity: 1 !important; color: var(--diab-danger) !important; }
+    @media (hover: none) { .notif-delete { opacity: 0.6; } }
+    .notif-action { font-size: 0.95rem; transition: color 0.15s; }
+    .notif-action:hover { color: var(--diab-primary) !important; }
+    .notif-action-danger:hover { color: var(--diab-danger) !important; }
+    .nav-search input { padding-left: 42px; }
+    .nav-search .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--diab-text-secondary); font-size: 0.85rem; pointer-events: none; z-index: 2; }
+    .search-results { display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0; background: #fff; border-radius: 14px; overflow: hidden; z-index: 1050; max-height: 380px; overflow-y: auto; border: 1px solid rgba(0,0,0,0.05); }
+    .search-results.show { display: block; }
+    .search-group-title { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--diab-text-secondary); padding: 10px 16px 4px; }
+    .search-item { display: flex; align-items: center; gap: 12px; padding: 9px 16px; text-decoration: none; color: inherit; transition: background 0.12s; cursor: pointer; }
+    .search-item:hover, .search-item.active { background: rgba(0,180,216,0.08); }
+    .search-item .search-item-icon { width: 30px; height: 30px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; border-radius: 8px; background: var(--diab-bg); color: var(--diab-primary); font-size: 0.8rem; }
+    .search-item-title { font-size: 0.82rem; font-weight: 600; line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .search-item-sub { font-size: 0.72rem; color: var(--diab-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .search-empty { padding: 22px 16px; text-align: center; color: var(--diab-text-secondary); font-size: 0.8rem; }
     </style>
 </body>
 </html>

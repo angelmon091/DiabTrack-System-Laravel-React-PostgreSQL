@@ -52,9 +52,7 @@
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h6 class="fw-bold mb-0 text-diab-text-secondary text-uppercase letter-spacing-1 small">Tip del Día</h6>
                         @if($tipEsIA ?? false)
-                            <span class="badge d-flex align-items-center gap-1" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; font-size: 0.75rem; font-weight: 600; padding: 0.3rem 0.6rem; border-radius: 20px; letter-spacing: 0.3px;">
-                                Generado con IA
-                            </span>
+                            <span class="badge rounded-pill" style="font-size:0.7rem;padding:3px 8px;background:rgba(0,180,216,0.15);color:var(--diab-primary);border:1px solid rgba(0,180,216,0.25);">✦ IA</span>
                         @endif
                     </div>
                     <div class="d-flex align-items-start">
@@ -419,11 +417,12 @@
                         <div class="col-12 col-md-4">
                             <div class="p-3 rounded-4 bg-white shadow-sm border border-light h-100">
                                 <span class="extra-small text-muted d-block mb-1">Rango Glucosa <span class="text-diab-primary">(en ayunas)</span></span>
-                                <strong class="text-dark">{{ $user->patientProfile?->target_glucose_min ?? 70 }} - {{ $user->patientProfile?->target_glucose_max ?? 180 }}</strong>
+                                <strong class="text-dark">{{ $user->patientProfile?->target_glucose_min ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MIN }} - {{ $user->patientProfile?->target_glucose_max ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MAX }}</strong>
                                 <span class="extra-small text-muted ms-1">mg/dL</span>
                                 <div class="progress mt-2" style="height: 4px;">
-                                    <div class="progress-bar bg-success" style="width: 100%"></div>
+                                    <div class="progress-bar {{ $tiempoEnRango >= 70 ? 'bg-success' : ($tiempoEnRango > 0 ? 'bg-warning' : 'bg-secondary') }}" style="width: {{ $tiempoEnRango }}%"></div>
                                 </div>
+                                <span class="extra-small text-muted d-block mt-1">{{ $tiempoEnRango }}% en rango (7 días)</span>
                             </div>
                         </div>
                         <div class="col-12 col-md-4">
@@ -432,8 +431,9 @@
                                 <strong class="text-dark">{{ number_format($metaCalorias) }}</strong>
                                 <span class="extra-small text-muted ms-1">kcal/día</span>
                                 <div class="progress mt-2" style="height: 4px;">
-                                    <div class="progress-bar bg-danger" style="width: 100%"></div>
+                                    <div class="progress-bar bg-danger" style="width: {{ $porcentajeCalorias }}%"></div>
                                 </div>
+                                <span class="extra-small text-muted d-block mt-1">{{ number_format($caloriasHoy) }} kcal hoy ({{ $porcentajeCalorias }}%)</span>
                             </div>
                         </div>
                         <div class="col-12 col-md-4">
@@ -442,14 +442,20 @@
                                 <strong class="text-dark">{{ $metaActividad }}</strong>
                                 <span class="extra-small text-muted ms-1">min/día</span>
                                 <div class="progress mt-2" style="height: 4px;">
-                                    <div class="progress-bar bg-warning" style="width: 100%"></div>
+                                    <div class="progress-bar bg-warning" style="width: {{ $porcentajeActividad }}%"></div>
                                 </div>
+                                <span class="extra-small text-muted d-block mt-1">{{ $actividadMinutos }} min hoy ({{ $porcentajeActividad }}%)</span>
                             </div>
                         </div>
                     </div>
-                    
+
                     <p class="mt-4 mb-0 extra-small text-muted italic">
-                        <i class="fa-solid fa-circle-info me-1 opacity-50"></i> Estos objetivos son personalizados según tu perfil. Puedes ajustarlos en la configuración de salud.
+                        <i class="fa-solid fa-circle-info me-1 opacity-50"></i>
+                        @if($metaCaloriasPersonalizada)
+                            Tu meta calórica se calcula automáticamente según tu perfil (peso, altura y edad). El rango de glucosa lo define tu médico.
+                        @else
+                            Completa tu perfil (peso, altura y fecha de nacimiento) para personalizar tu meta calórica. El rango de glucosa lo define tu médico.
+                        @endif
                     </p>
                 </div>
             </section>

@@ -66,7 +66,7 @@ class VitalSign extends Model
      * rango, por lo que se ignora y se usan los umbrales clínicos por momento.
      */
     public const GLUCOSE_DEFAULT_MIN = 70;
-    public const GLUCOSE_DEFAULT_MAX = 180;
+    public const GLUCOSE_DEFAULT_MAX = 130;
 
     /**
      * Clasifica una lectura de glucosa según el MOMENTO de medición, usando los

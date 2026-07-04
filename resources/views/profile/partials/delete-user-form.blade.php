@@ -1,7 +1,7 @@
 <section>
     <header class="mb-4">
         <h3 class="fw-bold text-dark fs-5">
-            <i class="fa-solid fa-user-slash me-2 text-diab-danger"></i> {{ __('Eliminar Cuenta') }}
+            {{ __('Eliminar Cuenta') }}
         </h3>
 
         <p class="mt-1 small text-muted">

@@ -64,7 +64,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label extra-small fw-bold">Máximo en ayunas (mg/dL)</label>
-                        <input type="number" name="target_glucose_max" class="form-control diab-input" value="{{ $patient->patientProfile?->target_glucose_max ?? 180 }}" required>
+                        <input type="number" name="target_glucose_max" class="form-control diab-input" value="{{ $patient->patientProfile?->target_glucose_max ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MAX }}" required>
                     </div>
                     <button type="submit" class="btn-diab-primary w-100 extra-small">Actualizar Metas</button>
                 </form>
@@ -154,8 +154,8 @@
                                     <td class="small">{{ $log->systolic ?? '--' }}/{{ $log->diastolic ?? '--' }} <small>mmHg</small></td>
                                     <td class="small">{{ $log->heart_rate ?? '--' }} <small>bpm</small></td>
                                     <td>
-                                        <span class="badge {{ $log->glucose_level > ($patient->patientProfile?->target_glucose_max ?? 140) ? 'bg-danger' : 'bg-success' }} bg-opacity-10 {{ $log->glucose_level > ($patient->patientProfile?->target_glucose_max ?? 140) ? 'text-danger' : 'text-success' }} extra-small">
-                                            {{ $log->glucose_level > ($patient->patientProfile?->target_glucose_max ?? 140) ? 'Fuera de Rango' : 'En Rango' }}
+                                        <span class="badge {{ $log->glucose_level > ($patient->patientProfile?->target_glucose_max ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MAX) ? 'bg-danger' : 'bg-success' }} bg-opacity-10 {{ $log->glucose_level > ($patient->patientProfile?->target_glucose_max ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MAX) ? 'text-danger' : 'text-success' }} extra-small">
+                                            {{ $log->glucose_level > ($patient->patientProfile?->target_glucose_max ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MAX) ? 'Fuera de Rango' : 'En Rango' }}
                                         </span>
                                     </td>
                                     <td class="small">

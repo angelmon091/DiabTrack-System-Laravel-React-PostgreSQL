@@ -1,7 +1,7 @@
 <section>
     <header class="mb-4">
         <h3 class="fw-bold text-dark fs-5">
-            <i class="fa-solid fa-lock me-2 text-diab-warning"></i> {{ __('Actualizar Contraseña') }}
+            {{ __('Actualizar Contraseña') }}
         </h3>
 
         <p class="mt-1 small text-muted">

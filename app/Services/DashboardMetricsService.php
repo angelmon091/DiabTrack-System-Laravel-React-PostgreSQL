@@ -163,13 +163,27 @@ class DashboardMetricsService
         $carbsHoy = NutritionLog::where('user_id', $userId)->whereDate('created_at', $today)->sum('carbs_grams');
         $caloriasHoy = $carbsHoy * 4;
 
-        $metaCalorias = 2000;
+        // Meta calórica personalizada (Mifflin-St Jeor × factor de actividad ligera).
+        // Es orientativa (asistente de bienestar), no una prescripción médica.
+        $edadPerfil   = $profile?->birth_date ? Carbon::parse($profile->birth_date)->age : null;
+        $pesoPerfil   = $profile?->weight;
+        $alturaPerfil = $profile?->height;
+        $generoPerfil = strtolower($profile?->gender ?? '');
+
+        $metaCaloriasPersonalizada = (bool) ($pesoPerfil && $alturaPerfil && $edadPerfil);
+        if ($metaCaloriasPersonalizada) {
+            $bmr = (10 * $pesoPerfil) + (6.25 * $alturaPerfil) - (5 * $edadPerfil)
+                 + ($generoPerfil === 'masculino' ? 5 : -161);
+            $metaCalorias = (int) max(1200, round(($bmr * 1.375) / 50) * 50);
+        } else {
+            $metaCalorias = 2000; // Perfil incompleto: valor genérico de referencia.
+        }
         $metaCarbs = 200;
         $porcentajeCalorias = $metaCalorias > 0 ? min(round(($caloriasHoy / $metaCalorias) * 100), 100) : 0;
 
         // 3. Actividad
         $actividadMinutos = ActivityLog::where('user_id', $userId)->whereDate('created_at', $today)->sum('duration_minutes');
-        $metaActividad = 60;
+        $metaActividad = 30; // Guía OMS/ADA: 150 min/semana ≈ 30 min/día de actividad moderada.
         $porcentajeActividad = $metaActividad > 0 ? min(round(($actividadMinutos / $metaActividad) * 100), 100) : 0;
 
         $pasosEstimados = ActivityLog::where('user_id', $userId)
@@ -193,8 +207,8 @@ class DashboardMetricsService
             ->get();
 
         $medicionesRecientes = $medicionesGlucosaSemana->count();
-        $minRango = $profile?->target_glucose_min ?? 70;
-        $maxRango = $profile?->target_glucose_max ?? 140;
+        $minRango = $profile?->target_glucose_min ?? VitalSign::GLUCOSE_DEFAULT_MIN;
+        $maxRango = $profile?->target_glucose_max ?? VitalSign::GLUCOSE_DEFAULT_MAX;
 
         $medicionesEnRango = $medicionesGlucosaSemana->filter(function ($item) use ($minRango, $maxRango) {
             return $item->glucose_level >= $minRango && $item->glucose_level <= $maxRango;
@@ -252,6 +266,7 @@ class DashboardMetricsService
             'carbsHoy',
             'caloriasHoy',
             'metaCalorias',
+            'metaCaloriasPersonalizada',
             'metaCarbs',
             'actividadMinutos',
             'metaActividad',

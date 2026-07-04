@@ -164,6 +164,27 @@
         font-size: 0.75rem;
         font-weight: 700;
     }
+    .pager-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(0, 180, 216, 0.35);
+        background: transparent;
+        color: var(--diab-primary);
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    .pager-btn:hover:not(:disabled) {
+        background: var(--diab-primary-light, #e0f7fc);
+        border-color: var(--diab-primary);
+    }
+    .pager-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
     </style>
 @endsection
 
@@ -196,16 +217,16 @@
                 <div class="stat-card p-4 h-100 shadow-sm border-start border-4 border-primary">
                     <div class="extra-small fw-bold text-muted text-uppercase mb-2 letter-spacing-1 d-flex align-items-center justify-content-between">
                         <span>Glucosa Promedio</span>
-                        <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="El promedio de tus niveles de azúcar en la sangre en los últimos días."></i>
+                        <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="El promedio de tus niveles de azúcar en la sangre en tus últimos 30 registros."></i>
                     </div>
                     <div class="d-flex align-items-baseline gap-1">
                         <h2 class="fw-extrabold text-dark mb-0">{{ $avgGlucose ?: '--' }}</h2>
                         <span class="text-muted extra-small">mg/DL</span>
                     </div>
-                    <div class="mt-3 extra-small {{ $avgGlucose > 140 ? 'text-danger' : 'text-success' }}">
-                        <i class="fa-solid {{ $avgGlucose > 140 ? 'fa-arrow-trend-up' : 'fa-check' }} me-1"></i>
-                        <span class="d-none d-lg-inline">{{ $avgGlucose > 140 ? 'Sobre el rango' : 'En rango meta' }}</span>
-                        <span class="d-inline d-lg-none">{{ $avgGlucose > 140 ? 'Alto' : 'Normal' }}</span>
+                    <div class="mt-3 extra-small {{ $glucoseStatus['color'] }}">
+                        @if($glucoseStatus['icon'])<i class="fa-solid {{ $glucoseStatus['icon'] }} me-1"></i>@endif
+                        <span class="d-none d-lg-inline">{{ $glucoseStatus['label'] }}</span>
+                        <span class="d-inline d-lg-none">{{ $glucoseStatus['short'] }}</span>
                     </div>
                 </div>
             </div>
@@ -220,7 +241,7 @@
                         <span class="text-muted extra-small">Meta: 70% o más</span>
                     </div>
                     <div class="progress mt-3" style="height: 6px; border-radius: 10px;">
-                        <div class="progress-bar bg-success" style="width: {{ $tiempoEnRango }}%"></div>
+                        <div class="progress-bar {{ $tiempoEnRango >= 70 ? 'bg-success' : ($tiempoEnRango > 0 ? 'bg-warning' : 'bg-secondary') }}" style="width: {{ $tiempoEnRango }}%"></div>
                     </div>
                 </div>
             </div>
@@ -260,28 +281,36 @@
                 <div class="stat-card p-4 h-100 shadow-sm border-start border-4 border-info">
                     <div class="extra-small fw-bold text-muted text-uppercase mb-2 letter-spacing-1 d-flex align-items-center justify-content-between">
                         <span>Presión Media</span>
-                        <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="El promedio de tu presión arterial (presión de la sangre)."></i>
+                        <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="El promedio de tu presión arterial en tus últimos 30 registros."></i>
                     </div>
                     <div class="d-flex align-items-baseline gap-1">
                         <h2 class="fw-extrabold text-dark mb-0">{{ $avgSystolic }}/{{ $avgDiastolic }}</h2>
                         <span class="text-muted extra-small">mmHg</span>
                     </div>
-                    <p class="text-muted extra-small mt-3 mb-0">Estado: <span class="text-info fw-bold">Estable</span></p>
+                    @if($bpStatus['label'] === 'Sin datos')
+                        <div class="mt-3 extra-small text-muted">Sin datos</div>
+                    @else
+                        <p class="text-muted extra-small mt-3 mb-0">Estado: <span class="{{ $bpStatus['color'] }} fw-bold">{{ $bpStatus['label'] }}</span></p>
+                    @endif
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-card p-4 h-100 shadow-sm border-start border-4 border-info">
                     <div class="extra-small fw-bold text-muted text-uppercase mb-2 letter-spacing-1 d-flex align-items-center justify-content-between">
                         <span>Frecuencia Cardiaca</span>
-                        <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="El promedio de los latidos de tu corazón por minuto."></i>
+                        <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="El promedio de los latidos de tu corazón por minuto en tus últimos 30 registros."></i>
                     </div>
                     <div class="d-flex align-items-baseline gap-1">
                         <h2 class="fw-extrabold text-dark mb-0">{{ $avgHeartRate }}</h2>
                         <span class="text-muted extra-small">bpm (Prom)</span>
                     </div>
-                    <div class="mt-3 extra-small text-muted">
-                        <i class="fa-solid fa-heart-pulse text-danger me-1"></i> Ritmo regular
-                    </div>
+                    @if($hrStatus['label'] === 'Sin datos')
+                        <div class="mt-3 extra-small text-muted">Sin datos</div>
+                    @else
+                        <div class="mt-3 extra-small text-muted">
+                            <i class="fa-solid fa-heart-pulse {{ $hrStatus['color'] }} me-1"></i> <span class="{{ $hrStatus['color'] }} fw-bold">{{ $hrStatus['label'] }}</span>
+                        </div>
+                    @endif
                 </div>
             </div>
             <div class="col-6 col-md-3">
@@ -317,10 +346,10 @@
             <div class="col-12 col-lg-8">
                 <div class="diab-card p-4 p-md-5 h-100">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="fw-bold mb-0">Dinámica de Glucosa (30 días)</h5>
+                        <h5 class="fw-bold mb-0">Dinámica de Glucosa (7 días)</h5>
                         <div class="d-flex align-items-center gap-3">
                             <div class="badge bg-diab-primary-light text-diab-primary rounded-pill px-3 py-2">Tendencia Temporal</div>
-                            <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="Este gráfico te muestra de forma fácil si tu azúcar ha subido o bajado en el último mes."></i>
+                            <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="Este gráfico te muestra de forma fácil si tu azúcar ha subido o bajado en los últimos 7 días."></i>
                         </div>
                     </div>
                     <div style="height: 320px;">
@@ -334,9 +363,16 @@
                         <h5 class="fw-bold mb-0">Composición de Dieta</h5>
                         <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="Te muestra visualmente qué tipo de comida estás comiendo más (ej. si comes más proteínas o más carbohidratos)."></i>
                     </div>
+                    @if(!empty($foodCategoryData))
                     <div class="chart-container-sm flex-grow-1 d-flex align-items-center justify-content-center">
                         <canvas id="dietCompositionChart"></canvas>
                     </div>
+                    @else
+                    <div class="chart-container-sm flex-grow-1 d-flex flex-column align-items-center justify-content-center text-center text-muted">
+                        <i class="fa-solid fa-utensils mb-2" style="font-size:1.6rem;opacity:0.3;"></i>
+                        <p class="small mb-0">Aún no hay datos de alimentación. Registra tus comidas para ver la composición de tu dieta.</p>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -357,11 +393,11 @@
             <div class="col-12 col-md-6">
                 <div class="diab-card p-4 p-md-5">
                     <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h5 class="fw-bold mb-0">Balance de Energía y Sueño</h5>
-                        <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="Te ayuda a ver cómo se relaciona lo que duermes y te mueves con tu nivel de energía en el día."></i>
+                        <h5 class="fw-bold mb-0">Glucosa por Momento del Día</h5>
+                        <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="Tu glucosa promedio según el momento en que la mides (en ayunas, antes/después de comer, al dormir). Te ayuda a ver a qué hora se te sube o baja el azúcar."></i>
                     </div>
                     <div class="chart-container-sm">
-                        <canvas id="energySleepChart"></canvas>
+                        <canvas id="glucoseMomentChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -408,6 +444,7 @@
                                     <tr>
                                         <th>Fecha</th>
                                         <th>Glucosa</th>
+                                        <th class="d-none d-md-table-cell">Momento</th>
                                         <th>Presión</th>
                                         <th class="d-none d-md-table-cell">FC</th>
                                         <th>Peso</th>
@@ -424,6 +461,13 @@
                                             <span class="badge-glucose {{ $vital->glucose_level > 140 ? 'bg-danger-light text-danger' : ($vital->glucose_level < 70 ? 'bg-warning-light text-warning' : 'bg-success-light text-success') }}">
                                                 {{ $vital->glucose_level ?? '--' }}
                                             </span>
+                                        </td>
+                                        <td class="d-none d-md-table-cell">
+                                            @if($vital->measurement_moment)
+                                                <span class="badge bg-light text-dark border extra-small">{{ $vital->measurement_moment }}</span>
+                                            @else
+                                                <span class="text-muted">--</span>
+                                            @endif
                                         </td>
                                         <td>{{ $vital->systolic && $vital->diastolic ? $vital->systolic . '/' . $vital->diastolic : '--' }}</td>
                                         <td class="d-none d-md-table-cell">{{ $vital->heart_rate ? $vital->heart_rate . ' bpm' : '--' }}</td>
@@ -460,16 +504,15 @@
                                         </td>
                                     </tr>
                                     @empty
-                                    <tr><td colspan="8" class="text-center text-muted py-4 small">Sin registros aún.</td></tr>
+                                    <tr><td colspan="9" class="text-center text-muted py-4 small">Sin registros aún.</td></tr>
                                     @endforelse
                                 </tbody>
                             </table>
                         </div>
-                        <div class="text-center pt-2 pb-1" id="vitals-more-wrap">
-                            <button class="btn-show-more" id="vitals-more-btn" onclick="showMore('vitals-table','vitals-more-btn','vitals-counter')">
-                                <i class="fa-solid fa-chevron-down me-2"></i>Ver más
-                                <span class="show-more-counter" id="vitals-counter"></span>
-                            </button>
+                        <div class="d-flex justify-content-center align-items-center gap-3 pt-3" id="vitals-pager" style="display:none;">
+                            <button class="pager-btn" id="vitals-prev" onclick="pageTable('vitals-table', -1)" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span class="extra-small text-muted" id="vitals-pageinfo">Página 1 de 1</span>
+                            <button class="pager-btn" id="vitals-next" onclick="pageTable('vitals-table', 1)" aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
                     </div>
 
@@ -515,11 +558,10 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="text-center pt-2 pb-1">
-                            <button class="btn-show-more" id="nutrition-more-btn" onclick="showMore('nutrition-table','nutrition-more-btn','nutrition-counter')">
-                                <i class="fa-solid fa-chevron-down me-2"></i>Ver más
-                                <span class="show-more-counter" id="nutrition-counter"></span>
-                            </button>
+                        <div class="d-flex justify-content-center align-items-center gap-3 pt-3" id="nutrition-pager" style="display:none;">
+                            <button class="pager-btn" id="nutrition-prev" onclick="pageTable('nutrition-table', -1)" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span class="extra-small text-muted" id="nutrition-pageinfo">Página 1 de 1</span>
+                            <button class="pager-btn" id="nutrition-next" onclick="pageTable('nutrition-table', 1)" aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
                     </div>
 
@@ -562,11 +604,10 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="text-center pt-2 pb-1">
-                            <button class="btn-show-more" id="activity-more-btn" onclick="showMore('activity-table','activity-more-btn','activity-counter')">
-                                <i class="fa-solid fa-chevron-down me-2"></i>Ver más
-                                <span class="show-more-counter" id="activity-counter"></span>
-                            </button>
+                        <div class="d-flex justify-content-center align-items-center gap-3 pt-3" id="activity-pager" style="display:none;">
+                            <button class="pager-btn" id="activity-prev" onclick="pageTable('activity-table', -1)" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span class="extra-small text-muted" id="activity-pageinfo">Página 1 de 1</span>
+                            <button class="pager-btn" id="activity-next" onclick="pageTable('activity-table', 1)" aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
                     </div>
 
@@ -596,11 +637,10 @@
                                 </tbody>
                             </table>
                         </div>
-                        <div class="text-center pt-2 pb-1">
-                            <button class="btn-show-more" id="symptoms-more-btn" onclick="showMore('symptoms-table','symptoms-more-btn','symptoms-counter')">
-                                <i class="fa-solid fa-chevron-down me-2"></i>Ver más
-                                <span class="show-more-counter" id="symptoms-counter"></span>
-                            </button>
+                        <div class="d-flex justify-content-center align-items-center gap-3 pt-3" id="symptoms-pager" style="display:none;">
+                            <button class="pager-btn" id="symptoms-prev" onclick="pageTable('symptoms-table', -1)" aria-label="Anterior"><i class="fa-solid fa-chevron-left"></i></button>
+                            <span class="extra-small text-muted" id="symptoms-pageinfo">Página 1 de 1</span>
+                            <button class="pager-btn" id="symptoms-next" onclick="pageTable('symptoms-table', 1)" aria-label="Siguiente"><i class="fa-solid fa-chevron-right"></i></button>
                         </div>
                     </div>
                 </div>
@@ -636,7 +676,8 @@
                         pointRadius: 4,
                         pointHoverRadius: 6,
                         tension: 0.4,
-                        fill: true
+                        fill: true,
+                        spanGaps: true
                     }]
                 },
                 options: {
@@ -716,28 +757,35 @@
             });
         }
 
-        // Energy and Sleep (Mocked from Activity Data Trend)
-        const energyCtx = document.getElementById('energySleepChart');
-        if (energyCtx) {
-            new Chart(energyCtx, {
-                type: 'radar',
+        // Glucosa promedio por momento del día (datos reales de measurement_moment)
+        const momentCtx = document.getElementById('glucoseMomentChart');
+        if (momentCtx) {
+            const gLabels = @json($glucoseByMomentLabels);
+            const gData   = @json($glucoseByMomentData);
+            const colors  = @json($glucoseByMomentColors);
+
+            new Chart(momentCtx, {
+                type: 'bar',
                 data: {
-                    labels: ['Energía Mañana', 'Energía Tarde', 'Energía Noche', 'Calidad Sueño', 'Fuerza'],
+                    labels: gLabels,
                     datasets: [{
-                        label: 'Nivel Actual',
-                        data: [8, 6, 7, 8, 7],
-                        backgroundColor: 'rgba(0, 207, 232, 0.2)',
-                        borderColor: infoColor,
-                        pointBackgroundColor: infoColor
+                        label: 'Glucosa promedio (mg/dL)',
+                        data: gData,
+                        backgroundColor: (colors && colors.length) ? colors : 'rgba(0,180,216,0.6)',
+                        borderRadius: 8
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        r: { beginAtZero: true, max: 10, ticks: { display: false } }
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (c) => c.parsed.y > 0 ? c.parsed.y + ' mg/dL (promedio)' : 'Sin registros' } }
                     },
-                    plugins: { legend: { display: false } }
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { font: { size: 10 } } },
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                    }
                 }
             });
         }
@@ -751,77 +799,67 @@
 
     // ── Filtro por período + paginación ──
     const PER_PAGE = 10;
-    const shownCount = {};
     let activePeriod = 'mes';
+    const currentPage = {};
 
-    const TABLES = [
-        { table: 'vitals-table',    btn: 'vitals-more-btn',    counter: 'vitals-counter' },
-        { table: 'nutrition-table', btn: 'nutrition-more-btn', counter: 'nutrition-counter' },
-        { table: 'activity-table',  btn: 'activity-more-btn',  counter: 'activity-counter' },
-        { table: 'symptoms-table',  btn: 'symptoms-more-btn',  counter: 'symptoms-counter' },
-    ];
+    const TABLES = ['vitals-table', 'nutrition-table', 'activity-table', 'symptoms-table'];
+
+    function periodCutoff() {
+        const today = new Date(); today.setHours(23, 59, 59, 999);
+        if (activePeriod === 'hoy')    { const c = new Date(); c.setHours(0, 0, 0, 0); return c; }
+        if (activePeriod === 'semana') { return new Date(today - 7  * 86400000); }
+        if (activePeriod === 'mes')    { return new Date(today - 30 * 86400000); }
+        return null;
+    }
+
+    function visibleRows(tableId) {
+        const cutoff = periodCutoff();
+        return [...document.querySelectorAll('#' + tableId + ' tbody tr.history-row')].filter(row => {
+            const d = new Date(row.dataset.date + 'T00:00:00');
+            const passes = !cutoff || d >= cutoff;
+            if (!passes) row.style.display = 'none';
+            return passes;
+        });
+    }
+
+    function renderPage(tableId) {
+        const prefix = tableId.replace('-table', '');
+        const rows = visibleRows(tableId);
+        const totalPages = Math.max(1, Math.ceil(rows.length / PER_PAGE));
+        let page = currentPage[tableId] || 1;
+        page = Math.min(Math.max(page, 1), totalPages);
+        currentPage[tableId] = page;
+
+        const start = (page - 1) * PER_PAGE;
+        const end = start + PER_PAGE;
+        rows.forEach((row, i) => { row.style.display = (i >= start && i < end) ? '' : 'none'; });
+
+        // Fila vacía si no hay resultados en el período
+        const emptyRow = document.querySelector('#' + tableId + ' tbody tr.empty-period');
+        if (emptyRow) emptyRow.style.display = rows.length === 0 ? '' : 'none';
+
+        // Controles del paginador (se ocultan si cabe todo en una página)
+        const pager = document.getElementById(prefix + '-pager');
+        if (pager) pager.style.display = rows.length > PER_PAGE ? 'flex' : 'none';
+        const info = document.getElementById(prefix + '-pageinfo');
+        if (info) info.textContent = 'Página ' + page + ' de ' + totalPages;
+        const prev = document.getElementById(prefix + '-prev');
+        const next = document.getElementById(prefix + '-next');
+        if (prev) prev.disabled = page <= 1;
+        if (next) next.disabled = page >= totalPages;
+    }
+
+    function pageTable(tableId, delta) {
+        currentPage[tableId] = (currentPage[tableId] || 1) + delta;
+        renderPage(tableId);
+    }
 
     function filterRows(period) {
         activePeriod = period;
         document.querySelectorAll('.period-btn').forEach(b =>
             b.classList.toggle('active', b.dataset.period === period)
         );
-        TABLES.forEach(t => applyFilterAndPage(t.table, t.btn, t.counter));
-    }
-
-    function applyFilterAndPage(tableId, btnId, counterId) {
-        const today = new Date(); today.setHours(23, 59, 59, 999);
-        let cutoff = null;
-        if (activePeriod === 'hoy')    { cutoff = new Date(); cutoff.setHours(0, 0, 0, 0); }
-        if (activePeriod === 'semana') { cutoff = new Date(today - 7  * 86400000); }
-        if (activePeriod === 'mes')    { cutoff = new Date(today - 30 * 86400000); }
-
-        const allRows = [...document.querySelectorAll('#' + tableId + ' tbody tr.history-row')];
-        const visible = allRows.filter(row => {
-            const d = new Date(row.dataset.date + 'T00:00:00');
-            const passes = !cutoff || d >= cutoff;
-            if (!passes) row.style.display = 'none';
-            return passes;
-        });
-
-        shownCount[tableId] = PER_PAGE;
-        visible.forEach((row, i) => { row.style.display = i < PER_PAGE ? '' : 'none'; });
-
-        const btn = document.getElementById(btnId);
-        if (!btn) return;
-        if (visible.length <= PER_PAGE) { btn.style.display = 'none'; }
-        else { btn.style.display = ''; updateCounter(counterId, visible.length, PER_PAGE); }
-
-        // Mostrar fila vacía si no hay resultados en este período
-        const emptyRow = document.querySelector('#' + tableId + ' tbody tr.empty-period');
-        if (emptyRow) emptyRow.style.display = visible.length === 0 ? '' : 'none';
-    }
-
-    function showMore(tableId, btnId, counterId) {
-        const visible = [...document.querySelectorAll('#' + tableId + ' tbody tr.history-row')]
-            .filter(row => {
-                const today = new Date(); today.setHours(23, 59, 59, 999);
-                let cutoff = null;
-                if (activePeriod === 'hoy')    { cutoff = new Date(); cutoff.setHours(0, 0, 0, 0); }
-                if (activePeriod === 'semana') { cutoff = new Date(today - 7  * 86400000); }
-                if (activePeriod === 'mes')    { cutoff = new Date(today - 30 * 86400000); }
-                return !cutoff || new Date(row.dataset.date + 'T00:00:00') >= cutoff;
-            });
-
-        const shown = shownCount[tableId] || PER_PAGE;
-        const next  = shown + PER_PAGE;
-        visible.forEach((row, i) => { if (i >= shown && i < next) row.style.display = ''; });
-        shownCount[tableId] = next;
-
-        const btn = document.getElementById(btnId);
-        if (!btn) return;
-        if (next >= visible.length) { btn.style.display = 'none'; }
-        else { updateCounter(counterId, visible.length, next); }
-    }
-
-    function updateCounter(counterId, total, shown) {
-        const el = document.getElementById(counterId);
-        if (el) el.textContent = '+' + Math.min(PER_PAGE, total - shown);
+        TABLES.forEach(t => { currentPage[t] = 1; renderPage(t); });
     }
 
     // Arrancar con período "Mes"

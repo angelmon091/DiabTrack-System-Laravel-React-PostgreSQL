@@ -47,12 +47,12 @@
                     <div class="rounded-3 p-2 d-flex align-items-center justify-content-center" style="background: var(--diab-info-light); width:40px; height:40px;">
                         <i class="fa-solid fa-comment-medical" style="color: var(--diab-info);"></i>
                     </div>
-                    <span class="text-muted small fw-medium">Tips Generados</span>
+                    <span class="text-muted small fw-medium">Llamadas IA</span>
                 </div>
                 <div class="fw-extrabold text-dark" style="font-size: 1.6rem; line-height:1;">
                     {{ number_format($summary['total_calls']) }}
                 </div>
-                <span class="extra-small text-muted">histórico total</span>
+                <span class="extra-small text-muted">tips + recordatorios · histórico</span>
             </div>
         </div>
 
@@ -62,7 +62,7 @@
                     <div class="rounded-3 p-2 d-flex align-items-center justify-content-center" style="background: var(--diab-warning-light); width:40px; height:40px;">
                         <i class="fa-solid fa-chart-pie" style="color: var(--diab-warning);"></i>
                     </div>
-                    <span class="text-muted small fw-medium">Costo Prom./Tip</span>
+                    <span class="text-muted small fw-medium">Costo Prom./Llamada</span>
                 </div>
                 <div class="fw-extrabold text-dark" style="font-size: 1.6rem; line-height:1;">
                     ${{ number_format($summary['avg_cost_per_tip'], 6) }}
@@ -147,7 +147,7 @@
             </div>
         </div>
 
-        <x-admin-table :headers="['Proveedor', 'Modelo', 'Tokens Entrada', 'Tokens Salida', 'Costo Est.', 'Paciente', 'Fecha']">
+        <x-admin-table :headers="['Proveedor', 'Modelo', 'Concepto', 'Tokens Entrada', 'Tokens Salida', 'Costo Est.', 'Paciente', 'Fecha']">
             @forelse ($recentLogs as $log)
                 <tr>
                     <td>
@@ -162,6 +162,17 @@
                         @endif
                     </td>
                     <td class="text-muted small font-monospace">{{ $log->model }}</td>
+                    <td>
+                        @if ($log->daily_tip_id)
+                            <span class="badge rounded-pill fw-semibold" style="background: var(--diab-info-light); color: var(--diab-info); font-size: 0.72rem;">
+                                <i class="fa-regular fa-lightbulb me-1"></i> Tip
+                            </span>
+                        @else
+                            <span class="badge rounded-pill fw-semibold" style="background: rgba(0,180,216,0.15); color: var(--diab-primary); font-size: 0.72rem;">
+                                <i class="fa-solid fa-bell me-1"></i> Recordatorio
+                            </span>
+                        @endif
+                    </td>
                     <td class="text-dark fw-medium">{{ number_format($log->input_tokens) }}</td>
                     <td class="text-dark fw-medium">{{ number_format($log->output_tokens) }}</td>
                     <td class="text-dark fw-medium">${{ number_format($log->estimated_cost_usd, 6) }}</td>
@@ -170,7 +181,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="text-center py-5">
+                    <td colspan="8" class="text-center py-5">
                         <div class="mb-3 text-muted opacity-25">
                             <i class="fa-solid fa-microchip display-1"></i>
                         </div>

@@ -84,6 +84,15 @@
                         @endforeach
                     </div>
                 </div>
+
+                {{-- CTA: vincular más pacientes --}}
+                <div class="diab-card p-4 text-center animate-fade-in" style="animation-delay:0.15s; border:2px dashed rgba(0,0,0,0.1); box-shadow:none;">
+                    <i class="fa-solid fa-user-plus text-diab-primary mb-2" style="font-size:1.4rem; opacity:0.75;"></i>
+                    <p class="small text-muted mb-3">¿Cuidas a alguien más? Vincula otro paciente para acompañar su salud desde aquí.</p>
+                    <a href="{{ route('caregiver.link') }}" class="btn-diab-primary d-inline-flex align-items-center gap-2" style="font-size:0.82rem;">
+                        <i class="fa-solid fa-link"></i> Vincular otro paciente
+                    </a>
+                </div>
             @endif
         </aside>
 

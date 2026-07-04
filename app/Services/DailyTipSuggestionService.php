@@ -11,12 +11,60 @@ class DailyTipSuggestionService
 
     public function generateAnthropic(array $context, ?string $apiKey = null, ?string $modelName = null): array
     {
+        return $this->callAnthropic(
+            $apiKey,
+            $modelName ?: config('services.anthropic.model', 'claude-haiku-4-5'),
+            $this->systemPrompt(),
+            $this->buildUserPrompt($context),
+            300
+        );
+    }
 
+    public function generateGemini(array $context, ?string $apiKey = null, ?string $modelName = null): array
+    {
+        return $this->callGemini(
+            $apiKey ?: config('services.gemini.key'),
+            $modelName ?: config('services.gemini.model', 'gemini-2.5-flash'),
+            $this->systemPrompt(),
+            $this->buildUserPrompt($context),
+            1000
+        );
+    }
+
+    /**
+     * Recordatorio breve (≤20 palabras) con contexto mínimo — llamada barata.
+     */
+    public function generateReminderGemini(array $context, ?string $apiKey = null, ?string $modelName = null): array
+    {
+        $result = $this->callGemini(
+            $apiKey ?: config('services.gemini.key'),
+            $modelName ?: config('services.gemini.model', 'gemini-2.5-flash'),
+            $this->reminderSystemPrompt(),
+            $this->buildReminderPrompt($context),
+            60
+        );
+        $result['tip'] = $this->truncateWords($result['tip'], 20);
+        return $result;
+    }
+
+    public function generateReminderAnthropic(array $context, ?string $apiKey = null, ?string $modelName = null): array
+    {
+        $result = $this->callAnthropic(
+            $apiKey,
+            $modelName ?: config('services.anthropic.model', 'claude-haiku-4-5'),
+            $this->reminderSystemPrompt(),
+            $this->buildReminderPrompt($context),
+            60
+        );
+        $result['tip'] = $this->truncateWords($result['tip'], 20);
+        return $result;
+    }
+
+    private function callAnthropic(?string $apiKey, string $model, string $system, string $userText, int $maxTokens): array
+    {
         if (empty($apiKey)) {
             throw new \RuntimeException('ANTHROPIC_API_KEY no configurada.');
         }
-
-        $model = $modelName ?: config('services.anthropic.model', 'claude-haiku-4-5');
 
         try {
             $response = Http::timeout(30)
@@ -27,17 +75,14 @@ class DailyTipSuggestionService
                 ])
                 ->post('https://api.anthropic.com/v1/messages', [
                     'model' => $model,
-                    'max_tokens' => 300,
+                    'max_tokens' => $maxTokens,
                     'temperature' => 0.65,
-                    'system' => $this->systemPrompt(),
+                    'system' => $system,
                     'messages' => [
                         [
                             'role' => 'user',
                             'content' => [
-                                [
-                                    'type' => 'text',
-                                    'text' => $this->buildUserPrompt($context),
-                                ],
+                                ['type' => 'text', 'text' => $userText],
                             ],
                         ],
                     ],
@@ -65,42 +110,28 @@ class DailyTipSuggestionService
 
         } catch (\Throwable $e) {
             Log::warning('GenerateDailyTips: error de Anthropic — ' . $e->getMessage());
-            throw new \RuntimeException('No se pudo generar el tip con Anthropic.', 0, $e);
+            throw new \RuntimeException('No se pudo generar el texto con Anthropic.', 0, $e);
         }
     }
 
-    public function generateGemini(array $context, ?string $apiKey = null, ?string $modelName = null): array
+    private function callGemini(?string $apiKey, string $model, string $system, string $userText, int $maxOutputTokens): array
     {
-
-        $key = $apiKey ?: config('services.gemini.key');
-        if (empty($key)) {
+        if (empty($apiKey)) {
             throw new \RuntimeException('GEMINI_API_KEY no configurada.');
         }
-
-        $model = $modelName ?: config('services.gemini.model', 'gemini-2.5-flash');
 
         try {
             $response = Http::timeout(30)
                 ->acceptJson()
-                ->post('https://generativelanguage.googleapis.com/v1beta/models/' . $model . ':generateContent?key=' . urlencode($key), [
+                ->post('https://generativelanguage.googleapis.com/v1beta/models/' . $model . ':generateContent?key=' . urlencode($apiKey), [
                     'contents' => [
-                        [
-                            'parts' => [
-                                [
-                                    'text' => $this->buildUserPrompt($context),
-                                ],
-                            ],
-                        ],
+                        ['parts' => [['text' => $userText]]],
                     ],
                     'systemInstruction' => [
-                        'parts' => [
-                            [
-                                'text' => $this->systemPrompt(),
-                            ],
-                        ],
+                        'parts' => [['text' => $system]],
                     ],
                     'generationConfig' => [
-                        'maxOutputTokens' => 1000,
+                        'maxOutputTokens' => $maxOutputTokens,
                         'temperature' => 0.65,
                     ],
                 ]);
@@ -125,8 +156,17 @@ class DailyTipSuggestionService
 
         } catch (\Throwable $e) {
             Log::warning('GenerateDailyTips: error de Gemini — ' . $e->getMessage());
-            throw new \RuntimeException('No se pudo generar el tip con Gemini.', 0, $e);
+            throw new \RuntimeException('No se pudo generar el texto con Gemini.', 0, $e);
         }
+    }
+
+    private function truncateWords(string $text, int $limit): string
+    {
+        $words = preg_split('/\s+/', trim($text), -1, PREG_SPLIT_NO_EMPTY);
+        if (count($words) <= $limit) {
+            return $text;
+        }
+        return rtrim(implode(' ', array_slice($words, 0, $limit)), " ,.;:") . '…';
     }
 
     private function systemPrompt(): string
@@ -361,6 +401,46 @@ PROMPT;
         $lines[] = '';
         $lines[] = 'Analiza el patrón más relevante clínicamente cruzando el perfil demográfico (edad, género, IMC, tipo de diabetes) con los datos del día (glucosa por momento, alimentación, actividad, estrés, síntomas).';
         $lines[] = 'Genera UN mensaje breve, cálido y accionable de máximo 220 caracteres. Recuerda: eres un asistente de bienestar. Si hay valores fuera de rango, menciona con calma que vale la pena comentárselo al médico en la próxima visita. Sin saludos, títulos ni diagnósticos.';
+
+        return implode("\n", $lines);
+    }
+
+    private function reminderSystemPrompt(): string
+    {
+        return <<<'PROMPT'
+Eres un asistente de bienestar en diabetes. El paciente YA tiene cuenta y está dentro de la app usándola. Genera UN recordatorio breve y cálido en español que lo motive a ANOTAR (registrar en su bitácora) el dato de salud que aún no ha capturado hoy.
+REGLAS:
+- MÁXIMO 20 palabras. Una sola frase.
+- Tono cercano y motivador, trátalo de "tú".
+- "Registrar" significa ANOTAR una medición/comida/actividad. Usa verbos como "anota", "apunta" o "registra TU glucosa/comida/actividad".
+- PROHIBIDO pedirle crear cuenta o iniciar sesión: NUNCA uses "regístrate", "regístrate en la app", "crea tu cuenta" ni "inicia sesión". Ya está registrado y conectado.
+- Termina con una acción concreta e inmediata (p. ej. "anota tu glucosa de hoy", "apunta lo que comiste").
+- La ausencia de un registro NO significa que no lo hizo: invita a ANOTARLO, nunca asumas que no comió o no se movió.
+- NUNCA menciones medicamentos, dosis ni diagnósticos. Sin alarmismo.
+- Responde SOLO el texto del recordatorio: sin saludos, comillas, títulos ni emojis.
+PROMPT;
+    }
+
+    private function buildReminderPrompt(array $c): string
+    {
+        $faltantes = [];
+        if ($c['falta_glucosa'] ?? false)   { $faltantes[] = 'su nivel de glucosa'; }
+        if ($c['falta_comidas'] ?? false)   { $faltantes[] = 'sus comidas'; }
+        if ($c['falta_actividad'] ?? false) { $faltantes[] = 'su actividad física'; }
+
+        $lines = [];
+        $lines[] = 'Paciente: ' . ($c['nombre'] ?? 'el paciente');
+        $lines[] = 'Datos de salud que aún no ha anotado hoy en su bitácora: ' . (count($faltantes) ? implode(', ', $faltantes) : 'nada relevante');
+
+        if (!empty($c['ultima_glucosa_clase'])) {
+            $lines[] = 'Su última lectura de glucosa fue: ' . $c['ultima_glucosa_clase'];
+        }
+        if (!empty($c['sintomas_recientes'])) {
+            $lines[] = 'Reportó síntomas recientes: ' . implode(', ', $c['sintomas_recientes']);
+        }
+
+        $lines[] = '';
+        $lines[] = 'Genera el recordatorio (máximo 20 palabras) enfocado en el dato faltante más importante.';
 
         return implode("\n", $lines);
     }

@@ -1,7 +1,7 @@
 <section>
     <header class="mb-4">
         <h3 class="fw-bold text-dark fs-5">
-            <i class="fa-solid fa-id-card me-2 text-diab-primary"></i> {{ __('Información del Perfil') }}
+            {{ __('Información del Perfil') }}
         </h3>
 
         <p class="mt-1 small text-muted">

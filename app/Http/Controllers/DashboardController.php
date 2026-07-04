@@ -158,6 +158,38 @@ class DashboardController extends Controller
             'totalActivityMinutes' => $activityHistory->sum('duration_minutes'),
         ];
 
+        // Estado clínico calculado (antes eran etiquetas fijas)
+        $targetMin = $user->patientProfile?->target_glucose_min ?? 70;
+        $extraMetrics['glucoseStatus'] = $this->classifyGlucoseAverage($extraMetrics['avgGlucose'], $targetMin);
+        $extraMetrics['bpStatus'] = $this->classifyBloodPressure($extraMetrics['avgSystolic'], $extraMetrics['avgDiastolic']);
+        $extraMetrics['hrStatus'] = $this->classifyHeartRate($extraMetrics['avgHeartRate']);
+
+        // Glucosa promedio por momento del día (dato ya recolectado que no se usaba en el resumen)
+        $momentos = ['Ayunas', 'Antes de Comer', 'Después de Comer', 'Al Dormir'];
+        $targetMax = $user->patientProfile?->target_glucose_max ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MAX;
+        $avgByMoment = \App\Models\VitalSign::where('user_id', $user->id)
+            ->whereNotNull('glucose_level')->where('glucose_level', '>', 0)
+            ->whereNotNull('measurement_moment')
+            ->where('created_at', '>=', now()->subDays(90))
+            ->selectRaw('measurement_moment, AVG(glucose_level) as avg_glucose')
+            ->groupBy('measurement_moment')
+            ->pluck('avg_glucose', 'measurement_moment');
+
+        // Colores por nivel clínico real de cada momento (misma fuente de verdad que el resto de la app)
+        $glucoseMomentColors = [
+            'baja'    => 'rgba(255,159,67,0.85)',
+            'normal'  => 'rgba(40,199,111,0.75)',
+            'elevada' => 'rgba(234,84,85,0.75)',
+            'sin'     => 'rgba(0,0,0,0.08)',
+        ];
+        $extraMetrics['glucoseByMomentLabels'] = $momentos;
+        $extraMetrics['glucoseByMomentData'] = array_map(fn ($m) => round((float) ($avgByMoment[$m] ?? 0)), $momentos);
+        $extraMetrics['glucoseByMomentColors'] = array_map(function ($m) use ($avgByMoment, $targetMin, $targetMax, $glucoseMomentColors) {
+            $avg = isset($avgByMoment[$m]) ? (int) round((float) $avgByMoment[$m]) : 0;
+            $estado = \App\Models\VitalSign::clasificarGlucosa($avg ?: null, $m, $targetMin, $targetMax);
+            return $glucoseMomentColors[$estado ?? 'sin'];
+        }, $momentos);
+
         // Preparar datos para gráfica de categorías de comida
         $foodCategoryCounts = [];
         foreach ($nutritionHistory as $log) {
@@ -173,6 +205,42 @@ class DashboardController extends Controller
         return view('tracking.summary', array_merge($metrics, $extraMetrics, compact(
             'vitalsHistory', 'nutritionHistory', 'activityHistory', 'symptomsHistory'
         )));
+    }
+
+    /**
+     * Clasifica el promedio de glucosa (sin datos / baja / en rango / sobre rango).
+     */
+    private function classifyGlucoseAverage(int $avg, int $targetMin = 70): array
+    {
+        if ($avg <= 0)         return ['label' => 'Sin datos',    'short' => 'Sin datos', 'color' => 'text-muted',   'icon' => ''];
+        if ($avg < $targetMin) return ['label' => 'Bajo el rango','short' => 'Bajo',      'color' => 'text-warning', 'icon' => 'fa-arrow-trend-down'];
+        if ($avg > 140)        return ['label' => 'Sobre el rango','short' => 'Alto',     'color' => 'text-danger',  'icon' => 'fa-arrow-trend-up'];
+        return ['label' => 'En rango meta', 'short' => 'Normal', 'color' => 'text-success', 'icon' => 'fa-check'];
+    }
+
+    /**
+     * Clasifica la presión arterial media según criterios ACC/AHA (+ hipotensión).
+     */
+    private function classifyBloodPressure(int $sys, int $dia): array
+    {
+        if ($sys <= 0 || $dia <= 0)      return ['label' => 'Sin datos', 'color' => 'text-muted'];
+        if ($sys < 90  || $dia < 60)     return ['label' => 'Baja',      'color' => 'text-warning'];
+        if ($sys >= 180 || $dia >= 120)  return ['label' => 'Crisis',    'color' => 'text-danger'];
+        if ($sys >= 140 || $dia >= 90)   return ['label' => 'Alta',      'color' => 'text-danger'];
+        if ($sys >= 130 || $dia >= 80)   return ['label' => 'Elevada',   'color' => 'text-warning'];
+        if ($sys >= 120)                 return ['label' => 'Ligeramente alta', 'color' => 'text-warning'];
+        return ['label' => 'Estable', 'color' => 'text-info'];
+    }
+
+    /**
+     * Clasifica la frecuencia cardíaca media en reposo.
+     */
+    private function classifyHeartRate(int $hr): array
+    {
+        if ($hr <= 0)   return ['label' => 'Sin datos',      'color' => 'text-muted'];
+        if ($hr < 60)   return ['label' => 'Ritmo bajo',     'color' => 'text-warning'];
+        if ($hr > 100)  return ['label' => 'Ritmo elevado',  'color' => 'text-danger'];
+        return ['label' => 'Ritmo regular', 'color' => 'text-info'];
     }
 
     /**

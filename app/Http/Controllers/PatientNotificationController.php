@@ -23,4 +23,17 @@ class PatientNotificationController extends Controller
 
         return response()->json(['ok' => true]);
     }
+
+    public function destroy(PatientNotification $notification)
+    {
+        abort_if($notification->user_id !== Auth::id(), 403);
+        $notification->delete();
+        return response()->json(['ok' => true]);
+    }
+
+    public function destroyAll()
+    {
+        PatientNotification::where('user_id', Auth::id())->delete();
+        return response()->json(['ok' => true]);
+    }
 }

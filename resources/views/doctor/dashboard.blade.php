@@ -99,6 +99,15 @@
                         @endforeach
                     </div>
                 </div>
+
+                {{-- CTA: vincular más pacientes --}}
+                <div class="diab-card p-4 text-center animate-fade-in" style="animation-delay:0.15s; border:2px dashed rgba(0,0,0,0.1); box-shadow:none;">
+                    <i class="fa-solid fa-user-plus text-diab-primary mb-2" style="font-size:1.4rem; opacity:0.75;"></i>
+                    <p class="small text-muted mb-3">¿Atiendes a más pacientes? Vincula otro para monitorear su salud desde tu panel.</p>
+                    <a href="{{ route('doctor.link') }}" class="btn-diab-primary d-inline-flex align-items-center gap-2" style="font-size:0.82rem;">
+                        <i class="fa-solid fa-link"></i> Vincular otro paciente
+                    </a>
+                </div>
             @endif
         </aside>
 
@@ -172,7 +181,7 @@
                             </div>
                             <div class="col-12 col-sm-5">
                                 <label class="form-label extra-small fw-bold">Límite Máximo (mg/dL)</label>
-                                <input type="number" name="target_glucose_max" class="form-control diab-input" value="{{ $selectedPatient->patientProfile?->target_glucose_max ?? 140 }}" required>
+                                <input type="number" name="target_glucose_max" class="form-control diab-input" value="{{ $selectedPatient->patientProfile?->target_glucose_max ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MAX }}" required>
                             </div>
                             <div class="col-12 col-sm-2">
                                 <button type="submit" class="btn-diab-primary w-100 py-2 extra-small">Actualizar</button>
@@ -251,8 +260,8 @@
                                             <td class="small">{{ $log->systolic ?? '--' }}/{{ $log->diastolic ?? '--' }} <small>mmHg</small></td>
                                             <td class="small">{{ $log->heart_rate ?? '--' }} <small>bpm</small></td>
                                             <td>
-                                                <span class="badge {{ $log->glucose_level > ($selectedPatient->patientProfile?->target_glucose_max ?? 140) ? 'bg-danger' : 'bg-success' }} bg-opacity-10 {{ $log->glucose_level > ($selectedPatient->patientProfile?->target_glucose_max ?? 140) ? 'text-danger' : 'text-success' }} extra-small">
-                                                    {{ $log->glucose_level > ($selectedPatient->patientProfile?->target_glucose_max ?? 140) ? 'Fuera de Rango' : 'En Rango' }}
+                                                <span class="badge {{ $log->glucose_level > ($selectedPatient->patientProfile?->target_glucose_max ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MAX) ? 'bg-danger' : 'bg-success' }} bg-opacity-10 {{ $log->glucose_level > ($selectedPatient->patientProfile?->target_glucose_max ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MAX) ? 'text-danger' : 'text-success' }} extra-small">
+                                                    {{ $log->glucose_level > ($selectedPatient->patientProfile?->target_glucose_max ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MAX) ? 'Fuera de Rango' : 'En Rango' }}
                                                 </span>
                                             </td>
                                             <td class="small">
