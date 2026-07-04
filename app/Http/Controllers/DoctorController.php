@@ -39,7 +39,7 @@ class DoctorController extends Controller
             $recentLogs = VitalSign::where('user_id', $selectedPatient->id)
                 ->whereNotNull('glucose_level')
                 ->latest()
-                ->take(10)
+                ->take(5)
                 ->get();
         }
 
