@@ -2,10 +2,10 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\VitalSign;
 use App\Models\PatientProfile;
 use App\Models\Role;
+use App\Models\User;
+use App\Models\VitalSign;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -19,7 +19,7 @@ class DashboardWeightTest extends TestCase
         $user = User::factory()->create();
         $patientRole = Role::firstOrCreate(['name' => 'paciente']);
         $user->roles()->attach($patientRole);
-        
+
         // Crear perfil para pasar el onboarding
         PatientProfile::create([
             'user_id' => $user->id,
@@ -49,11 +49,20 @@ class DashboardWeightTest extends TestCase
         $response = $this->post('/dashboard/weight', [
             'weight' => 85.5,
         ]);
-        
+
         $response->assertRedirect('/dashboard');
+        $this->assertDatabaseHas('patient_profiles', [
+            'user_id' => $user->id,
+            'weight' => 85.5,
+        ]);
+        $this->assertDatabaseHas('vital_signs', [
+            'user_id' => $user->id,
+            'glucose_level' => 120,
+        ]);
+
+        // La comprobación crucial es que el registro de peso no borre la glucosa.
         $this->followRedirects($response)
-                 ->assertStatus(200)
-                 ->assertSee('85.5') // Ver que el peso se actualizó (si se muestra en algún lado)
-                 ->assertSee('120'); // ¡ESTA ES LA PRUEBA CRUCIAL! La glucosa debe seguir ahí
+            ->assertStatus(200)
+            ->assertSee('120');
     }
 }

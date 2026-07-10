@@ -282,6 +282,52 @@ PROMPT;
 
     private function buildUserPrompt(array $c): string
     {
+        // El contexto se construye desde registros clínicos opcionales. Normalizar
+        // las claves evita errores cuando un paciente todavía no ha capturado toda
+        // la información de su perfil o del día anterior.
+        $c = array_merge([
+            'nombre' => null,
+            'tipo_diabetes' => null,
+            'edad' => null,
+            'genero' => null,
+            'peso_kg' => null,
+            'altura_cm' => null,
+            'imc' => null,
+            'rango_glucosa_min' => 70,
+            'rango_glucosa_max' => 180,
+            'lecturas_glucosa' => [],
+            'total_lecturas' => 0,
+            'lecturas_fuera_rango' => 0,
+            'glucosa_promedio_48h' => null,
+            'glucosa_min_48h' => null,
+            'glucosa_max_48h' => null,
+            'hba1c' => null,
+            'hba1c_fecha' => null,
+            'presion_sistolica' => null,
+            'presion_diastolica' => null,
+            'frecuencia_cardiaca' => null,
+            'nivel_estres' => null,
+            'nota_vital' => null,
+            'minutos_actividad_ayer' => 0,
+            'tipos_actividad_ayer' => [],
+            'intensidad_actividad' => [],
+            'energia_post_actividad' => null,
+            'hora_ejercicio' => null,
+            'registro_desayuno' => false,
+            'registro_almuerzo' => false,
+            'registro_cena' => false,
+            'carbs_ayer_gramos' => 0,
+            'categorias_alimentos' => [],
+            'tiene_azucares' => false,
+            'comidas_con_hora' => [],
+            'sintomas_recientes' => [],
+            'ultima_glucosa_clase' => null,
+            'falta_glucosa' => false,
+            'falta_comidas' => false,
+            'falta_actividad' => false,
+            'ultimo_consejo' => null,
+        ], $c);
+
         $lines = [];
 
         // ── Perfil clínico ──────────────────────────────────────────────────

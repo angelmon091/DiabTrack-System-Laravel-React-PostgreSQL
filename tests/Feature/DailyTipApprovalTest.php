@@ -77,6 +77,7 @@ class DailyTipApprovalTest extends TestCase
             'carbsHoy' => 0,
             'caloriasHoy' => 0,
             'metaCalorias' => 2000,
+            'metaCaloriasPersonalizada' => true,
             'metaCarbs' => 200,
             'actividadMinutos' => 0,
             'metaActividad' => 60,
@@ -98,7 +99,7 @@ class DailyTipApprovalTest extends TestCase
         $response = $this->actingAs($patient)->get(route('dashboard'));
 
         $response->assertOk();
-        $response->assertSee('Generado con IA', false);
+        $response->assertSee('✦ IA', false);
         $response->assertSee($tipText, false);
         $response->assertDontSee('Tip viejo en caché que no debería mostrarse', false);
     }

@@ -4,8 +4,8 @@ namespace Tests\Unit;
 
 use App\Services\DailyTipSuggestionService;
 use Illuminate\Support\Facades\Http;
-use RuntimeException;
 use PHPUnit\Framework\Attributes\DataProvider;
+use RuntimeException;
 use Tests\TestCase;
 
 class DailyTipSuggestionServiceTest extends TestCase
@@ -15,40 +15,48 @@ class DailyTipSuggestionServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new DailyTipSuggestionService();
+        $this->service = new DailyTipSuggestionService;
     }
 
-    #[DataProvider('extremeGlucoseCases')]
-    public function test_returns_alert_for_extreme_glucose(array $metrics): void
+    #[DataProvider('providerCases')]
+    public function test_gemini_provider_returns_structured_api_result(string $provider, string $model): void
     {
-        $tip = $this->service->generate($metrics);
-
-        $this->assertSame('Tus niveles de glucosa requieren atención. Por favor, sigue las indicaciones de tu médico y contáctalo de ser necesario.', $tip);
-    }
-
-    public function test_returns_local_free_tip_when_activity_is_low(): void
-    {
-        $tip = $this->service->generate([
-            'glucose_average' => 118,
-            'carbs_yesterday' => 85,
-            'activity_minutes_yesterday' => 10,
-            'days_since_last_tip' => 0,
+        Http::fake([
+            '*' => Http::response([
+                'candidates' => [[
+                    'content' => ['parts' => [['text' => 'Camina 10 minutos después de comer.']]],
+                ]],
+                'usageMetadata' => ['promptTokenCount' => 10, 'candidatesTokenCount' => 8],
+            ], 200),
         ]);
 
-        $this->assertStringContainsString('caminar', mb_strtolower($tip));
+        $result = $this->service->generateGemini([], 'test-key', $model);
+
+        $this->assertSame('Camina 10 minutos después de comer.', $result['tip']);
+        $this->assertSame($provider, $result['provider']);
     }
 
-    public function test_returns_local_free_tip_when_no_glucose_data_exists(): void
+    public function test_gemini_provider_includes_available_context_in_request(): void
     {
-        $tip = $this->service->generate([
-            'glucose_average' => null,
-            'carbs_yesterday' => 40,
-            'activity_minutes_yesterday' => 35,
-            'days_since_last_tip' => 1,
-        ]);
+        Http::fake(['*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['text' => 'Consejo breve.']]]]],
+        ], 200)]);
 
-        $this->assertNotEmpty($tip);
-        $this->assertLessThanOrEqual(140, strlen($tip));
+        $this->service->generateGemini(['nombre' => 'Ana', 'edad' => 42], 'test-key');
+
+        Http::assertSent(fn ($request) => str_contains($request->body(), 'Ana')
+            && str_contains($request->body(), '42'));
+    }
+
+    public function test_gemini_provider_accepts_incomplete_clinical_context(): void
+    {
+        Http::fake(['*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['text' => 'Registra tus datos de hoy.']]]]],
+        ], 200)]);
+
+        $result = $this->service->generateGemini([], 'test-key');
+
+        $this->assertSame('Registra tus datos de hoy.', $result['tip']);
     }
 
     public function test_anthropic_provider_returns_tip_from_api_response(): void
@@ -61,59 +69,32 @@ class DailyTipSuggestionServiceTest extends TestCase
             ], 200),
         ]);
 
-        $tip = $this->service->generateAnthropic([
-            'glucose_average' => 118,
-            'carbs_yesterday' => 85,
-            'activity_minutes_yesterday' => 30,
-            'days_since_last_tip' => 0,
-        ], 'test-key', 'claude-haiku-4-5');
+        $result = $this->service->generateAnthropic([], 'test-key', 'claude-haiku-4-5');
 
-        $this->assertSame('Camina 10 minutos después de comer para apoyar tu glucosa.', $tip);
+        $this->assertSame('Camina 10 minutos después de comer para apoyar tu glucosa.', $result['tip']);
+        $this->assertSame('anthropic', $result['provider']);
     }
 
-    public function test_anthropic_provider_skips_api_when_glucose_is_extreme(): void
+    public function test_anthropic_provider_rejects_failed_api_response(): void
     {
-        Http::fake();
+        Http::fake(['*' => Http::response([], 503)]);
+        $this->expectException(RuntimeException::class);
 
-        $tip = $this->service->generateAnthropic([
-            'glucose_average' => 300,
-            'carbs_yesterday' => 85,
-            'activity_minutes_yesterday' => 30,
-            'days_since_last_tip' => 0,
-        ], 'test-key', 'claude-haiku-4-5');
-
-        Http::assertNothingSent();
-
-        $this->assertSame('Tus niveles de glucosa requieren atención. Por favor, sigue las indicaciones de tu médico y contáctalo de ser necesario.', $tip);
+        $this->service->generateAnthropic([], 'test-key', 'claude-haiku-4-5');
     }
 
     public function test_anthropic_provider_throws_when_api_key_is_missing(): void
     {
         $this->expectException(RuntimeException::class);
 
-        $this->service->generateAnthropic([
-            'glucose_average' => 118,
-            'carbs_yesterday' => 85,
-            'activity_minutes_yesterday' => 30,
-            'days_since_last_tip' => 0,
-        ], null, 'claude-haiku-4-5');
+        $this->service->generateAnthropic([], null, 'claude-haiku-4-5');
     }
 
-    public static function extremeGlucoseCases(): array
+    public static function providerCases(): array
     {
         return [
-            'low' => [[
-                'glucose_average' => 60,
-                'carbs_yesterday' => 50,
-                'activity_minutes_yesterday' => 20,
-                'days_since_last_tip' => 0,
-            ]],
-            'high' => [[
-                'glucose_average' => 280,
-                'carbs_yesterday' => 50,
-                'activity_minutes_yesterday' => 20,
-                'days_since_last_tip' => 0,
-            ]],
+            'default Gemini model' => ['gemini', 'gemini-2.5-flash'],
+            'explicit Gemini model' => ['gemini', 'gemini-test-model'],
         ];
     }
 }

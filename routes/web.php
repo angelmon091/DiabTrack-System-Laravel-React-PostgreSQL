@@ -12,6 +12,7 @@ use App\Http\Controllers\Tracking\NutritionLogController;
 use App\Http\Controllers\Tracking\SymptomLogController;
 use App\Services\TipService;
 use App\Http\Controllers\PatientNotificationController;
+use App\Http\Controllers\DailyTipController;
 use App\Http\Controllers\SearchController;
 
 Route::get('/', function () {
@@ -19,6 +20,10 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
+    Route::post('/tips/{dailyTip}/reject', [DailyTipController::class, 'reject'])
+        ->middleware('role:cuidador,médico')
+        ->name('tips.reject');
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
