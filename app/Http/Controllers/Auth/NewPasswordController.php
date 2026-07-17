@@ -16,7 +16,7 @@ use Illuminate\View\View;
 
 /**
  * Clase NewPasswordController
- * 
+ *
  * Gestiona el restablecimiento de contraseña de un usuario.
  * Maneja la vista de formulario y la lógica de guardado de la nueva contraseña.
  */
@@ -24,12 +24,9 @@ class NewPasswordController extends Controller
 {
     /**
      * Muestra la vista de restablecimiento de contraseña.
-     * 
+     *
      * Se accede a esta vista cuando el usuario ha solicitado un restablecimiento
      * y se le proporciona un token único.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\View\View
      */
     public function create(Request $request): View
     {
@@ -38,17 +35,19 @@ class NewPasswordController extends Controller
 
     /**
      * Procesa la solicitud de nuevo restablecimiento de contraseña.
-     * 
+     *
      * Valida los datos recibidos (token, email, nueva contraseña) e intenta
      * restablecer la contraseña del usuario. Si es exitoso, redirige al login;
      * de lo contrario, devuelve los errores.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
+        $request->merge([
+            'email' => Str::lower(trim((string) $request->input('email'))),
+        ]);
+
         $request->validate([
             'token' => ['required'],
             'email' => ['required', 'email'],

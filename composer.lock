@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e05a454604dd569a50ee25ab7834f55e",
+    "content-hash": "0db83464e566601f9e4a9e1fca6c4924",
     "packages": [
         {
             "name": "brick/math",
@@ -908,25 +908,26 @@
         },
         {
             "name": "guzzlehttp/guzzle",
-            "version": "7.10.5",
+            "version": "7.14.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/guzzle.git",
-                "reference": "7c8d84b39e680315f687e8662a9d6fb0865c5148"
+                "reference": "fa88c57803501ad0770f5cddb1e60525d49da9a1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/7c8d84b39e680315f687e8662a9d6fb0865c5148",
-                "reference": "7c8d84b39e680315f687e8662a9d6fb0865c5148",
+                "url": "https://api.github.com/repos/guzzle/guzzle/zipball/fa88c57803501ad0770f5cddb1e60525d49da9a1",
+                "reference": "fa88c57803501ad0770f5cddb1e60525d49da9a1",
                 "shasum": ""
             },
             "require": {
                 "ext-json": "*",
-                "guzzlehttp/promises": "^2.3",
-                "guzzlehttp/psr7": "^2.8",
+                "guzzlehttp/promises": "^2.5.1",
+                "guzzlehttp/psr7": "^2.12.5",
                 "php": "^7.2.5 || ^8.0",
                 "psr/http-client": "^1.0",
-                "symfony/deprecation-contracts": "^2.2 || ^3.0"
+                "symfony/deprecation-contracts": "^2.5 || ^3.0",
+                "symfony/polyfill-php80": "^1.25"
             },
             "provide": {
                 "psr/http-client-implementation": "1.0"
@@ -934,8 +935,8 @@
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
                 "ext-curl": "*",
-                "guzzle/client-integration-tests": "3.0.2",
-                "guzzlehttp/test-server": "^0.4",
+                "guzzle/client-integration-tests": "3.0.3",
+                "guzzlehttp/test-server": "^0.6",
                 "php-http/message-factory": "^1.1",
                 "phpunit/phpunit": "^8.5.52 || ^9.6.34",
                 "psr/log": "^1.1 || ^2.0 || ^3.0"
@@ -1015,7 +1016,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/guzzle/issues",
-                "source": "https://github.com/guzzle/guzzle/tree/7.10.5"
+                "source": "https://github.com/guzzle/guzzle/tree/7.14.2"
             },
             "funding": [
                 {
@@ -1031,24 +1032,25 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-27T11:53:46+00:00"
+            "time": "2026-07-14T18:15:01+00:00"
         },
         {
             "name": "guzzlehttp/promises",
-            "version": "2.4.1",
+            "version": "2.5.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/promises.git",
-                "reference": "09e8a212562fb1fb6a512c4156ed71525969d6c2"
+                "reference": "9ad1e4fc607446a055b95870c7f668e93b5cff29"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/promises/zipball/09e8a212562fb1fb6a512c4156ed71525969d6c2",
-                "reference": "09e8a212562fb1fb6a512c4156ed71525969d6c2",
+                "url": "https://api.github.com/repos/guzzle/promises/zipball/9ad1e4fc607446a055b95870c7f668e93b5cff29",
+                "reference": "9ad1e4fc607446a055b95870c7f668e93b5cff29",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.2.5 || ^8.0"
+                "php": "^7.2.5 || ^8.0",
+                "symfony/deprecation-contracts": "^2.5 || ^3.0"
             },
             "require-dev": {
                 "bamarni/composer-bin-plugin": "^1.8.2",
@@ -1098,7 +1100,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/promises/issues",
-                "source": "https://github.com/guzzle/promises/tree/2.4.1"
+                "source": "https://github.com/guzzle/promises/tree/2.5.1"
             },
             "funding": [
                 {
@@ -1114,27 +1116,29 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-20T22:57:30+00:00"
+            "time": "2026-07-08T15:48:39+00:00"
         },
         {
             "name": "guzzlehttp/psr7",
-            "version": "2.10.3",
+            "version": "2.13.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/guzzle/psr7.git",
-                "reference": "7c1472269227dc6f18930bd903d7a88fe6c52130"
+                "reference": "dad89620b7a6edb60c15858442eb2e408b45d8f4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/guzzle/psr7/zipball/7c1472269227dc6f18930bd903d7a88fe6c52130",
-                "reference": "7c1472269227dc6f18930bd903d7a88fe6c52130",
+                "url": "https://api.github.com/repos/guzzle/psr7/zipball/dad89620b7a6edb60c15858442eb2e408b45d8f4",
+                "reference": "dad89620b7a6edb60c15858442eb2e408b45d8f4",
                 "shasum": ""
             },
             "require": {
                 "php": "^7.2.5 || ^8.0",
                 "psr/http-factory": "^1.0",
                 "psr/http-message": "^1.1 || ^2.0",
-                "ralouphie/getallheaders": "^3.0"
+                "ralouphie/getallheaders": "^3.0",
+                "symfony/deprecation-contracts": "^2.5 || ^3.0",
+                "symfony/polyfill-php80": "^1.25"
             },
             "provide": {
                 "psr/http-factory-implementation": "1.0",
@@ -1215,7 +1219,7 @@
             ],
             "support": {
                 "issues": "https://github.com/guzzle/psr7/issues",
-                "source": "https://github.com/guzzle/psr7/tree/2.10.3"
+                "source": "https://github.com/guzzle/psr7/tree/2.13.0"
             },
             "funding": [
                 {
@@ -1231,7 +1235,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-27T11:48:20+00:00"
+            "time": "2026-07-16T22:23:49+00:00"
         },
         {
             "name": "guzzlehttp/uri-template",
@@ -3546,16 +3550,16 @@
         },
         {
             "name": "phpseclib/phpseclib",
-            "version": "3.0.51",
+            "version": "3.0.55",
             "source": {
                 "type": "git",
                 "url": "https://github.com/phpseclib/phpseclib.git",
-                "reference": "d59c94077f9c9915abb51ddb52ce85188ece1748"
+                "reference": "db9744e6d47e742b1f974e965ad49bdd041105af"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/d59c94077f9c9915abb51ddb52ce85188ece1748",
-                "reference": "d59c94077f9c9915abb51ddb52ce85188ece1748",
+                "url": "https://api.github.com/repos/phpseclib/phpseclib/zipball/db9744e6d47e742b1f974e965ad49bdd041105af",
+                "reference": "db9744e6d47e742b1f974e965ad49bdd041105af",
                 "shasum": ""
             },
             "require": {
@@ -3636,7 +3640,7 @@
             ],
             "support": {
                 "issues": "https://github.com/phpseclib/phpseclib/issues",
-                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.51"
+                "source": "https://github.com/phpseclib/phpseclib/tree/3.0.55"
             },
             "funding": [
                 {
@@ -3652,7 +3656,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-04-10T01:33:53+00:00"
+            "time": "2026-06-14T23:24:10+00:00"
         },
         {
             "name": "psr/clock",
@@ -5599,16 +5603,16 @@
         },
         {
             "name": "symfony/deprecation-contracts",
-            "version": "v3.7.0",
+            "version": "v3.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/deprecation-contracts.git",
-                "reference": "50f59d1f3ca46d41ac911f97a78626b6756af35b"
+                "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/50f59d1f3ca46d41ac911f97a78626b6756af35b",
-                "reference": "50f59d1f3ca46d41ac911f97a78626b6756af35b",
+                "url": "https://api.github.com/repos/symfony/deprecation-contracts/zipball/f3202fa1b5097b0af062dc978b32ecf63404e31d",
+                "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d",
                 "shasum": ""
             },
             "require": {
@@ -5646,7 +5650,7 @@
             "description": "A generic function and convention to trigger deprecation notices",
             "homepage": "https://symfony.com",
             "support": {
-                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.7.0"
+                "source": "https://github.com/symfony/deprecation-contracts/tree/v3.7.1"
             },
             "funding": [
                 {
@@ -5666,7 +5670,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-04-13T15:52:40+00:00"
+            "time": "2026-06-05T06:23:12+00:00"
         },
         {
             "name": "symfony/error-handler",
@@ -6849,16 +6853,16 @@
         },
         {
             "name": "symfony/polyfill-mbstring",
-            "version": "v1.38.1",
+            "version": "v1.38.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/polyfill-mbstring.git",
-                "reference": "14c5439eec4ccff081ac14eca2dc57feb2a66d92"
+                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/14c5439eec4ccff081ac14eca2dc57feb2a66d92",
-                "reference": "14c5439eec4ccff081ac14eca2dc57feb2a66d92",
+                "url": "https://api.github.com/repos/symfony/polyfill-mbstring/zipball/d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
+                "reference": "d3d318bad5e7a1bfbd026009c8bfb8d8f99ae6b6",
                 "shasum": ""
             },
             "require": {
@@ -6910,7 +6914,7 @@
                 "shim"
             ],
             "support": {
-                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.1"
+                "source": "https://github.com/symfony/polyfill-mbstring/tree/v1.38.2"
             },
             "funding": [
                 {
@@ -6930,7 +6934,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2026-05-26T12:51:13+00:00"
+            "time": "2026-05-27T06:59:30+00:00"
         },
         {
             "name": "symfony/polyfill-php80",
@@ -8705,6 +8709,80 @@
             "time": "2026-03-10T19:59:01+00:00"
         },
         {
+            "name": "laravel/dusk",
+            "version": "v8.6.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/laravel/dusk.git",
+                "reference": "e7fd48762c6a82ad2cd311db07587aa2a97ce143"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/laravel/dusk/zipball/e7fd48762c6a82ad2cd311db07587aa2a97ce143",
+                "reference": "e7fd48762c6a82ad2cd311db07587aa2a97ce143",
+                "shasum": ""
+            },
+            "require": {
+                "ext-json": "*",
+                "ext-zip": "*",
+                "guzzlehttp/guzzle": "^7.5",
+                "illuminate/console": "^10.0|^11.0|^12.0|^13.0",
+                "illuminate/support": "^10.0|^11.0|^12.0|^13.0",
+                "php": "^8.1",
+                "php-webdriver/webdriver": "^1.15.2",
+                "symfony/console": "^6.2|^7.0|^8.0",
+                "symfony/finder": "^6.2|^7.0|^8.0",
+                "symfony/process": "^6.2|^7.0|^8.0",
+                "vlucas/phpdotenv": "^5.2"
+            },
+            "require-dev": {
+                "laravel/framework": "^10.0|^11.0|^12.0|^13.0",
+                "mockery/mockery": "^1.6",
+                "orchestra/testbench-core": "^8.19|^9.17|^10.8|^11.0",
+                "phpstan/phpstan": "^1.10",
+                "phpunit/phpunit": "^10.1|^11.0|^12.0.1",
+                "psy/psysh": "^0.11.12|^0.12",
+                "symfony/yaml": "^6.2|^7.0|^8.0"
+            },
+            "suggest": {
+                "ext-pcntl": "Used to gracefully terminate Dusk when tests are running."
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Laravel\\Dusk\\DuskServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Laravel\\Dusk\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Taylor Otwell",
+                    "email": "taylor@laravel.com"
+                }
+            ],
+            "description": "Laravel Dusk provides simple end-to-end testing and browser automation.",
+            "keywords": [
+                "laravel",
+                "testing",
+                "webdriver"
+            ],
+            "support": {
+                "issues": "https://github.com/laravel/dusk/issues",
+                "source": "https://github.com/laravel/dusk/tree/v8.6.0"
+            },
+            "time": "2026-04-15T14:50:40+00:00"
+        },
+        {
             "name": "laravel/pail",
             "version": "v1.2.6",
             "source": {
@@ -9208,6 +9286,72 @@
                 "source": "https://github.com/phar-io/version/tree/3.2.1"
             },
             "time": "2022-02-21T01:04:05+00:00"
+        },
+        {
+            "name": "php-webdriver/webdriver",
+            "version": "1.16.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-webdriver/php-webdriver.git",
+                "reference": "ac0662863aa120b4f645869f584013e4c4dba46a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/php-webdriver/php-webdriver/zipball/ac0662863aa120b4f645869f584013e4c4dba46a",
+                "reference": "ac0662863aa120b4f645869f584013e4c4dba46a",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-zip": "*",
+                "php": "^7.3 || ^8.0",
+                "symfony/polyfill-mbstring": "^1.12",
+                "symfony/process": "^5.0 || ^6.0 || ^7.0 || ^8.0"
+            },
+            "replace": {
+                "facebook/webdriver": "*"
+            },
+            "require-dev": {
+                "ergebnis/composer-normalize": "^2.20.0",
+                "ondram/ci-detector": "^4.0",
+                "php-coveralls/php-coveralls": "^2.4",
+                "php-mock/php-mock-phpunit": "^2.0",
+                "php-parallel-lint/php-parallel-lint": "^1.2",
+                "phpunit/phpunit": "^9.3",
+                "squizlabs/php_codesniffer": "^3.5",
+                "symfony/var-dumper": "^5.0 || ^6.0 || ^7.0 || ^8.0"
+            },
+            "suggest": {
+                "ext-simplexml": "For Firefox profile creation"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "lib/Exception/TimeoutException.php"
+                ],
+                "psr-4": {
+                    "Facebook\\WebDriver\\": "lib/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A PHP client for Selenium WebDriver. Previously facebook/webdriver.",
+            "homepage": "https://github.com/php-webdriver/php-webdriver",
+            "keywords": [
+                "Chromedriver",
+                "geckodriver",
+                "php",
+                "selenium",
+                "webdriver"
+            ],
+            "support": {
+                "issues": "https://github.com/php-webdriver/php-webdriver/issues",
+                "source": "https://github.com/php-webdriver/php-webdriver/tree/1.16.0"
+            },
+            "time": "2025-12-28T23:57:40+00:00"
         },
         {
             "name": "phpunit/php-code-coverage",

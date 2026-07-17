@@ -5,20 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     
-    <!-- SEO Meta Tags -->
+    <!-- Metadatos para motores de búsqueda -->
     <meta name="description" content="DiabTrack: La plataforma inteligente para el monitoreo de diabetes. Controla tu glucosa, nutrición y actividad con análisis de IA para una vida más saludable.">
     <meta name="keywords" content="diabetes, monitoreo de salud, glucosa, insulina, salud inteligente, seguimiento médico, nutrición diabetes">
     <meta name="author" content="DiabTrack">
     <meta name="robots" content="index, follow">
 
-    <!-- Open Graph / Facebook -->
+    <!-- Metadatos para Open Graph y Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url('/') }}">
     <meta property="og:title" content="DiabTrack - Monitorea tu salud, vive mejor">
     <meta property="og:description" content="Control inteligente de la diabetes con análisis de IA y monitoreo constante de signos vitales.">
     <meta property="og:image" content="{{ asset('og-image.jpg') }}">
 
-    <!-- Twitter -->
+    <!-- Metadatos para Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="{{ url('/') }}">
     <meta property="twitter:title" content="DiabTrack - Monitorea tu salud, vive mejor">
@@ -30,7 +30,7 @@
 
     <title>DiabTrack - Monitorea tu salud, vive mejor</title>
 
-    <!-- Styles -->
+    <!-- Hojas de estilo -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     @vite(['resources/css/index.css', 'resources/js/app.js'])
@@ -86,7 +86,7 @@
                 </div>
             </div>
 
-            <!-- Scroll Indicator -->
+            <!-- Indicador de desplazamiento -->
             <a href="#features" class="scroll-indicator">
                 <i class="fa-solid fa-chevron-down"></i>
             </a>

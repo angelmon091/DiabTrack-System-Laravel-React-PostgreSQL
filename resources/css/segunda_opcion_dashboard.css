@@ -12,7 +12,7 @@ body {
     color: var(--text-main);
 }
 
-/* Header */
+/* Encabezado */
 .main-header { padding: 5px 0; }
 .logo-small { font-size: 1.3rem; font-weight: 800; letter-spacing: -0.5px; }
 .logo-small span { color: var(--primary-cyan); }

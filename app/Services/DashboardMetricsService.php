@@ -2,31 +2,34 @@
 
 namespace App\Services;
 
-use App\Models\VitalSign;
 use App\Models\ActivityLog;
+use App\Models\DailyTip;
 use App\Models\NutritionLog;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Cache;
+use App\Models\PatientProfile;
+use App\Models\User;
+use App\Models\VitalSign;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Clase DashboardMetricsService
- * 
- * Se encarga de toda la lógica de cálculo y procesamiento de datos de salud 
- * para el panel principal (Dashboard). Centraliza las consultas a modelos de 
+ *
+ * Se encarga de toda la lógica de cálculo y procesamiento de datos de salud
+ * para el panel principal (Dashboard). Centraliza las consultas a modelos de
  * nutrición, actividad física y signos vitales.
  */
 class DashboardMetricsService
 {
     /**
      * Calcula y retorna todas las métricas necesarias para el panel principal del usuario.
-     * 
+     *
      * Los resultados se almacenan en caché Redis durante 5 minutos.
      * La caché se invalida automáticamente cuando se crean o actualizan
      * registros en VitalSign, NutritionLog, ActivityLog, SymptomLog o DailyTip.
      * El tip del día se resuelve fuera del caché para mostrar siempre el último consejo IA.
      *
-     * @param int $userId ID del usuario autenticado.
+     * @param  int  $userId  ID del usuario autenticado.
      * @return array Conjunto de métricas procesadas.
      */
     public function getDashboardMetrics($userId)
@@ -49,7 +52,7 @@ class DashboardMetricsService
         $maxInactivityDays = (int) env('DAILY_TIPS_MAX_INACTIVITY_DAYS', 3);
         $since = Carbon::now()->subDays($maxInactivityDays);
 
-        $tipAprobado = \App\Models\DailyTip::query()
+        $tipAprobado = DailyTip::query()
             ->where('user_id', $userId)
             ->where('status', 'approved')
             ->where('created_at', '>=', $since)
@@ -63,15 +66,15 @@ class DashboardMetricsService
             ];
         }
 
-        $user = \App\Models\User::find($userId);
+        $user = User::find($userId);
 
         if ($user) {
             $hasRecentData = $user->vitalSigns()->where('created_at', '>=', $since)->exists() ||
                 $user->activityLogs()->where('created_at', '>=', $since)->exists() ||
                 $user->nutritionLogs()->where('created_at', '>=', $since)->exists() ||
-                \Illuminate\Support\Facades\DB::table('symptom_user')->where('user_id', $userId)->where('logged_at', '>=', $since)->exists();
+                DB::table('symptom_user')->where('user_id', $userId)->where('logged_at', '>=', $since)->exists();
 
-            if (!$hasRecentData) {
+            if (! $hasRecentData) {
                 return [
                     'tipDelDia' => "¡Hola! Para darte tips de salud 100% personalizados y precisos generados con Inteligencia Artificial, recuerda registrar tus datos (como tu nivel de glucosa, comidas o actividad física de hoy) en la sección 'Registrar o Nuevo'",
                     'tipEsIA' => false,
@@ -80,16 +83,16 @@ class DashboardMetricsService
         }
 
         $tips = [
-            "Mantener un horario regular de comidas ayuda a estabilizar tus niveles de glucosa durante el día.",
-            "Beber al menos 2 litros de agua diarios mejora la circulación y reduce el riesgo de hiperglucemia.",
-            "Caminar 15 minutos después de comer reduce significativamente los picos de azúcar en sangre.",
-            "Revisa tus pies a diario y mantenlos hidratados para prevenir posibles complicaciones.",
-            "Prioriza el consumo de proteínas y fibra en tus desayunos para evitar hipoglucemias reactivas.",
-            "Lleva siempre contigo un carbohidrato de rápida absorción (jugo o caramelos) para emergencias.",
-            "Dormir de 7 a 8 horas cada noche promueve una mejor sensibilidad a la insulina.",
-            "Anotar lo que comes te ayudará a detectar patrones en cómo ciertos alimentos afectan tu glucosa.",
-            "El estrés eleva el azúcar en sangre de forma natural. Prueba técnicas de respiración si te sientes tenso.",
-            "Comer la ensalada o fibra antes de los carbohidratos ayuda a aplanar tu curva de glucosa.",
+            'Mantener un horario regular de comidas ayuda a estabilizar tus niveles de glucosa durante el día.',
+            'Beber al menos 2 litros de agua diarios mejora la circulación y reduce el riesgo de hiperglucemia.',
+            'Caminar 15 minutos después de comer reduce significativamente los picos de azúcar en sangre.',
+            'Revisa tus pies a diario y mantenlos hidratados para prevenir posibles complicaciones.',
+            'Prioriza el consumo de proteínas y fibra en tus desayunos para evitar hipoglucemias reactivas.',
+            'Lleva siempre contigo un carbohidrato de rápida absorción (jugo o caramelos) para emergencias.',
+            'Dormir de 7 a 8 horas cada noche promueve una mejor sensibilidad a la insulina.',
+            'Anotar lo que comes te ayudará a detectar patrones en cómo ciertos alimentos afectan tu glucosa.',
+            'El estrés eleva el azúcar en sangre de forma natural. Prueba técnicas de respiración si te sientes tenso.',
+            'Comer la ensalada o fibra antes de los carbohidratos ayuda a aplanar tu curva de glucosa.',
         ];
 
         return [
@@ -118,18 +121,18 @@ class DashboardMetricsService
      * - Estadísticas semanales para gráficas de tendencias.
      * - Cálculo del "Tiempo en Rango" de glucosa (70-140 mg/dL).
      *
-     * @param int $userId
+     * @param  int  $userId
      * @return array
      */
     protected function calculateMetrics($userId)
     {
         $today = Carbon::today();
-        $user = \App\Models\User::with('patientProfile')->findOrFail($userId);
+        $user = User::with('patientProfile')->findOrFail($userId);
         $profile = $user->patientProfile;
 
-        if (!$profile && $user->isPatient()) {
+        if (! $profile && $user->isPatient()) {
             // Fallback si es paciente pero el perfil no existe por alguna razón
-            $profile = new \App\Models\PatientProfile(['user_id' => $userId]);
+            $profile = new PatientProfile(['user_id' => $userId]);
         }
 
         // 1. Signos Vitales (Glucosa y HbA1c)
@@ -165,8 +168,8 @@ class DashboardMetricsService
 
         // Meta calórica personalizada (Mifflin-St Jeor × factor de actividad ligera).
         // Es orientativa (asistente de bienestar), no una prescripción médica.
-        $edadPerfil   = $profile?->birth_date ? Carbon::parse($profile->birth_date)->age : null;
-        $pesoPerfil   = $profile?->weight;
+        $edadPerfil = $profile?->birth_date ? Carbon::parse($profile->birth_date)->age : null;
+        $pesoPerfil = $profile?->weight;
         $alturaPerfil = $profile?->height;
         $generoPerfil = strtolower($profile?->gender ?? '');
 
@@ -227,7 +230,7 @@ class DashboardMetricsService
             $day = Carbon::today()->subDays($i);
             $dateString = $day->toDateString();
 
-            $glucosaLabels[] = $day->isoFormat('ddd D');
+            $glucosaLabels[] = $day->locale('es')->isoFormat('ddd D');
 
             if ($registrosGlucosaAgrupados->has($dateString)) {
                 $avgGlucose = $registrosGlucosaAgrupados->get($dateString)->avg('glucose_level');

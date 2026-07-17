@@ -2,28 +2,28 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise;
+use Illuminate\Console\Command;
 
 class StressTestCommand extends Command
 {
     /**
-     * The name and signature of the console command.
+     * Nombre y firma utilizados para ejecutar el comando desde Artisan.
      *
      * @var string
      */
     protected $signature = 'app:stress-test {--requests=1000 : Total number of requests} {--concurrency=100 : Number of concurrent requests}';
 
     /**
-     * The console command description.
+     * Descripción breve que se muestra en la ayuda de Artisan.
      *
      * @var string
      */
     protected $description = 'Run a professional stress test on the application local endpoint';
 
     /**
-     * Execute the console command.
+     * Ejecuta la prueba de carga configurada para el sistema.
      */
     public function handle()
     {
@@ -31,11 +31,11 @@ class StressTestCommand extends Command
         $concurrency = (int) $this->option('concurrency');
 
         $this->info("Starting Stress Test: $totalRequests total requests with $concurrency concurrency");
-        $this->warn("Target: http://localhost:8000");
+        $this->warn('Target: http://localhost:8000');
 
         $client = new Client([
             'base_uri' => 'http://localhost:8000',
-            'timeout'  => 15.0,
+            'timeout' => 15.0,
             'http_errors' => false,
         ]);
 
@@ -46,13 +46,13 @@ class StressTestCommand extends Command
         $bar = $this->output->createProgressBar($totalRequests);
         $bar->start();
 
-        // We process in batches to avoid memory issues with Guzzle promises on very large tests
+        // Procesa por lotes para limitar el uso de memoria en pruebas extensas con Guzzle.
         $batches = ceil($totalRequests / $concurrency);
-        
+
         for ($b = 0; $b < $batches; $b++) {
             $promises = [];
             $currentBatchSize = min($concurrency, $totalRequests - ($b * $concurrency));
-            
+
             for ($i = 0; $i < $currentBatchSize; $i++) {
                 $promises[] = $client->getAsync('/');
             }
@@ -77,7 +77,7 @@ class StressTestCommand extends Command
         $this->table(
             ['Metric', 'Value'],
             [
-                ['Duration', round($duration, 2) . ' seconds'],
+                ['Duration', round($duration, 2).' seconds'],
                 ['Requests per second', round($totalRequests / $duration, 2)],
                 ['Successful', $success],
                 ['Failed', $failed],

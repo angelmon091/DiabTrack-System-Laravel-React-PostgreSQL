@@ -2,10 +2,10 @@
 
 namespace Tests\Feature\Tracking;
 
-use App\Models\Role;
-use App\Models\User;
-use App\Models\Symptom;
 use App\Models\PatientProfile;
+use App\Models\Role;
+use App\Models\Symptom;
+use App\Models\User;
 use App\Services\DashboardMetricsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -16,7 +16,9 @@ class SymptomTrackingTest extends TestCase
     use RefreshDatabase;
 
     private User $patient;
+
     private Symptom $symptom1;
+
     private Symptom $symptom2;
 
     protected function setUp(): void
@@ -42,7 +44,7 @@ class SymptomTrackingTest extends TestCase
     }
 
     /**
-     * Test: Acceso al formulario de síntomas clasificados por categorías.
+     * Prueba: Acceso al formulario de síntomas clasificados por categorías.
      */
     public function test_patient_can_view_create_symptoms_form(): void
     {
@@ -54,15 +56,15 @@ class SymptomTrackingTest extends TestCase
     }
 
     /**
-     * Test: Registro correcto de uno o múltiples síntomas en la tabla pivot.
+     * Prueba: Registro correcto de uno o múltiples síntomas en la tabla pivot.
      */
     public function test_patient_can_store_multiple_symptoms(): void
     {
         $data = [
             'symptoms' => [
                 $this->symptom1->id,
-                $this->symptom2->id
-            ]
+                $this->symptom2->id,
+            ],
         ];
 
         $response = $this->actingAs($this->patient)
@@ -85,12 +87,12 @@ class SymptomTrackingTest extends TestCase
     }
 
     /**
-     * Test: Guardar síntomas mediante peticiones AJAX.
+     * Prueba: Guardar síntomas mediante peticiones AJAX.
      */
     public function test_patient_can_store_symptoms_via_ajax(): void
     {
         $data = [
-            'symptoms' => [$this->symptom1->id]
+            'symptoms' => [$this->symptom1->id],
         ];
 
         $response = $this->actingAs($this->patient)
@@ -99,17 +101,17 @@ class SymptomTrackingTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'Registro de síntomas guardado con éxito.'
+            'message' => 'Registro de síntomas guardado con éxito.',
         ]);
     }
 
     /**
-     * Test: Form Request falla ante selección de síntomas vacía.
+     * Prueba: Form Request falla ante selección de síntomas vacía.
      */
     public function test_store_symptoms_fails_when_no_symptom_selected(): void
     {
         $data = [
-            'symptoms' => [] // Debe seleccionar al menos uno
+            'symptoms' => [], // Debe seleccionar al menos uno
         ];
 
         $response = $this->actingAs($this->patient)
@@ -121,7 +123,7 @@ class SymptomTrackingTest extends TestCase
     }
 
     /**
-     * Test: Guardar síntomas destruye el caché de métricas.
+     * Prueba: Guardar síntomas destruye el caché de métricas.
      */
     public function test_storing_symptoms_invalidates_dashboard_cache(): void
     {
@@ -131,7 +133,7 @@ class SymptomTrackingTest extends TestCase
         $this->assertTrue(Cache::has($cacheKey));
 
         $data = [
-            'symptoms' => [$this->symptom1->id]
+            'symptoms' => [$this->symptom1->id],
         ];
 
         $this->actingAs($this->patient)->post(route('tracking.symptom.store'), $data);

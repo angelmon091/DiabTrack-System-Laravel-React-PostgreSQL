@@ -8,12 +8,33 @@ services:
     restart: always
     env_file: .env
     environment:
+      REQUIRE_PRODUCTION_ENV: "true"
       REDIS_HOST: redis
       CACHE_STORE: redis
       SESSION_DRIVER: redis
       QUEUE_CONNECTION: redis
     ports:
       - "${APP_PORT:-80}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - diabtrack-network
+
+  scheduler:
+    image: diabtrack-app-prod
+    container_name: diabtrack-scheduler
+    restart: always
+    env_file: .env
+    environment:
+      REQUIRE_PRODUCTION_ENV: "true"
+      REDIS_HOST: redis
+      CACHE_STORE: redis
+      SESSION_DRIVER: redis
+      QUEUE_CONNECTION: redis
+    entrypoint: ["docker-scheduler-entrypoint.sh"]
     depends_on:
       db:
         condition: service_healthy

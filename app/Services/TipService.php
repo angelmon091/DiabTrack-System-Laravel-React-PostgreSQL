@@ -5,6 +5,9 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Coordina la generación de consejos mediante proveedores externos y reglas locales de respaldo.
+ */
 class TipService
 {
     public function generarTip(array $datosPaciente): array
@@ -74,7 +77,7 @@ class TipService
             ->post('https://api.anthropic.com/v1/messages', [
                 'model' => 'claude-haiku-4-5',
                 'max_tokens' => 300,
-                'system' => 'Eres un asistente clínico especializado en diabetes. Responde en español, breve y empático.',
+                'system' => 'Eres un asistente de bienestar metabólico. Atiendes personas con diabetes, prediabetes o sin diagnóstico. No diagnostiques ni cambies su condición declarada. Responde en español, breve y empático.',
                 'messages' => [
                     [
                         'role' => 'user',
@@ -85,7 +88,7 @@ class TipService
 
         if ($response->failed()) {
             throw new \RuntimeException(
-                'Anthropic respondió con estado HTTP ' . $response->status() . ' y cuerpo: ' . $response->body()
+                'Anthropic respondió con estado HTTP '.$response->status().' y cuerpo: '.$response->body()
             );
         }
 
@@ -106,12 +109,12 @@ class TipService
     {
         $geminiKey = env('GEMINI_API_KEY');
 
-        if (!$geminiKey) {
+        if (! $geminiKey) {
             throw new \RuntimeException('GEMINI_API_KEY no está configurada.');
         }
 
         $response = Http::timeout(10)
-            ->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=' . urlencode($geminiKey), [
+            ->post('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key='.urlencode($geminiKey), [
                 'contents' => [
                     [
                         'parts' => [
@@ -124,7 +127,7 @@ class TipService
                 'systemInstruction' => [
                     'parts' => [
                         [
-                            'text' => 'Eres un asistente clínico de diabetes. Responde en español, breve y empático.',
+                            'text' => 'Eres un asistente de bienestar metabólico. Atiendes personas con diabetes, prediabetes o sin diagnóstico. No diagnostiques ni cambies su condición declarada. Responde en español, breve y empático.',
                         ],
                     ],
                 ],
@@ -135,7 +138,7 @@ class TipService
 
         if ($response->failed()) {
             throw new \RuntimeException(
-                'Gemini respondió con estado HTTP ' . $response->status() . ' y cuerpo: ' . $response->body()
+                'Gemini respondió con estado HTTP '.$response->status().' y cuerpo: '.$response->body()
             );
         }
 
@@ -155,7 +158,7 @@ class TipService
     private function construirPromptUsuario(array $datosPaciente): string
     {
         return sprintf(
-            "Datos del paciente:\nTipo de diabetes: %s\nEdad: %s\nGlucosa: %s mg/dL\nHbA1c: %s%%\nIMC: %s",
+            "Datos de la persona:\nCondición glucémica declarada: %s\nEdad: %s\nGlucosa: %s mg/dL\nHbA1c: %s%%\nIMC: %s\nNo diagnostiques ni reclasifiques esta condición.",
             $datosPaciente['tipo_diabetes'] ?? 'No disponible',
             $datosPaciente['edad'] ?? 'No disponible',
             $datosPaciente['glucosa'] ?? 'No disponible',

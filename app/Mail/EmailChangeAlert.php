@@ -13,10 +13,11 @@ class EmailChangeAlert extends Mailable
     use Queueable, SerializesModels;
 
     public $user;
+
     public $newEmail;
 
     /**
-     * Create a new message instance.
+     * Crea una nueva instancia del aviso de cambio de correo.
      */
     public function __construct($user, $newEmail)
     {
@@ -25,7 +26,7 @@ class EmailChangeAlert extends Mailable
     }
 
     /**
-     * Get the message envelope.
+     * Define el asunto y los datos generales del mensaje.
      */
     public function envelope(): Envelope
     {
@@ -35,7 +36,7 @@ class EmailChangeAlert extends Mailable
     }
 
     /**
-     * Get the message content definition.
+     * Define la vista y el contenido del correo.
      */
     public function content(): Content
     {

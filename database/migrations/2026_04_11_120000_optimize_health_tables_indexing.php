@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Aplica los cambios definidos por esta migración.
      * Optimize common health queries with indexing.
      */
     public function up(): void
@@ -23,7 +23,7 @@ return new class extends Migration
         Schema::table('activity_logs', function (Blueprint $table) {
             $table->index(['user_id', 'created_at']);
         });
-        
+
         // Symptom tracking is pivot, index important for fast aggregation
         if (Schema::hasTable('symptom_user')) {
             Schema::table('symptom_user', function (Blueprint $table) {
@@ -33,7 +33,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Revierte los cambios definidos por esta migración.
      */
     public function down(): void
     {

@@ -2,10 +2,9 @@
 
 namespace Tests\Feature\Tracking;
 
+use App\Models\PatientProfile;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\VitalSign;
-use App\Models\PatientProfile;
 use App\Services\DashboardMetricsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -41,7 +40,7 @@ class VitalSignTrackingTest extends TestCase
     }
 
     /**
-     * Test: Un paciente puede acceder a la interfaz de registro de signos vitales.
+     * Prueba: Un paciente puede acceder a la interfaz de registro de signos vitales.
      */
     public function test_patient_can_view_create_vital_signs_form(): void
     {
@@ -52,7 +51,7 @@ class VitalSignTrackingTest extends TestCase
     }
 
     /**
-     * Test: Registro exitoso de signos vitales y persistencia correcta en base de datos.
+     * Prueba: Registro exitoso de signos vitales y persistencia correcta en base de datos.
      */
     public function test_patient_can_store_valid_vital_signs(): void
     {
@@ -90,7 +89,7 @@ class VitalSignTrackingTest extends TestCase
     }
 
     /**
-     * Test: Registro de signos vitales mediante petición AJAX (espera respuesta JSON).
+     * Prueba: Registro de signos vitales mediante petición AJAX (espera respuesta JSON).
      */
     public function test_patient_can_store_vital_signs_via_ajax(): void
     {
@@ -105,12 +104,12 @@ class VitalSignTrackingTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'Registro de salud guardado con éxito.'
+            'message' => 'Registro de salud guardado con éxito.',
         ]);
     }
 
     /**
-     * Test: Validaciones del Form Request (VitalSignRequest) rechazan glucosa inválida.
+     * Prueba: Validaciones del Form Request (VitalSignRequest) rechazan glucosa inválida.
      */
     public function test_store_vital_signs_validation_fails_for_invalid_glucose(): void
     {
@@ -128,7 +127,7 @@ class VitalSignTrackingTest extends TestCase
     }
 
     /**
-     * Test: Guardar un nuevo signo vital destruye automáticamente el caché del dashboard.
+     * Prueba: Guardar un nuevo signo vital destruye automáticamente el caché del dashboard.
      */
     public function test_storing_vital_sign_invalidates_dashboard_cache(): void
     {

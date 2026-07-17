@@ -30,7 +30,7 @@ class DoctorController extends Controller
                 ? $patients->firstWhere('id', $selectedPatientId)
                 : $patients->first();
 
-            if (!$selectedPatient) {
+            if (! $selectedPatient) {
                 $selectedPatient = $patients->first();
             }
 
@@ -68,7 +68,7 @@ class DoctorController extends Controller
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$link) {
+        if (! $link) {
             return back()->withErrors(['invite_code' => 'El código es inválido o ha expirado.']);
         }
 
@@ -79,10 +79,10 @@ class DoctorController extends Controller
 
         PatientNotification::create([
             'user_id' => $link->patient_id,
-            'type'    => 'system',
-            'title'   => 'Nuevo médico vinculado',
-            'body'    => 'El Dr./Dra. ' . Auth::user()->name . ' se ha vinculado a tu cuenta.',
-            'icon'    => 'fa-solid fa-user-doctor',
+            'type' => 'system',
+            'title' => 'Nuevo médico vinculado',
+            'body' => 'El Dr./Dra. '.Auth::user()->name.' se ha vinculado a tu cuenta.',
+            'icon' => 'fa-solid fa-user-doctor',
         ]);
 
         return redirect()->route('doctor.dashboard')
@@ -146,8 +146,8 @@ class DoctorController extends Controller
             ->where('linked_user_id', Auth::id())
             ->where('status', 'active')
             ->exists();
-        
-        if (!$isLinked) {
+
+        if (! $isLinked) {
             abort(403, 'No tienes permiso para ver los datos de este paciente.');
         }
     }

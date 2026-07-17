@@ -59,6 +59,34 @@ class DailyTipSuggestionServiceTest extends TestCase
         $this->assertSame('Registra tus datos de hoy.', $result['tip']);
     }
 
+    public function test_gemini_receives_prediabetes_condition_in_prompt(): void
+    {
+        Http::fake(['*' => Http::response([
+            'candidates' => [['content' => ['parts' => [['text' => 'Consejo preventivo.']]]]],
+        ], 200)]);
+
+        $this->service->generateGemini(['tipo_diabetes' => 'Prediabetes'], 'test-key');
+
+        Http::assertSent(fn ($request) => str_contains($request->body(), 'Prediabetes')
+            && str_contains($request->body(), 'Condici'));
+    }
+
+    public function test_anthropic_receives_non_diabetic_condition_in_prompt(): void
+    {
+        Http::fake(['api.anthropic.com/v1/messages' => Http::response([
+            'content' => [['text' => 'Consejo de bienestar preventivo.']],
+        ], 200)]);
+
+        $this->service->generateAnthropic(
+            ['tipo_diabetes' => 'Sin diagnóstico de diabetes'],
+            'test-key',
+            'claude-haiku-4-5'
+        );
+
+        Http::assertSent(fn ($request) => str_contains($request->body(), 'Sin diagn')
+            && str_contains($request->body(), 'Condici'));
+    }
+
     public function test_anthropic_provider_returns_tip_from_api_response(): void
     {
         Http::fake([

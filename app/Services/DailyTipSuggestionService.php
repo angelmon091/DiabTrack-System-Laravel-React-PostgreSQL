@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Log;
 
 class DailyTipSuggestionService
 {
-
-
     public function generateAnthropic(array $context, ?string $apiKey = null, ?string $modelName = null): array
     {
         return $this->callAnthropic(
@@ -44,6 +42,7 @@ class DailyTipSuggestionService
             60
         );
         $result['tip'] = $this->truncateWords($result['tip'], 20);
+
         return $result;
     }
 
@@ -57,6 +56,7 @@ class DailyTipSuggestionService
             60
         );
         $result['tip'] = $this->truncateWords($result['tip'], 20);
+
         return $result;
     }
 
@@ -89,7 +89,7 @@ class DailyTipSuggestionService
                 ]);
 
             if ($response->failed()) {
-                throw new \RuntimeException('Anthropic respondió con estado HTTP ' . $response->status());
+                throw new \RuntimeException('Anthropic respondió con estado HTTP '.$response->status());
             }
 
             $tip = trim(
@@ -101,15 +101,15 @@ class DailyTipSuggestionService
             }
 
             return [
-                'tip'           => $tip,
-                'provider'      => 'anthropic',
-                'model'         => $model,
-                'input_tokens'  => (int) $response->json('usage.input_tokens', 0),
+                'tip' => $tip,
+                'provider' => 'anthropic',
+                'model' => $model,
+                'input_tokens' => (int) $response->json('usage.input_tokens', 0),
                 'output_tokens' => (int) $response->json('usage.output_tokens', 0),
             ];
 
         } catch (\Throwable $e) {
-            Log::warning('GenerateDailyTips: error de Anthropic — ' . $e->getMessage());
+            Log::warning('GenerateDailyTips: error de Anthropic — '.$e->getMessage());
             throw new \RuntimeException('No se pudo generar el texto con Anthropic.', 0, $e);
         }
     }
@@ -123,7 +123,7 @@ class DailyTipSuggestionService
         try {
             $response = Http::timeout(30)
                 ->acceptJson()
-                ->post('https://generativelanguage.googleapis.com/v1beta/models/' . $model . ':generateContent?key=' . urlencode($apiKey), [
+                ->post('https://generativelanguage.googleapis.com/v1beta/models/'.$model.':generateContent?key='.urlencode($apiKey), [
                     'contents' => [
                         ['parts' => [['text' => $userText]]],
                     ],
@@ -137,7 +137,7 @@ class DailyTipSuggestionService
                 ]);
 
             if ($response->failed()) {
-                throw new \RuntimeException('Gemini respondió con estado HTTP ' . $response->status());
+                throw new \RuntimeException('Gemini respondió con estado HTTP '.$response->status());
             }
 
             $tip = trim((string) data_get($response->json(), 'candidates.0.content.parts.0.text', ''));
@@ -147,15 +147,15 @@ class DailyTipSuggestionService
             }
 
             return [
-                'tip'           => $tip,
-                'provider'      => 'gemini',
-                'model'         => $model,
-                'input_tokens'  => (int) data_get($response->json(), 'usageMetadata.promptTokenCount', 0),
+                'tip' => $tip,
+                'provider' => 'gemini',
+                'model' => $model,
+                'input_tokens' => (int) data_get($response->json(), 'usageMetadata.promptTokenCount', 0),
                 'output_tokens' => (int) data_get($response->json(), 'usageMetadata.candidatesTokenCount', 0),
             ];
 
         } catch (\Throwable $e) {
-            Log::warning('GenerateDailyTips: error de Gemini — ' . $e->getMessage());
+            Log::warning('GenerateDailyTips: error de Gemini — '.$e->getMessage());
             throw new \RuntimeException('No se pudo generar el texto con Gemini.', 0, $e);
         }
     }
@@ -166,13 +166,14 @@ class DailyTipSuggestionService
         if (count($words) <= $limit) {
             return $text;
         }
-        return rtrim(implode(' ', array_slice($words, 0, $limit)), " ,.;:") . '…';
+
+        return rtrim(implode(' ', array_slice($words, 0, $limit)), ' ,.;:').'…';
     }
 
     private function systemPrompt(): string
     {
         return <<<'PROMPT'
-Eres un asistente de bienestar especializado en diabetes mellitus. Tu tarea es generar UN ÚNICO mensaje diario, breve, cálido y accionable para el paciente, basándote en sus datos del día anterior.
+Eres un asistente de bienestar especializado en salud metabólica y control glucémico. Atiendes personas con diabetes, prediabetes, riesgo metabólico o sin diagnóstico. Tu tarea es generar UN ÚNICO mensaje diario, breve, cálido y accionable, basándote en sus datos del día anterior.
 
 ═══════════════════════════════
 LÍMITES DE BIENESTAR — LEE PRIMERO
@@ -235,10 +236,14 @@ IMC (peso[kg] / altura[m]²):
 - 25–29.9: pequeños ajustes en porciones y más movimiento gradual.
 - 30 o más: cambios pequeños y sostenibles; NUNCA lenguaje de "debes bajar de peso" ni juicios sobre el cuerpo.
 
-TIPO DE DIABETES:
-- Tipo 1: énfasis en consistencia de medición y reconocimiento de patrones; no en peso ni en resistencia.
+CONDICIÓN GLUCÉMICA DECLARADA:
+- Sin diagnóstico de diabetes: bienestar preventivo, registro de hábitos y patrones; nunca presentar a la persona como diabética.
+- Prediabetes: hábitos sostenibles, actividad física y alimentación equilibrada; nunca afirmar que ya tiene diabetes.
+- Tipo 1 o LADA: énfasis en consistencia de medición y reconocimiento de patrones; no en peso ni resistencia.
 - Tipo 2: actividad física, alimentación balanceada y regularidad de comidas como principales palancas.
-- LADA o No especificado: tratar con la misma cautela que Tipo 1.
+- Gestacional: recomendaciones generales prudentes y énfasis en seguimiento prenatal; no sugerir pérdida de peso durante el embarazo.
+- Monogénica (MODY), otra o no especificada: no asumir mecanismo clínico; limitarse a los datos registrados y metas personales.
+- Nunca diagnostiques ni reclasifiques la condición a partir de glucosa, HbA1c u otros registros.
 
 GÉNERO:
 - Femenino: si el contexto lo justifica, mencionar que factores hormonales pueden influir en los niveles de glucosa.
@@ -332,21 +337,21 @@ PROMPT;
 
         // ── Perfil clínico ──────────────────────────────────────────────────
         $lines[] = '=== PERFIL CLÍNICO ===';
-        $lines[] = '- Nombre: ' . ($c['nombre'] ?? 'No especificado');
-        $lines[] = '- Tipo de diabetes: ' . ($c['tipo_diabetes'] ?? 'No especificado');
-        $lines[] = '- Edad: ' . ($c['edad'] ? $c['edad'] . ' años' : 'No especificada');
-        $lines[] = '- Género: ' . ($c['genero'] ?? 'No especificado');
-        $lines[] = '- Peso: ' . ($c['peso_kg'] ? $c['peso_kg'] . ' kg' : 'No registrado');
-        $lines[] = '- Altura: ' . ($c['altura_cm'] ? $c['altura_cm'] . ' cm' : 'No registrada');
-        $lines[] = '- IMC: ' . ($c['imc'] !== null ? $c['imc'] : 'Sin datos');
-        $lines[] = '- Rango glucosa objetivo personal: ' . ($c['rango_glucosa_min'] ?? 70) . '–' . ($c['rango_glucosa_max'] ?? 180) . ' mg/dL';
+        $lines[] = '- Nombre: '.($c['nombre'] ?? 'No especificado');
+        $lines[] = '- Condición glucémica declarada: '.($c['tipo_diabetes'] ?? 'No especificada');
+        $lines[] = '- Edad: '.($c['edad'] ? $c['edad'].' años' : 'No especificada');
+        $lines[] = '- Género: '.($c['genero'] ?? 'No especificado');
+        $lines[] = '- Peso: '.($c['peso_kg'] ? $c['peso_kg'].' kg' : 'No registrado');
+        $lines[] = '- Altura: '.($c['altura_cm'] ? $c['altura_cm'].' cm' : 'No registrada');
+        $lines[] = '- IMC: '.($c['imc'] !== null ? $c['imc'] : 'Sin datos');
+        $lines[] = '- Rango glucosa objetivo personal: '.($c['rango_glucosa_min'] ?? 70).'–'.($c['rango_glucosa_max'] ?? 180).' mg/dL';
 
         // ── Glucosa: tabla individual clasificada (Bloque 1) ───────────────
         $lines[] = '';
         $lines[] = '=== GLUCOSA (últimas 48h) ===';
 
-        if (!empty($c['lecturas_glucosa'])) {
-            $lines[] = '- Total de lecturas: ' . $c['total_lecturas'] . ' (' . $c['lecturas_fuera_rango'] . ' fuera de rango objetivo)';
+        if (! empty($c['lecturas_glucosa'])) {
+            $lines[] = '- Total de lecturas: '.$c['total_lecturas'].' ('.$c['lecturas_fuera_rango'].' fuera de rango objetivo)';
             $lines[] = '';
             $lines[] = 'Hora  | Momento               | Valor      | Clasificación';
             $lines[] = '------|------------------------|------------|---------------';
@@ -361,15 +366,15 @@ PROMPT;
             }
             if ($c['glucosa_promedio_48h'] !== null) {
                 $lines[] = '';
-                $lines[] = '- Promedio: ' . $c['glucosa_promedio_48h'] . ' mg/dL | Mín: ' . $c['glucosa_min_48h'] . ' mg/dL | Máx: ' . $c['glucosa_max_48h'] . ' mg/dL';
+                $lines[] = '- Promedio: '.$c['glucosa_promedio_48h'].' mg/dL | Mín: '.$c['glucosa_min_48h'].' mg/dL | Máx: '.$c['glucosa_max_48h'].' mg/dL';
             }
         } else {
             $lines[] = '- Sin lecturas de glucosa en las últimas 48h.';
         }
 
         if ($c['hba1c'] ?? null) {
-            $hba1cFecha = $c['hba1c_fecha'] ? ' (registrada el ' . $c['hba1c_fecha'] . ')' : '';
-            $lines[] = '- HbA1c más reciente: ' . $c['hba1c'] . '%' . $hba1cFecha;
+            $hba1cFecha = $c['hba1c_fecha'] ? ' (registrada el '.$c['hba1c_fecha'].')' : '';
+            $lines[] = '- HbA1c más reciente: '.$c['hba1c'].'%'.$hba1cFecha;
         }
 
         // ── Otros signos vitales ────────────────────────────────────────────
@@ -377,16 +382,16 @@ PROMPT;
         $lines[] = '=== OTROS SIGNOS VITALES ===';
 
         if (($c['presion_sistolica'] ?? null) && ($c['presion_diastolica'] ?? null)) {
-            $lines[] = '- Presión arterial (últimos 30 días): ' . $c['presion_sistolica'] . '/' . $c['presion_diastolica'] . ' mmHg';
+            $lines[] = '- Presión arterial (últimos 30 días): '.$c['presion_sistolica'].'/'.$c['presion_diastolica'].' mmHg';
         } else {
             $lines[] = '- Presión arterial: Sin registro en los últimos 30 días';
         }
 
-        $lines[] = '- Frecuencia cardíaca: ' . ($c['frecuencia_cardiaca'] ? $c['frecuencia_cardiaca'] . ' bpm (últimos 30 días)' : 'Sin registro en los últimos 30 días');
-        $lines[] = '- Nivel de estrés: ' . ($c['nivel_estres'] ?? 'No registrado');
+        $lines[] = '- Frecuencia cardíaca: '.($c['frecuencia_cardiaca'] ? $c['frecuencia_cardiaca'].' bpm (últimos 30 días)' : 'Sin registro en los últimos 30 días');
+        $lines[] = '- Nivel de estrés: '.($c['nivel_estres'] ?? 'No registrado');
 
         if ($c['nota_vital'] ?? null) {
-            $lines[] = '- Nota del paciente: "' . $c['nota_vital'] . '"';
+            $lines[] = '- Nota del paciente: "'.$c['nota_vital'].'"';
         }
 
         // ── Actividad física (Bloque 3: con hora de inicio) ────────────────
@@ -394,12 +399,12 @@ PROMPT;
         $lines[] = '=== ACTIVIDAD FÍSICA (ayer) ===';
 
         if (($c['minutos_actividad_ayer'] ?? 0) > 0) {
-            $lines[] = '- Minutos de actividad: ' . $c['minutos_actividad_ayer'] . ' min';
-            $lines[] = '- Tipos de ejercicio: ' . (count($c['tipos_actividad_ayer'] ?? []) > 0 ? implode(', ', $c['tipos_actividad_ayer']) : 'No especificado');
-            $lines[] = '- Intensidad: ' . (count($c['intensidad_actividad'] ?? []) > 0 ? implode(', ', $c['intensidad_actividad']) : 'No especificada');
-            $lines[] = '- Energía post-actividad: ' . ($c['energia_post_actividad'] ?? 'No registrada');
+            $lines[] = '- Minutos de actividad: '.$c['minutos_actividad_ayer'].' min';
+            $lines[] = '- Tipos de ejercicio: '.(count($c['tipos_actividad_ayer'] ?? []) > 0 ? implode(', ', $c['tipos_actividad_ayer']) : 'No especificado');
+            $lines[] = '- Intensidad: '.(count($c['intensidad_actividad'] ?? []) > 0 ? implode(', ', $c['intensidad_actividad']) : 'No especificada');
+            $lines[] = '- Energía post-actividad: '.($c['energia_post_actividad'] ?? 'No registrada');
             if ($c['hora_ejercicio'] ?? null) {
-                $lines[] = '- Hora de inicio: ' . $c['hora_ejercicio'];
+                $lines[] = '- Hora de inicio: '.$c['hora_ejercicio'];
             }
         } else {
             $lines[] = '- Sin actividad física registrada ayer.';
@@ -411,41 +416,41 @@ PROMPT;
 
         $desayuno = ($c['registro_desayuno'] ?? false) ? '✓ registrado' : '✗ sin registro en app';
         $almuerzo = ($c['registro_almuerzo'] ?? false) ? '✓ registrado' : '✗ sin registro en app';
-        $cena     = ($c['registro_cena'] ?? false)     ? '✓ registrado' : '✗ sin registro en app';
-        $lines[]  = '- Estado de registro (✗ = no anotado en la app, NO significa que no comió):';
-        $lines[]  = '  Desayuno: ' . $desayuno . ' | Almuerzo: ' . $almuerzo . ' | Cena: ' . $cena;
+        $cena = ($c['registro_cena'] ?? false) ? '✓ registrado' : '✗ sin registro en app';
+        $lines[] = '- Estado de registro (✗ = no anotado en la app, NO significa que no comió):';
+        $lines[] = '  Desayuno: '.$desayuno.' | Almuerzo: '.$almuerzo.' | Cena: '.$cena;
 
-        $lines[] = '- Carbohidratos totales: ' . (($c['carbs_ayer_gramos'] ?? 0) > 0 ? $c['carbs_ayer_gramos'] . ' g' : 'Sin registros');
-        $lines[] = '- Grupos de alimentos: ' . (count($c['categorias_alimentos'] ?? []) > 0 ? implode(', ', $c['categorias_alimentos']) : 'No especificados');
+        $lines[] = '- Carbohidratos totales: '.(($c['carbs_ayer_gramos'] ?? 0) > 0 ? $c['carbs_ayer_gramos'].' g' : 'Sin registros');
+        $lines[] = '- Grupos de alimentos: '.(count($c['categorias_alimentos'] ?? []) > 0 ? implode(', ', $c['categorias_alimentos']) : 'No especificados');
 
         if ($c['tiene_azucares'] ?? false) {
             $lines[] = '- Consumo de azúcares/dulces: Sí';
         }
 
-        if (!empty($c['comidas_con_hora'])) {
+        if (! empty($c['comidas_con_hora'])) {
             $horariosStr = collect($c['comidas_con_hora'])
-                ->map(fn($m) => ucfirst($m['comida']) . ' a las ' . $m['hora'])
+                ->map(fn ($m) => ucfirst($m['comida']).' a las '.$m['hora'])
                 ->implode(', ');
-            $lines[] = '- Horario de comidas: ' . $horariosStr;
+            $lines[] = '- Horario de comidas: '.$horariosStr;
         }
 
         // ── Síntomas ────────────────────────────────────────────────────────
         $lines[] = '';
         $lines[] = '=== SÍNTOMAS RECIENTES (48h) ===';
         $lines[] = count($c['sintomas_recientes'] ?? []) > 0
-            ? '- Síntomas reportados: ' . implode(', ', $c['sintomas_recientes'])
+            ? '- Síntomas reportados: '.implode(', ', $c['sintomas_recientes'])
             : '- Sin síntomas reportados.';
 
         // ── Último consejo dado (Bloque 2: fix — ahora llega el texto real) ─
-        if (!empty($c['ultimo_consejo'])) {
+        if (! empty($c['ultimo_consejo'])) {
             $lines[] = '';
             $lines[] = '=== ÚLTIMO CONSEJO DADO (NO repetir el mismo tema) ===';
-            $lines[] = '"' . $c['ultimo_consejo'] . '"';
+            $lines[] = '"'.$c['ultimo_consejo'].'"';
         }
 
         // ── Instrucción final ───────────────────────────────────────────────
         $lines[] = '';
-        $lines[] = 'Analiza el patrón más relevante clínicamente cruzando el perfil demográfico (edad, género, IMC, tipo de diabetes) con los datos del día (glucosa por momento, alimentación, actividad, estrés, síntomas).';
+        $lines[] = 'Analiza el patrón más relevante cruzando el perfil demográfico (edad, género, IMC y condición glucémica declarada) con los datos del día (glucosa por momento, alimentación, actividad, estrés y síntomas). No diagnostiques ni cambies la condición declarada.';
         $lines[] = 'Genera UN mensaje breve, cálido y accionable de máximo 220 caracteres. Recuerda: eres un asistente de bienestar. Si hay valores fuera de rango, menciona con calma que vale la pena comentárselo al médico en la próxima visita. Sin saludos, títulos ni diagnósticos.';
 
         return implode("\n", $lines);
@@ -470,19 +475,25 @@ PROMPT;
     private function buildReminderPrompt(array $c): string
     {
         $faltantes = [];
-        if ($c['falta_glucosa'] ?? false)   { $faltantes[] = 'su nivel de glucosa'; }
-        if ($c['falta_comidas'] ?? false)   { $faltantes[] = 'sus comidas'; }
-        if ($c['falta_actividad'] ?? false) { $faltantes[] = 'su actividad física'; }
+        if ($c['falta_glucosa'] ?? false) {
+            $faltantes[] = 'su nivel de glucosa';
+        }
+        if ($c['falta_comidas'] ?? false) {
+            $faltantes[] = 'sus comidas';
+        }
+        if ($c['falta_actividad'] ?? false) {
+            $faltantes[] = 'su actividad física';
+        }
 
         $lines = [];
-        $lines[] = 'Paciente: ' . ($c['nombre'] ?? 'el paciente');
-        $lines[] = 'Datos de salud que aún no ha anotado hoy en su bitácora: ' . (count($faltantes) ? implode(', ', $faltantes) : 'nada relevante');
+        $lines[] = 'Paciente: '.($c['nombre'] ?? 'el paciente');
+        $lines[] = 'Datos de salud que aún no ha anotado hoy en su bitácora: '.(count($faltantes) ? implode(', ', $faltantes) : 'nada relevante');
 
-        if (!empty($c['ultima_glucosa_clase'])) {
-            $lines[] = 'Su última lectura de glucosa fue: ' . $c['ultima_glucosa_clase'];
+        if (! empty($c['ultima_glucosa_clase'])) {
+            $lines[] = 'Su última lectura de glucosa fue: '.$c['ultima_glucosa_clase'];
         }
-        if (!empty($c['sintomas_recientes'])) {
-            $lines[] = 'Reportó síntomas recientes: ' . implode(', ', $c['sintomas_recientes']);
+        if (! empty($c['sintomas_recientes'])) {
+            $lines[] = 'Reportó síntomas recientes: '.implode(', ', $c['sintomas_recientes']);
         }
 
         $lines[] = '';
@@ -490,5 +501,4 @@ PROMPT;
 
         return implode("\n", $lines);
     }
-
 }

@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Representa una notificación interna destinada a un paciente.
+ */
 class PatientNotification extends Model
 {
     protected $fillable = ['user_id', 'type', 'title', 'body', 'icon', 'read_at'];
@@ -23,7 +26,7 @@ class PatientNotification extends Model
 
     public function markRead(): void
     {
-        if (!$this->read_at) {
+        if (! $this->read_at) {
             $this->update(['read_at' => now()]);
         }
     }
@@ -37,10 +40,10 @@ class PatientNotification extends Model
     {
         return self::create([
             'user_id' => $userId,
-            'type'    => 'ai_reminder',
-            'title'   => $title,
-            'body'    => $body,
-            'icon'    => 'fa-solid fa-robot',
+            'type' => 'ai_reminder',
+            'title' => $title,
+            'body' => $body,
+            'icon' => 'fa-solid fa-robot',
         ]);
     }
 }

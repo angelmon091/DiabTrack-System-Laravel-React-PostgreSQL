@@ -1,5 +1,10 @@
 <?php
 
+use App\Http\Middleware\AdminMiddleware;
+use App\Http\Middleware\EnsureDoctorApproved;
+use App\Http\Middleware\EnsureOnboardingComplete;
+use App\Http\Middleware\RoleMiddleware;
+use App\Http\Middleware\TimezoneMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -12,13 +17,14 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
-            \App\Http\Middleware\TimezoneMiddleware::class,
+            TimezoneMiddleware::class,
         ]);
 
         $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminMiddleware::class,
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
-            'onboarding' => \App\Http\Middleware\EnsureOnboardingComplete::class,
+            'admin' => AdminMiddleware::class,
+            'role' => RoleMiddleware::class,
+            'onboarding' => EnsureOnboardingComplete::class,
+            'doctor.approved' => EnsureDoctorApproved::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

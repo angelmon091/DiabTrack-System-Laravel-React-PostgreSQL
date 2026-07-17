@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 
@@ -24,7 +25,7 @@ class SearchController extends Controller
 
         return response()->json([
             'sections' => $this->searchSections($q),
-            'records'  => $this->searchRecords($q),
+            'records' => $this->searchRecords($q),
         ]);
     }
 
@@ -39,7 +40,7 @@ class SearchController extends Controller
             ['label' => 'Panel principal',       'icon' => 'fa-solid fa-gauge-high',       'route' => 'dashboard',                'keywords' => ['dashboard', 'inicio', 'panel', 'principal', 'home']],
             ['label' => 'Registrar signo vital', 'icon' => 'fa-solid fa-droplet',          'route' => 'tracking.vital.create',    'keywords' => ['glucosa', 'vital', 'signo', 'presion', 'peso', 'azucar', 'medir', 'hba1c', 'ritmo', 'cardiaco', 'estres', 'registrar']],
             ['label' => 'Registrar actividad',   'icon' => 'fa-solid fa-person-running',    'route' => 'tracking.activity.create', 'keywords' => ['actividad', 'ejercicio', 'caminar', 'correr', 'deporte', 'movimiento', 'entrenar', 'registrar']],
-            ['label' => 'Registrar comida',      'icon' => 'fa-solid fa-utensils',         'route' => 'tracking.nutrition.create','keywords' => ['comida', 'comidas', 'registrar', 'alimento', 'alimentacion', 'nutricion', 'dieta', 'desayuno', 'almuerzo', 'cena', 'snack', 'carbohidratos', 'carbs']],
+            ['label' => 'Registrar comida',      'icon' => 'fa-solid fa-utensils',         'route' => 'tracking.nutrition.create', 'keywords' => ['comida', 'comidas', 'registrar', 'alimento', 'alimentacion', 'nutricion', 'dieta', 'desayuno', 'almuerzo', 'cena', 'snack', 'carbohidratos', 'carbs']],
             ['label' => 'Registrar síntomas',    'icon' => 'fa-solid fa-notes-medical',    'route' => 'tracking.symptom.create',  'keywords' => ['sintoma', 'sintomas', 'malestar', 'dolor', 'mareo', 'registrar']],
             ['label' => 'Gráficos y resumen',    'icon' => 'fa-solid fa-chart-line',       'route' => 'tracking.summary',         'keywords' => ['graficos', 'resumen', 'tendencias', 'historial', 'analisis', 'estadisticas']],
             ['label' => 'Mi perfil',             'icon' => 'fa-solid fa-user',             'route' => 'profile.edit',             'keywords' => ['perfil', 'ajustes', 'configuracion', 'cuenta', 'datos']],
@@ -47,13 +48,14 @@ class SearchController extends Controller
 
         return collect($sections)
             ->filter(function (array $s) use ($norm) {
-                $haystack = $this->stripAccents(mb_strtolower($s['label'])) . ' ' . implode(' ', $s['keywords']);
+                $haystack = $this->stripAccents(mb_strtolower($s['label'])).' '.implode(' ', $s['keywords']);
+
                 return str_contains($haystack, $norm);
             })
             ->map(fn (array $s) => [
                 'label' => $s['label'],
-                'icon'  => $s['icon'],
-                'url'   => route($s['route']),
+                'icon' => $s['icon'],
+                'url' => route($s['route']),
             ])
             ->take(6)
             ->values()
@@ -65,16 +67,16 @@ class SearchController extends Controller
      */
     private function searchRecords(string $q): array
     {
-        $user     = Auth::user();
-        $like     = '%' . $q . '%';
+        $user = Auth::user();
+        $like = '%'.$q.'%';
         $isNumber = is_numeric($q);
-        $results  = [];
+        $results = [];
 
         // ── Signos vitales ──────────────────────────────────────────────
         $vitals = $user->vitalSigns()
             ->where(function ($w) use ($like, $isNumber, $q) {
                 $w->where('measurement_moment', 'like', $like)
-                  ->orWhere('notes', 'like', $like);
+                    ->orWhere('notes', 'like', $like);
                 if ($isNumber) {
                     $w->orWhere('glucose_level', $q);
                 }
@@ -85,17 +87,17 @@ class SearchController extends Controller
 
         foreach ($vitals as $v) {
             $titulo = $v->glucose_level
-                ? 'Glucosa ' . $v->glucose_level . ' mg/dL'
+                ? 'Glucosa '.$v->glucose_level.' mg/dL'
                 : 'Signo vital';
             $detalle = collect([$v->measurement_moment, $v->created_at?->format('d/m/Y')])
                 ->filter()->implode(' · ');
 
             $results[] = [
-                'type'     => 'Signo vital',
-                'icon'     => 'fa-solid fa-droplet',
-                'title'    => $titulo,
+                'type' => 'Signo vital',
+                'icon' => 'fa-solid fa-droplet',
+                'title' => $titulo,
                 'subtitle' => $detalle,
-                'url'      => route('tracking.summary'),
+                'url' => route('tracking.summary'),
             ];
         }
 
@@ -108,17 +110,17 @@ class SearchController extends Controller
 
         foreach ($activities as $a) {
             $detalle = collect([
-                    $a->duration_minutes ? $a->duration_minutes . ' min' : null,
-                    $a->intensity ? 'intensidad ' . $a->intensity : null,
-                    $a->created_at?->format('d/m/Y'),
-                ])->filter()->implode(' · ');
+                $a->duration_minutes ? $a->duration_minutes.' min' : null,
+                $a->intensity ? 'intensidad '.$a->intensity : null,
+                $a->created_at?->format('d/m/Y'),
+            ])->filter()->implode(' · ');
 
             $results[] = [
-                'type'     => 'Actividad',
-                'icon'     => 'fa-solid fa-person-running',
-                'title'    => Str::ucfirst($a->activity_type ?? 'Actividad física'),
+                'type' => 'Actividad',
+                'icon' => 'fa-solid fa-person-running',
+                'title' => Str::ucfirst($a->activity_type ?? 'Actividad física'),
                 'subtitle' => $detalle,
-                'url'      => route('tracking.summary'),
+                'url' => route('tracking.summary'),
             ];
         }
 
@@ -126,7 +128,7 @@ class SearchController extends Controller
         $meals = $user->nutritionLogs()
             ->where(function ($w) use ($like) {
                 $w->where('meal_type', 'like', $like)
-                  ->orWhereRaw('CAST(food_categories AS CHAR) LIKE ?', [$like]);
+                    ->orWhereRaw('CAST(food_categories AS CHAR) LIKE ?', [$like]);
             })
             ->latest('created_at')
             ->limit(5)
@@ -135,17 +137,17 @@ class SearchController extends Controller
         foreach ($meals as $m) {
             $categorias = collect($m->food_categories ?? [])->implode(', ');
             $detalle = collect([
-                    $m->carbs_grams ? $m->carbs_grams . ' g carbs' : null,
-                    $categorias ?: null,
-                    $m->created_at?->format('d/m/Y'),
-                ])->filter()->implode(' · ');
+                $m->carbs_grams ? $m->carbs_grams.' g carbs' : null,
+                $categorias ?: null,
+                $m->created_at?->format('d/m/Y'),
+            ])->filter()->implode(' · ');
 
             $results[] = [
-                'type'     => 'Comida',
-                'icon'     => 'fa-solid fa-utensils',
-                'title'    => Str::ucfirst($m->meal_type ?? 'Comida'),
+                'type' => 'Comida',
+                'icon' => 'fa-solid fa-utensils',
+                'title' => Str::ucfirst($m->meal_type ?? 'Comida'),
                 'subtitle' => $detalle,
-                'url'      => route('tracking.summary'),
+                'url' => route('tracking.summary'),
             ];
         }
 
@@ -157,14 +159,14 @@ class SearchController extends Controller
             ->get();
 
         foreach ($symptoms as $s) {
-            $fecha = optional($s->pivot->logged_at ? \Illuminate\Support\Carbon::parse($s->pivot->logged_at) : null)?->format('d/m/Y');
+            $fecha = optional($s->pivot->logged_at ? Carbon::parse($s->pivot->logged_at) : null)?->format('d/m/Y');
 
             $results[] = [
-                'type'     => 'Síntoma',
-                'icon'     => 'fa-solid fa-notes-medical',
-                'title'    => $s->name,
+                'type' => 'Síntoma',
+                'icon' => 'fa-solid fa-notes-medical',
+                'title' => $s->name,
                 'subtitle' => collect(['Síntoma', $fecha])->filter()->implode(' · '),
-                'url'      => route('tracking.summary'),
+                'url' => route('tracking.summary'),
             ];
         }
 

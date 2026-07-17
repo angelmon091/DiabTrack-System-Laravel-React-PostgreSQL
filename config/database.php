@@ -14,7 +14,7 @@ return [
     | usar como tu conexión predeterminada para las operaciones de base de datos. Esta es
     | la conexión que se utilizará a menos que se especifique explícitamente otra conexión
     | al ejecutar una consulta / sentencia.
-    |   
+    |
     */
 
     'default' => env('DB_CONNECTION', 'sqlite'),

@@ -536,7 +536,7 @@
             });
         }
 
-        // Intercept invite code generation form
+        // Intercepta el formulario utilizado para generar el código de invitación.
         const inviteForm = document.getElementById('invite-code-form');
         if (inviteForm) {
             inviteForm.addEventListener('submit', function(e) {

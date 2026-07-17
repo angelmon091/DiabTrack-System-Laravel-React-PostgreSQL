@@ -94,6 +94,10 @@
                     </a>
                 </div>
             @endif
+
+            @if($patients->isEmpty())
+                <x-empty-sidebar-guide profile="caregiver" />
+            @endif
         </aside>
 
         {{-- Contenido Principal --}}
@@ -106,16 +110,7 @@
             @endif
 
             @if($patients->isEmpty())
-                <div class="diab-card p-5 text-center animate-fade-in">
-                    <div class="admin-card-icon-wrapper mx-auto bg-diab-warning-light mb-4">
-                        <i class="fa-solid fa-user-plus fs-2 text-diab-warning"></i>
-                    </div>
-                    <h4 class="fw-bold mb-2">Aún no tienes pacientes vinculados</h4>
-                    <p class="text-muted mb-4">Pide a tu paciente que genere un <strong>código de invitación</strong> desde su panel y luego ingrésalo aquí.</p>
-                    <a href="{{ route('caregiver.link') }}" class="btn-diab-primary d-inline-flex align-items-center gap-2">
-                        <i class="fa-solid fa-link"></i> Vincular Paciente
-                    </a>
-                </div>
+                <x-empty-linked-patients profile="caregiver" />
             @else
                 @if($selectedPatient)
                     {{-- Encabezado del Paciente Seleccionado --}}

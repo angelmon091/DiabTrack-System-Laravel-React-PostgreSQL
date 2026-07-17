@@ -41,7 +41,7 @@ body {
     height: 100dvh;
     min-height: 100vh;
     min-height: 100dvh;
-    /* Optimized image: lower resolution (1280) and quality (60) for much faster loading */
+    /* Imagen optimizada a resolución 1280 y calidad 60 para reducir el tiempo de carga. */
     background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(15, 23, 42, 0.5) 100%), 
                 url('https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=60&w=1280&auto=format&fit=crop') no-repeat center center;
     background-size: cover;

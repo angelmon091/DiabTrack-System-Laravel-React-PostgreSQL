@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Modelo NutritionLog
- * 
- * Almacena el historial de ingesta de alimentos del usuario, centrándose en el 
+ *
+ * Almacena el historial de ingesta de alimentos del usuario, centrándose en el
  * conteo de carbohidratos y la relación con la medicación tomada.
  */
 class NutritionLog extends Model
@@ -17,7 +19,7 @@ class NutritionLog extends Model
 
     /**
      * Atributos asignables de forma masiva.
-     * 
+     *
      * - meal_type: Tipo de comida (desayuno, almuerzo, cena, snack).
      * - carbs_grams: Cantidad de carbohidratos consumidos (crucial para diabéticos).
      * - food_categories: Arreglo de tipos de alimentos consumidos (frutas, lácteos, etc).
@@ -61,7 +63,7 @@ class NutritionLog extends Model
      */
     public function scopeDeHoy($query)
     {
-        return $query->whereDate('created_at', \Carbon\Carbon::today());
+        return $query->whereDate('created_at', Carbon::today());
     }
 
     /**
@@ -70,11 +72,11 @@ class NutritionLog extends Model
     protected static function booted()
     {
         static::saved(function ($nutritionLog) {
-            \Illuminate\Support\Facades\Cache::forget("dashboard_metrics_{$nutritionLog->user_id}_v2");
+            Cache::forget("dashboard_metrics_{$nutritionLog->user_id}_v2");
         });
 
         static::deleted(function ($nutritionLog) {
-            \Illuminate\Support\Facades\Cache::forget("dashboard_metrics_{$nutritionLog->user_id}_v2");
+            Cache::forget("dashboard_metrics_{$nutritionLog->user_id}_v2");
         });
     }
 }

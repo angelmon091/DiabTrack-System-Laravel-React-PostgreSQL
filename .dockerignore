@@ -13,5 +13,8 @@ Dockerfile
 .dockerignore
 README.md
 tests
+phpunit.xml
+.env.dusk*
+scripts
 rr
 .rr.yaml

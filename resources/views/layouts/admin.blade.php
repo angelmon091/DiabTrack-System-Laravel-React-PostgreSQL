@@ -21,7 +21,7 @@
 </head>
 <body class="admin-body animate-fade-in">
 
-    <!-- Header / Navbar Principal -->
+    <!-- Encabezado y barra de navegación principal -->
     <header class="navbar shadow-sm border-bottom glass-effect sticky-top py-2">
         <div class="navbar-content container-fluid px-md-5 d-flex justify-content-between align-items-center">
             <a href="{{ route('dashboard') }}" class="diab-logo text-decoration-none">
@@ -92,6 +92,11 @@
                 <a href="{{ route('admin.roles.index') }}" class="admin-nav-item {{ request()->routeIs('admin.roles.*') ? 'active' : '' }}">
                     <i class="fa-solid fa-shield-halved"></i>
                     <span class="d-none d-md-inline">Roles y Permisos</span>
+                </a>
+
+                <a href="{{ route('admin.doctors.index') }}" class="admin-nav-item {{ request()->routeIs('admin.doctors.*') ? 'active' : '' }}">
+                    <i class="fa-solid fa-user-doctor"></i>
+                    <span class="d-none d-md-inline">Aprobar médicos</span>
                 </a>
 
                 <a href="{{ route('admin.api-usage.index') }}" class="admin-nav-item {{ request()->routeIs('admin.api-usage.*') ? 'active' : '' }}">

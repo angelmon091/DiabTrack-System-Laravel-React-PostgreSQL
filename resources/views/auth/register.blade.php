@@ -3,7 +3,7 @@
         <form method="POST" action="{{ route('register') }}">
             @csrf
 
-            <!-- Name -->
+            <!-- Nombre -->
             <x-text-input 
                 type="text" 
                 name="name" 
@@ -15,7 +15,7 @@
             />
             <x-input-error :messages="$errors->get('name')" />
             
-            <!-- Email Address -->
+            <!-- Dirección de correo electrónico -->
             <x-text-input 
                 type="email" 
                 name="email" 
@@ -26,7 +26,7 @@
             />
             <x-input-error :messages="$errors->get('email')" />
 
-            <!-- Password -->
+            <!-- Contraseña -->
             <x-text-input 
                 type="password" 
                 name="password" 
@@ -36,7 +36,7 @@
             />
             <x-input-error :messages="$errors->get('password')" />
 
-            <!-- Confirm Password -->
+            <!-- Confirmación de contraseña -->
             <x-text-input 
                 type="password" 
                 name="password_confirmation" 

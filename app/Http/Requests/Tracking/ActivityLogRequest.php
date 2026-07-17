@@ -4,6 +4,9 @@ namespace App\Http\Requests\Tracking;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Centraliza las reglas de autorización y validación para los registros de actividad física.
+ */
 class ActivityLogRequest extends FormRequest
 {
     public function authorize(): bool

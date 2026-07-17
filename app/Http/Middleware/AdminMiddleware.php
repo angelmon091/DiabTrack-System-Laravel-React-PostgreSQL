@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Clase AdminMiddleware
- * 
+ *
  * Middleware que restringe el acceso a rutas solo para usuarios administradores.
  * Si el usuario no está autenticado o no es administrador, redirige al dashboard.
  */
@@ -16,14 +16,10 @@ class AdminMiddleware
 {
     /**
      * Maneja una solicitud entrante.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param \Closure $next
-     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if (!auth()->check() || !auth()->user()->isAdmin()) {
+        if (! auth()->check() || ! auth()->user()->isAdmin()) {
             return redirect()->route('dashboard');
         }
 

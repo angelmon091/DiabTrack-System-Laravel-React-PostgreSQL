@@ -12,6 +12,9 @@ use Illuminate\Support\Facades\DB;
 
 #[Signature('app:generate-reminders')]
 #[Description('Genera recordatorios IA breves para pacientes que aún no han registrado sus datos de hoy')]
+/**
+ * Ejecuta la generación programada de recordatorios para pacientes sin registros recientes.
+ */
 class GenerateReminders extends Command
 {
     public function __construct(private readonly PatientReminderService $reminderService)
@@ -27,6 +30,7 @@ class GenerateReminders extends Command
 
         if ($patients->isEmpty()) {
             $this->info('No se encontraron pacientes para generar recordatorios.');
+
             return;
         }
 
@@ -42,7 +46,7 @@ class GenerateReminders extends Command
                              $patient->nutritionLogs()->where('created_at', '>=', $since)->exists() ||
                              DB::table('symptom_user')->where('user_id', $patient->id)->where('logged_at', '>=', $since)->exists();
 
-            if (!$hasRecentData) {
+            if (! $hasRecentData) {
                 continue;
             }
 

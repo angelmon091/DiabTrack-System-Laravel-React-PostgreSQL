@@ -3,10 +3,10 @@
         <form method="POST" action="{{ route('password.store') }}">
             @csrf
 
-            <!-- Password Reset Token -->
+            <!-- Token para restablecer la contraseña -->
             <input type="hidden" name="token" value="{{ $request->route('token') }}">
 
-            <!-- Email Address -->
+            <!-- Dirección de correo electrónico -->
             <x-text-input 
                 type="email" 
                 name="email" 
@@ -19,7 +19,7 @@
             />
             <x-input-error :messages="$errors->get('email')" />
 
-            <!-- Password -->
+            <!-- Contraseña -->
             <x-text-input 
                 type="password" 
                 name="password" 
@@ -30,7 +30,7 @@
             />
             <x-input-error :messages="$errors->get('password')" />
 
-            <!-- Confirm Password -->
+            <!-- Confirmación de contraseña -->
             <x-text-input 
                 type="password" 
                 name="password_confirmation" 

@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Modelo VitalSign
- * 
- * Representa los registros de signos vitales de un usuario, incluyendo niveles 
+ *
+ * Representa los registros de signos vitales de un usuario, incluyendo niveles
  * de glucosa, presión arterial y hemoglobina glicosilada (HbA1c).
  */
 class VitalSign extends Model
@@ -17,7 +19,7 @@ class VitalSign extends Model
 
     /**
      * Atributos asignables de forma masiva.
-     * 
+     *
      * - glucose_level: Nivel de azúcar en sangre (mg/dL).
      * - systolic/diastolic: Presión arterial.
      * - hba1c: Promedio de glucosa de los últimos 3 meses (%).
@@ -57,7 +59,7 @@ class VitalSign extends Model
      */
     public function scopeDeHoy($query)
     {
-        return $query->whereDate('created_at', \Carbon\Carbon::today());
+        return $query->whereDate('created_at', Carbon::today());
     }
 
     /**
@@ -66,6 +68,7 @@ class VitalSign extends Model
      * rango, por lo que se ignora y se usan los umbrales clínicos por momento.
      */
     public const GLUCOSE_DEFAULT_MIN = 70;
+
     public const GLUCOSE_DEFAULT_MAX = 130;
 
     /**
@@ -95,18 +98,21 @@ class VitalSign extends Model
         }
 
         $medicoPersonalizo = $targetMin !== null && $targetMax !== null
-            && !($targetMin === self::GLUCOSE_DEFAULT_MIN && $targetMax === self::GLUCOSE_DEFAULT_MAX);
+            && ! ($targetMin === self::GLUCOSE_DEFAULT_MIN && $targetMax === self::GLUCOSE_DEFAULT_MAX);
 
         $clasificarPorRangoMedico = function () use ($valor, $targetMin, $targetMax) {
-            if ($valor < $targetMin) return 'baja';
+            if ($valor < $targetMin) {
+                return 'baja';
+            }
+
             return $valor <= $targetMax ? 'normal' : 'elevada';
         };
 
         return match ($momento) {
             'Ayunas', 'Antes de Comer' => $medicoPersonalizo ? $clasificarPorRangoMedico() : ($valor <= 130 ? 'normal' : 'elevada'),
             'Después de Comer' => $valor < 180 ? 'normal' : 'elevada',
-            'Al Dormir'        => $valor <= 150 ? 'normal' : 'elevada',
-            default            => $medicoPersonalizo
+            'Al Dormir' => $valor <= 150 ? 'normal' : 'elevada',
+            default => $medicoPersonalizo
                 ? $clasificarPorRangoMedico()
                 : (($valor >= self::GLUCOSE_DEFAULT_MIN && $valor <= self::GLUCOSE_DEFAULT_MAX) ? 'normal' : 'elevada'),
         };
@@ -120,9 +126,9 @@ class VitalSign extends Model
     {
         return match ($estado) {
             'elevada' => ['color' => 'danger',  'label' => 'Nivel Elevado', 'badge' => 'Alto',     'icon' => 'fa-triangle-exclamation'],
-            'baja'    => ['color' => 'warning', 'label' => 'Nivel Bajo',    'badge' => 'Bajo',     'icon' => 'fa-droplet-slash'],
-            'normal'  => ['color' => 'success', 'label' => 'En rango',      'badge' => 'En Rango', 'icon' => 'fa-circle-check'],
-            default   => ['color' => 'secondary', 'label' => 'Sin datos',   'badge' => '--',       'icon' => 'fa-circle-question'],
+            'baja' => ['color' => 'warning', 'label' => 'Nivel Bajo',    'badge' => 'Bajo',     'icon' => 'fa-droplet-slash'],
+            'normal' => ['color' => 'success', 'label' => 'En rango',      'badge' => 'En Rango', 'icon' => 'fa-circle-check'],
+            default => ['color' => 'secondary', 'label' => 'Sin datos',   'badge' => '--',       'icon' => 'fa-circle-question'],
         };
     }
 
@@ -132,11 +138,11 @@ class VitalSign extends Model
     protected static function booted()
     {
         static::saved(function ($vitalSign) {
-            \Illuminate\Support\Facades\Cache::forget("dashboard_metrics_{$vitalSign->user_id}_v2");
+            Cache::forget("dashboard_metrics_{$vitalSign->user_id}_v2");
         });
 
         static::deleted(function ($vitalSign) {
-            \Illuminate\Support\Facades\Cache::forget("dashboard_metrics_{$vitalSign->user_id}_v2");
+            Cache::forget("dashboard_metrics_{$vitalSign->user_id}_v2");
         });
     }
 }

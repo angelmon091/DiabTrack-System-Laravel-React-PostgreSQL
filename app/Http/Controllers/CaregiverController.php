@@ -9,7 +9,6 @@ use App\Models\VitalSign;
 use App\Services\DashboardMetricsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 /**
  * Dashboard y gestión de pacientes para cuidadores.
@@ -31,7 +30,7 @@ class CaregiverController extends Controller
                 ? $patients->firstWhere('id', $selectedPatientId)
                 : $patients->first();
 
-            if (!$selectedPatient) {
+            if (! $selectedPatient) {
                 $selectedPatient = $patients->first();
             }
 
@@ -70,7 +69,7 @@ class CaregiverController extends Controller
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$link) {
+        if (! $link) {
             return back()->withErrors(['invite_code' => 'El código es inválido o ha expirado.']);
         }
 
@@ -82,10 +81,10 @@ class CaregiverController extends Controller
 
         PatientNotification::create([
             'user_id' => $link->patient_id,
-            'type'    => 'system',
-            'title'   => 'Nuevo cuidador vinculado',
-            'body'    => Auth::user()->name . ' se ha vinculado a tu cuenta como cuidador.',
-            'icon'    => 'fa-solid fa-user-nurse',
+            'type' => 'system',
+            'title' => 'Nuevo cuidador vinculado',
+            'body' => Auth::user()->name.' se ha vinculado a tu cuenta como cuidador.',
+            'icon' => 'fa-solid fa-user-nurse',
         ]);
 
         return redirect()->route('caregiver.dashboard')
@@ -136,7 +135,7 @@ class CaregiverController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => __('Registro de salud guardado con éxito.'),
-                'redirect_url' => route('caregiver.dashboard', ['patient_id' => $patient->id])
+                'redirect_url' => route('caregiver.dashboard', ['patient_id' => $patient->id]),
             ]);
         }
 
@@ -150,6 +149,7 @@ class CaregiverController extends Controller
     public function createVital(User $patient)
     {
         $this->checkLink($patient->id);
+
         return view('caregiver.tracking.vital-create', compact('patient'));
     }
 
@@ -175,8 +175,8 @@ class CaregiverController extends Controller
             ->where('linked_user_id', Auth::id())
             ->where('status', 'active')
             ->exists();
-        
-        if (!$isLinked) {
+
+        if (! $isLinked) {
             abort(403, 'No tienes permiso para ver los datos de este paciente.');
         }
     }

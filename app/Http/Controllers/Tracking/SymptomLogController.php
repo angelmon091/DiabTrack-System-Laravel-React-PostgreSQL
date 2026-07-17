@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Tracking\SymptomLogRequest;
 use App\Models\Symptom;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 
+/**
+ * Gestiona la selección y persistencia de síntomas reportados por el paciente.
+ */
 class SymptomLogController extends Controller
 {
     public function create()
@@ -29,12 +33,12 @@ class SymptomLogController extends Controller
         $user->symptoms()->attach($pivotData);
 
         // Invalidar el caché de métricas del dashboard del usuario
-        \Illuminate\Support\Facades\Cache::forget("dashboard_metrics_{$user->id}_v2");
+        Cache::forget("dashboard_metrics_{$user->id}_v2");
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => __('Registro de síntomas guardado con éxito.')
+                'message' => __('Registro de síntomas guardado con éxito.'),
             ]);
         }
 

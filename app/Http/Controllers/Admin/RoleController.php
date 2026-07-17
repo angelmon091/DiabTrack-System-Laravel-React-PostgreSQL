@@ -5,11 +5,12 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AdminRoleRequest;
 use App\Models\Role;
-use Illuminate\Http\Request;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 
 /**
  * Clase RoleController
- * 
+ *
  * Gestiona las operaciones CRUD para los roles del sistema.
  * Permite crear, editar, listar y eliminar roles de usuario.
  */
@@ -17,19 +18,20 @@ class RoleController extends Controller
 {
     /**
      * Muestra un listado de los roles existentes.
-     * 
-     * @return \Illuminate\Contracts\View\View
+     *
+     * @return View
      */
     public function index()
     {
         $roles = Role::withCount('users')->latest()->paginate(10);
+
         return view('admin.roles.index', compact('roles'));
     }
 
     /**
      * Muestra el formulario para crear un nuevo rol.
      *
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function create()
     {
@@ -39,8 +41,7 @@ class RoleController extends Controller
     /**
      * Almacena un nuevo rol en la base de datos.
      *
-     * @param \App\Http\Requests\Admin\AdminRoleRequest $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(AdminRoleRequest $request)
     {
@@ -52,8 +53,7 @@ class RoleController extends Controller
     /**
      * Muestra el formulario para editar un rol existente.
      *
-     * @param \App\Models\Role $role
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function edit(Role $role)
     {
@@ -63,9 +63,7 @@ class RoleController extends Controller
     /**
      * Actualiza un rol existente en la base de datos.
      *
-     * @param \App\Http\Requests\Admin\AdminRoleRequest $request
-     * @param \App\Models\Role $role
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update(AdminRoleRequest $request, Role $role)
     {
@@ -77,8 +75,7 @@ class RoleController extends Controller
     /**
      * Elimina un rol de la base de datos.
      *
-     * @param \App\Models\Role $role
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function destroy(Role $role)
     {

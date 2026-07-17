@@ -7,6 +7,9 @@ use App\Http\Requests\Tracking\VitalSignRequest;
 use App\Models\VitalSign;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Gestiona la captura de glucosa, presión arterial y otros signos vitales.
+ */
 class VitalSignController extends Controller
 {
     public function create()
@@ -32,7 +35,7 @@ class VitalSignController extends Controller
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => __('Registro de salud guardado con éxito.')
+                'message' => __('Registro de salud guardado con éxito.'),
             ]);
         }
 

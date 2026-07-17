@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\DashboardMetricsService;
+use App\Models\ActivityLog;
+use App\Models\NutritionLog;
 use App\Models\PatientLink;
+use App\Models\VitalSign;
+use App\Services\DashboardMetricsService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\View\View;
 
 /**
  * Clase DashboardController
- * 
- * Gestiona la visualización del panel principal del usuario, integrando 
+ *
+ * Gestiona la visualización del panel principal del usuario, integrando
  * las métricas de salud procesadas por el servicio correspondiente.
  */
 class DashboardController extends Controller
@@ -25,7 +31,6 @@ class DashboardController extends Controller
     /**
      * Crea una nueva instancia del controlador.
      *
-     * @param DashboardMetricsService $metricsService
      * @return void
      */
     public function __construct(DashboardMetricsService $metricsService)
@@ -35,44 +40,44 @@ class DashboardController extends Controller
 
     /**
      * Muestra el panel de control con analíticas y resumen para el usuario autenticado.
-     * 
-     * Verifica si el usuario tiene un perfil de paciente completado antes de 
+     *
+     * Verifica si el usuario tiene un perfil de paciente completado antes de
      * renderizar la vista con las métricas de salud.
      *
-     * @return \Illuminate\View\View|\Illuminate\Http\RedirectResponse
+     * @return View|RedirectResponse
      */
     public function index()
     {
         $user = auth()->user();
-        
+
         // Redirigir al proceso administrativo si es administrador
         if ($user->isAdmin()) {
             return redirect()->route('admin.dashboard');
         }
-        
+
         // Redirigir al proceso de configuración inicial si no tiene rol asignado
-        if (!$user->hasCompletedOnboarding()) {
+        if (! $user->hasCompletedOnboarding()) {
             return redirect()->route('onboarding.index');
         }
 
         // Redirigir al dashboard correcto según el rol
-        if (!$user->isPatient() && $user->isCaregiver()) {
+        if (! $user->isPatient() && $user->isCaregiver()) {
             return redirect()->route('caregiver.dashboard');
         }
-        if (!$user->isPatient() && $user->isDoctor()) {
+        if (! $user->isPatient() && $user->isDoctor()) {
             return redirect()->route('doctor.dashboard');
         }
 
         // Si es paciente pero no tiene perfil aún
-        if (!$user->patientProfile) {
+        if (! $user->patientProfile) {
             return redirect()->route('onboarding.index');
         }
 
-        // Obtener los datos procesados a través de la capa de servicios (Service Layer)
+        // Obtiene los datos procesados mediante la capa de servicios de la aplicación.
         $metrics = $this->metricsService->getDashboardMetrics($user->id);
 
         // Obtener últimos 5 registros para llenar el espacio del dashboard
-        $recentLogs = \App\Models\VitalSign::where('user_id', $user->id)
+        $recentLogs = VitalSign::where('user_id', $user->id)
             ->whereNotNull('glucose_level')
             ->where('glucose_level', '>', 0)
             ->orderByDesc('created_at')
@@ -87,8 +92,7 @@ class DashboardController extends Controller
      * Guarda el peso del usuario desde la tarjeta rápida del Dashboard.
      * Crea un registro mínimo de VitalSign con solo el peso.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function storeWeight(Request $request)
     {
@@ -96,7 +100,7 @@ class DashboardController extends Controller
             'weight' => ['required', 'numeric', 'min:20', 'max:350'],
         ]);
 
-        \App\Models\VitalSign::create([
+        VitalSign::create([
             'user_id' => auth()->id(),
             'weight' => $request->weight,
             'measurement_moment' => 'Ayunas',
@@ -114,7 +118,7 @@ class DashboardController extends Controller
     /**
      * Muestra una previsualización detallada de todos los datos y métricas (Vista Resumen).
      *
-     * @return \Illuminate\View\View
+     * @return View
      */
     public function summary()
     {
@@ -122,22 +126,22 @@ class DashboardController extends Controller
         $metrics = $this->metricsService->getDashboardMetrics($user->id);
 
         // Obtener registros históricos para la vista detallada
-        $vitalsHistory = \App\Models\VitalSign::where('user_id', $user->id)
+        $vitalsHistory = VitalSign::where('user_id', $user->id)
             ->latest()
             ->take(30)
             ->get();
 
-        $nutritionHistory = \App\Models\NutritionLog::where('user_id', $user->id)
+        $nutritionHistory = NutritionLog::where('user_id', $user->id)
             ->latest()
             ->take(30)
             ->get();
 
-        $activityHistory = \App\Models\ActivityLog::where('user_id', $user->id)
+        $activityHistory = ActivityLog::where('user_id', $user->id)
             ->latest()
             ->take(30)
             ->get();
 
-        $symptomsHistory = \Illuminate\Support\Facades\DB::table('symptom_user')
+        $symptomsHistory = DB::table('symptom_user')
             ->join('symptoms', 'symptom_user.symptom_id', '=', 'symptoms.id')
             ->where('symptom_user.user_id', $user->id)
             ->select('symptoms.name', 'symptoms.category', 'symptom_user.logged_at')
@@ -166,27 +170,49 @@ class DashboardController extends Controller
 
         // Glucosa promedio por momento del día (dato ya recolectado que no se usaba en el resumen)
         $momentos = ['Ayunas', 'Antes de Comer', 'Después de Comer', 'Al Dormir'];
-        $targetMax = $user->patientProfile?->target_glucose_max ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MAX;
-        $avgByMoment = \App\Models\VitalSign::where('user_id', $user->id)
+        $targetMax = $user->patientProfile?->target_glucose_max ?? VitalSign::GLUCOSE_DEFAULT_MAX;
+        $avgByMoment = VitalSign::where('user_id', $user->id)
             ->whereNotNull('glucose_level')->where('glucose_level', '>', 0)
             ->whereNotNull('measurement_moment')
             ->where('created_at', '>=', now()->subDays(90))
             ->selectRaw('measurement_moment, AVG(glucose_level) as avg_glucose')
             ->groupBy('measurement_moment')
             ->pluck('avg_glucose', 'measurement_moment');
+        $countByMoment = VitalSign::where('user_id', $user->id)
+            ->whereNotNull('glucose_level')->where('glucose_level', '>', 0)
+            ->whereNotNull('measurement_moment')
+            ->where('created_at', '>=', now()->subDays(90))
+            ->selectRaw('measurement_moment, COUNT(*) as measurement_count')
+            ->groupBy('measurement_moment')
+            ->pluck('measurement_count', 'measurement_moment');
 
         // Colores por nivel clínico real de cada momento (misma fuente de verdad que el resto de la app)
         $glucoseMomentColors = [
-            'baja'    => 'rgba(255,159,67,0.85)',
-            'normal'  => 'rgba(40,199,111,0.75)',
+            'baja' => 'rgba(255,159,67,0.85)',
+            'normal' => 'rgba(40,199,111,0.75)',
             'elevada' => 'rgba(234,84,85,0.75)',
-            'sin'     => 'rgba(0,0,0,0.08)',
+            'sin' => 'rgba(0,0,0,0.08)',
         ];
         $extraMetrics['glucoseByMomentLabels'] = $momentos;
         $extraMetrics['glucoseByMomentData'] = array_map(fn ($m) => round((float) ($avgByMoment[$m] ?? 0)), $momentos);
+        $extraMetrics['glucoseByMomentCounts'] = array_map(
+            fn ($m) => (int) ($countByMoment[$m] ?? 0),
+            $momentos
+        );
+        $extraMetrics['glucoseByMomentStatuses'] = array_map(function ($m) use ($avgByMoment, $targetMin, $targetMax) {
+            $avg = isset($avgByMoment[$m]) ? (int) round((float) $avgByMoment[$m]) : 0;
+
+            return match (VitalSign::clasificarGlucosa($avg ?: null, $m, $targetMin, $targetMax)) {
+                'baja' => 'Bajo',
+                'normal' => 'En rango',
+                'elevada' => 'Alto',
+                default => 'Sin registros',
+            };
+        }, $momentos);
         $extraMetrics['glucoseByMomentColors'] = array_map(function ($m) use ($avgByMoment, $targetMin, $targetMax, $glucoseMomentColors) {
             $avg = isset($avgByMoment[$m]) ? (int) round((float) $avgByMoment[$m]) : 0;
-            $estado = \App\Models\VitalSign::clasificarGlucosa($avg ?: null, $m, $targetMin, $targetMax);
+            $estado = VitalSign::clasificarGlucosa($avg ?: null, $m, $targetMin, $targetMax);
+
             return $glucoseMomentColors[$estado ?? 'sin'];
         }, $momentos);
 
@@ -201,6 +227,8 @@ class DashboardController extends Controller
         }
         $extraMetrics['foodCategoryLabels'] = array_keys($foodCategoryCounts);
         $extraMetrics['foodCategoryData'] = array_values($foodCategoryCounts);
+        $extraMetrics['targetGlucoseMin'] = $targetMin;
+        $extraMetrics['targetGlucoseMax'] = $targetMax;
 
         return view('tracking.summary', array_merge($metrics, $extraMetrics, compact(
             'vitalsHistory', 'nutritionHistory', 'activityHistory', 'symptomsHistory'
@@ -212,9 +240,16 @@ class DashboardController extends Controller
      */
     private function classifyGlucoseAverage(int $avg, int $targetMin = 70): array
     {
-        if ($avg <= 0)         return ['label' => 'Sin datos',    'short' => 'Sin datos', 'color' => 'text-muted',   'icon' => ''];
-        if ($avg < $targetMin) return ['label' => 'Bajo el rango','short' => 'Bajo',      'color' => 'text-warning', 'icon' => 'fa-arrow-trend-down'];
-        if ($avg > 140)        return ['label' => 'Sobre el rango','short' => 'Alto',     'color' => 'text-danger',  'icon' => 'fa-arrow-trend-up'];
+        if ($avg <= 0) {
+            return ['label' => 'Sin datos',    'short' => 'Sin datos', 'color' => 'text-muted',   'icon' => ''];
+        }
+        if ($avg < $targetMin) {
+            return ['label' => 'Bajo el rango', 'short' => 'Bajo',      'color' => 'text-warning', 'icon' => 'fa-arrow-trend-down'];
+        }
+        if ($avg > 140) {
+            return ['label' => 'Sobre el rango', 'short' => 'Alto',     'color' => 'text-danger',  'icon' => 'fa-arrow-trend-up'];
+        }
+
         return ['label' => 'En rango meta', 'short' => 'Normal', 'color' => 'text-success', 'icon' => 'fa-check'];
     }
 
@@ -223,12 +258,25 @@ class DashboardController extends Controller
      */
     private function classifyBloodPressure(int $sys, int $dia): array
     {
-        if ($sys <= 0 || $dia <= 0)      return ['label' => 'Sin datos', 'color' => 'text-muted'];
-        if ($sys < 90  || $dia < 60)     return ['label' => 'Baja',      'color' => 'text-warning'];
-        if ($sys >= 180 || $dia >= 120)  return ['label' => 'Crisis',    'color' => 'text-danger'];
-        if ($sys >= 140 || $dia >= 90)   return ['label' => 'Alta',      'color' => 'text-danger'];
-        if ($sys >= 130 || $dia >= 80)   return ['label' => 'Elevada',   'color' => 'text-warning'];
-        if ($sys >= 120)                 return ['label' => 'Ligeramente alta', 'color' => 'text-warning'];
+        if ($sys <= 0 || $dia <= 0) {
+            return ['label' => 'Sin datos', 'color' => 'text-muted'];
+        }
+        if ($sys < 90 || $dia < 60) {
+            return ['label' => 'Baja',      'color' => 'text-warning'];
+        }
+        if ($sys >= 180 || $dia >= 120) {
+            return ['label' => 'Crisis',    'color' => 'text-danger'];
+        }
+        if ($sys >= 140 || $dia >= 90) {
+            return ['label' => 'Alta',      'color' => 'text-danger'];
+        }
+        if ($sys >= 130 || $dia >= 80) {
+            return ['label' => 'Elevada',   'color' => 'text-warning'];
+        }
+        if ($sys >= 120) {
+            return ['label' => 'Ligeramente alta', 'color' => 'text-warning'];
+        }
+
         return ['label' => 'Estable', 'color' => 'text-info'];
     }
 
@@ -237,9 +285,16 @@ class DashboardController extends Controller
      */
     private function classifyHeartRate(int $hr): array
     {
-        if ($hr <= 0)   return ['label' => 'Sin datos',      'color' => 'text-muted'];
-        if ($hr < 60)   return ['label' => 'Ritmo bajo',     'color' => 'text-warning'];
-        if ($hr > 100)  return ['label' => 'Ritmo elevado',  'color' => 'text-danger'];
+        if ($hr <= 0) {
+            return ['label' => 'Sin datos',      'color' => 'text-muted'];
+        }
+        if ($hr < 60) {
+            return ['label' => 'Ritmo bajo',     'color' => 'text-warning'];
+        }
+        if ($hr > 100) {
+            return ['label' => 'Ritmo elevado',  'color' => 'text-danger'];
+        }
+
         return ['label' => 'Ritmo regular', 'color' => 'text-info'];
     }
 
@@ -269,7 +324,7 @@ class DashboardController extends Controller
             return response()->json([
                 'success' => true,
                 'code' => $code,
-                'message' => 'Código de invitación generado. Compártelo con tu cuidador o médico.'
+                'message' => 'Código de invitación generado. Compártelo con tu cuidador o médico.',
             ]);
         }
 

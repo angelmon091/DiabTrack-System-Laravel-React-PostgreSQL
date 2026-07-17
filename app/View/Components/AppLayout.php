@@ -7,7 +7,7 @@ use Illuminate\View\View;
 
 /**
  * Clase AppLayout
- * 
+ *
  * Componente de diseño principal de la aplicación.
  * Proporciona la estructura base para todas las páginas de la aplicación.
  */

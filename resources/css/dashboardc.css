@@ -3,14 +3,14 @@
    Dependencies: design-system.css
 ========================================= */
 
-/* Overrides & Specifics */
+/* Ajustes específicos del panel */
 .logo-small h2 {
     font-weight: 800;
     font-size: 1.6rem;
     letter-spacing: -1px;
 }
 
-/* Updated Navbar for User Dashboard */
+/* Barra de navegación del panel de usuario */
 .navbar-content {
     flex-wrap: nowrap !important;
     gap: 10px;
@@ -103,7 +103,7 @@
     border-top-right-radius: 10px;
 }
 
-/* Glucosa Hero Section */
+/* Sección principal de glucosa */
 .glucosa-hero {
     min-height: 280px;
     background: linear-gradient(135deg, var(--diab-white) 0%, var(--hero-bg, #f0f9ff) 100%);
@@ -128,7 +128,7 @@
     font-weight: 700;
 }
 
-/* Metrics & Action Items */
+/* Métricas y elementos de acción */
 .action-item {
     display: flex;
     align-items: center;
@@ -166,7 +166,7 @@
 .green { background: var(--diab-success); }
 .gray { background: var(--diab-text-secondary); }
 
-/* Progress Bars & Activity */
+/* Barras de progreso y actividad */
 .progress-container {
     height: 10px;
     background: var(--diab-bg);

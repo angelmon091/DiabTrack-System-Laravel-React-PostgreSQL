@@ -4,6 +4,9 @@
 
 @section('content')
 <main class="container-fluid py-4 px-md-5">
+    @php
+        $doctorProfile = $user->doctorProfile;
+    @endphp
     <div class="row g-4">
 
         {{-- Sidebar --}}
@@ -16,13 +19,17 @@
                 </div>
 
                 <div class="d-flex flex-column gap-2">
-                    <a href="{{ route('doctor.link') }}" class="action-item">
-                        <div class="action-icon blue"><i class="fa-solid fa-link"></i></div>
-                        <div class="ms-3">
-                            <strong class="d-block">Vincular Paciente</strong>
-                            <p class="mb-0 extra-small text-muted">Conecta usando un código</p>
+                    @if($doctorProfile?->isApproved())
+                        <a href="{{ route('doctor.link') }}" class="action-item">
+                            <div class="action-icon blue"><i class="fa-solid fa-link"></i></div>
+                            <div class="ms-3"><strong class="d-block">Vincular Paciente</strong><p class="mb-0 extra-small text-muted">Conecta usando un código</p></div>
+                        </a>
+                    @else
+                        <div class="action-item opacity-50" aria-disabled="true">
+                            <div class="action-icon gray"><i class="fa-solid fa-lock"></i></div>
+                            <div class="ms-3"><strong class="d-block">Vinculación bloqueada</strong><p class="mb-0 extra-small text-muted">Esperando aprobación administrativa</p></div>
                         </div>
-                    </a>
+                    @endif
                     <a href="{{ route('profile.edit') }}" class="action-item">
                         <div class="action-icon gray"><i class="fa-solid fa-sliders"></i></div>
                         <div class="ms-3">
@@ -45,11 +52,21 @@
                         <span class="text-muted small">Cédula:</span>
                         <span class="fw-bold small">{{ auth()->user()->doctorProfile?->license_number ?? '--' }}</span>
                     </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Verificación:</span>
+                        @if($doctorProfile?->isApproved())
+                            <span class="badge bg-success-subtle text-success">Aprobado</span>
+                        @elseif($doctorProfile?->approval_status === 'rejected')
+                            <span class="badge bg-danger-subtle text-danger">Requiere corrección</span>
+                        @else
+                            <span class="badge bg-warning-subtle text-warning-emphasis">En revisión</span>
+                        @endif
+                    </div>
                 </div>
             </div>
 
             {{-- Lista de Pacientes Vinculados --}}
-            @if($patients->isNotEmpty())
+            @if($doctorProfile?->isApproved() && $patients->isNotEmpty())
                 <div class="diab-card p-4 mb-4 animate-fade-in" style="animation-delay: 0.1s;">
                     <h6 class="fw-bold mb-3 text-muted text-uppercase letter-spacing-1 small">Pacientes Vinculados</h6>
                     <div class="d-flex flex-column gap-3">
@@ -109,6 +126,10 @@
                     </a>
                 </div>
             @endif
+
+            @if($doctorProfile?->isApproved() && $patients->isEmpty())
+                <x-empty-sidebar-guide profile="doctor" />
+            @endif
         </aside>
 
         {{-- Contenido Principal --}}
@@ -120,17 +141,29 @@
                 </div>
             @endif
 
-            @if($patients->isEmpty())
+            @if(session('warning'))
+                <div class="alert alert-warning border-0 bg-warning bg-opacity-10 animate-fade-in mb-4"><i class="fa-solid fa-triangle-exclamation me-2"></i>{{ session('warning') }}</div>
+            @endif
+
+            @if(!$doctorProfile?->isApproved())
                 <div class="diab-card p-5 text-center animate-fade-in">
-                    <div class="admin-card-icon-wrapper mx-auto bg-diab-info-light mb-4">
-                        <i class="fa-solid fa-user-plus fs-2 text-diab-info"></i>
-                    </div>
-                    <h4 class="fw-bold mb-2">Aún no tienes pacientes vinculados</h4>
-                    <p class="text-muted mb-4">Pide a tu paciente que genere un <strong>código de invitación</strong> desde su panel y luego ingrésalo aquí.</p>
-                    <a href="{{ route('doctor.link') }}" class="btn-diab-primary d-inline-flex align-items-center gap-2">
-                        <i class="fa-solid fa-link"></i> Vincular Paciente
-                    </a>
+                    <div class="admin-card-icon-wrapper mx-auto bg-diab-warning-light mb-4"><i class="fa-solid fa-user-shield fs-2 text-diab-warning"></i></div>
+                    @if($doctorProfile?->approval_status === 'rejected')
+                        <h4 class="fw-bold mb-2">Tu información profesional requiere correcciones</h4>
+                        <p class="text-muted mb-3">Un administrador revisó tu solicitud. Actualiza tus datos profesionales o comunícate con soporte antes de vincular pacientes.</p>
+                        @if($doctorProfile->review_notes)<div class="alert alert-danger bg-danger bg-opacity-10 border-0 text-start"><strong>Observaciones:</strong> {{ $doctorProfile->review_notes }}</div>@endif
+                    @else
+                        <h4 class="fw-bold mb-2">Estamos verificando tu perfil médico</h4>
+                        <p class="text-muted mb-4">La cédula <strong>{{ $doctorProfile?->license_number }}</strong> y tu especialidad serán revisadas por un administrador. Recibirás un correo cuando puedas comenzar a vincular pacientes.</p>
+                        <div class="row g-3 text-start">
+                            <div class="col-md-4"><div class="p-3 rounded-4 bg-light h-100"><i class="fa-solid fa-file-circle-check text-success me-2"></i><strong class="small">Datos recibidos</strong></div></div>
+                            <div class="col-md-4"><div class="p-3 rounded-4 bg-warning bg-opacity-10 h-100"><i class="fa-solid fa-magnifying-glass text-warning me-2"></i><strong class="small">Validación en proceso</strong></div></div>
+                            <div class="col-md-4"><div class="p-3 rounded-4 bg-light h-100"><i class="fa-solid fa-envelope text-muted me-2"></i><strong class="small">Aviso por correo</strong></div></div>
+                        </div>
+                    @endif
                 </div>
+            @elseif($patients->isEmpty())
+                <x-empty-linked-patients profile="doctor" />
             @else
                 @if($selectedPatient)
                     {{-- Encabezado del Paciente Seleccionado --}}

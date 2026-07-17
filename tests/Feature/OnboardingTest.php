@@ -40,4 +40,82 @@ class OnboardingTest extends TestCase
             'weight' => 80.5,
         ]);
     }
+
+    public function test_user_can_select_prediabetes_as_glycemic_condition(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->post('/onboarding/patient', [
+            'birth_day' => '10',
+            'birth_month' => 'Julio',
+            'birth_year' => '1985',
+            'diabetes_type' => 'Prediabetes',
+            'weight' => '72',
+            'height' => '168',
+            'gender' => 'Femenino',
+        ]);
+
+        $response->assertRedirect(route('dashboard'));
+        $this->assertDatabaseHas('patient_profiles', [
+            'user_id' => $user->id,
+            'diabetes_type' => 'Prediabetes',
+        ]);
+    }
+
+    public function test_unknown_glycemic_condition_is_rejected(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->from('/onboarding/patient')->post('/onboarding/patient', [
+            'birth_day' => '10',
+            'birth_month' => 'Julio',
+            'birth_year' => '1985',
+            'diabetes_type' => 'Condición inventada',
+            'weight' => '72',
+            'height' => '168',
+            'gender' => 'Femenino',
+        ]);
+
+        $response->assertRedirect('/onboarding/patient');
+        $response->assertSessionHasErrors('diabetes_type');
+        $this->assertDatabaseMissing('patient_profiles', ['user_id' => $user->id]);
+    }
+
+    public function test_patient_must_be_at_least_eighteen_years_old(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->from('/onboarding/patient')->post('/onboarding/patient', [
+            'birth_day' => now()->day,
+            'birth_month' => ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'][now()->month - 1],
+            'birth_year' => now()->subYears(17)->year,
+            'diabetes_type' => 'Prediabetes',
+            'weight' => 80,
+            'height' => 175,
+            'gender' => 'Masculino',
+        ]);
+
+        $response->assertRedirect('/onboarding/patient');
+        $response->assertSessionHasErrors('birth_year');
+        $this->assertDatabaseMissing('patient_profiles', ['user_id' => $user->id]);
+    }
+
+    public function test_invalid_calendar_date_is_rejected(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->actingAs($user)->from('/onboarding/patient')->post('/onboarding/patient', [
+            'birth_day' => 31,
+            'birth_month' => 'Febrero',
+            'birth_year' => 1990,
+            'diabetes_type' => 'Prediabetes',
+            'weight' => 80,
+            'height' => 175,
+            'gender' => 'Masculino',
+        ]);
+
+        $response->assertRedirect('/onboarding/patient');
+        $response->assertSessionHasErrors('birth_date');
+        $this->assertDatabaseMissing('patient_profiles', ['user_id' => $user->id]);
+    }
 }

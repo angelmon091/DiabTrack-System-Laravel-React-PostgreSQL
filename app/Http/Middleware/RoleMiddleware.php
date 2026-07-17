@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Middleware de verificación de rol.
- * 
+ *
  * Restringe el acceso a rutas según el rol del usuario.
  * Uso: Route::middleware('role:paciente') o Route::middleware('role:médico,cuidador')
  */
@@ -18,7 +18,7 @@ class RoleMiddleware
     {
         $user = auth()->user();
 
-        if (!$user) {
+        if (! $user) {
             return redirect()->route('login');
         }
 

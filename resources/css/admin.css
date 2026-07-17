@@ -3,7 +3,7 @@
    Dependencies: design-system.css
 ========================================= */
 
-/* Layout Structure */
+/* Estructura del diseño */
 .admin-wrapper {
     display: flex;
     flex: 1;
@@ -23,7 +23,7 @@
     gap: 0.5rem;
     position: sticky;
     top: 72px;
-    /* Navbar height */
+    /* Altura de la barra de navegación */
     height: calc(100vh - 72px);
     transition: var(--diab-transition);
 }
@@ -42,7 +42,7 @@
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
 }
 
-/* Sidebar Navigation */
+/* Navegación lateral */
 .admin-nav-item {
     display: flex;
     align-items: center;
@@ -79,7 +79,7 @@
     opacity: 1;
 }
 
-/* Admin Cards & Components */
+/* Tarjetas y componentes administrativos */
 .admin-card {
     background: rgba(255, 255, 255, 0.7) !important;
     backdrop-filter: blur(15px);
@@ -92,7 +92,7 @@
 }
 
 
-/* Data Tables */
+/* Tablas de datos */
 .custom-table {
     border-collapse: separate;
     border-spacing: 0;
@@ -121,7 +121,7 @@
     background-color: rgba(0, 180, 216, 0.02);
 }
 
-/* Admin Buttons & Actions */
+/* Botones y acciones administrativas */
 .btn-action {
     width: 38px;
     height: 38px;
@@ -141,7 +141,7 @@
     box-shadow: var(--diab-shadow);
 }
 
-/* Badges */
+/* Insignias */
 .badge-role {
     padding: 0.5em 1em;
     border-radius: 8px;
@@ -151,7 +151,7 @@
     letter-spacing: 0.5px;
 }
 
-/* Responsive Overrides */
+/* Ajustes responsivos */
 @media (max-width: 992px) {
     .admin-wrapper {
         flex-direction: column;

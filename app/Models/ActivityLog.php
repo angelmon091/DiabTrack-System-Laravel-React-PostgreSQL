@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * Modelo ActivityLog
- * 
- * Registra la actividad física realizada por el usuario, permitiendo rastrear 
+ *
+ * Registra la actividad física realizada por el usuario, permitiendo rastrear
  * la duración, el tipo de ejercicio y el impacto en su energía.
  */
 class ActivityLog extends Model
@@ -17,7 +19,7 @@ class ActivityLog extends Model
 
     /**
      * Atributos asignables de forma masiva.
-     * 
+     *
      * - activity_type: Tipo de ejercicio (caminar, correr, yoga, etc).
      * - duration_minutes: Tiempo total invertido en la actividad.
      * - intensity: Nivel de esfuerzo percibido (bajo, medio, alto).
@@ -54,7 +56,7 @@ class ActivityLog extends Model
      */
     public function scopeDeHoy($query)
     {
-        return $query->whereDate('created_at', \Carbon\Carbon::today());
+        return $query->whereDate('created_at', Carbon::today());
     }
 
     /**
@@ -63,11 +65,11 @@ class ActivityLog extends Model
     protected static function booted()
     {
         static::saved(function ($activityLog) {
-            \Illuminate\Support\Facades\Cache::forget("dashboard_metrics_{$activityLog->user_id}_v2");
+            Cache::forget("dashboard_metrics_{$activityLog->user_id}_v2");
         });
 
         static::deleted(function ($activityLog) {
-            \Illuminate\Support\Facades\Cache::forget("dashboard_metrics_{$activityLog->user_id}_v2");
+            Cache::forget("dashboard_metrics_{$activityLog->user_id}_v2");
         });
     }
 }

@@ -10,17 +10,17 @@ use Symfony\Component\HttpFoundation\Response;
 class TimezoneMiddleware
 {
     /**
-     * Handle an incoming request.
+     * Ajusta la zona horaria de la aplicación antes de continuar con la solicitud.
      *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
+     * @param  Closure(Request): (Response)  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $timezone = 'America/Monterrey'; // Default fallback
+        $timezone = 'America/Monterrey'; // Zona de respaldo cuando no existe una preferencia válida.
 
         // Detectar zona horaria desde la cookie
         $cookieTimezone = $request->cookie('user_timezone');
-        
+
         // Decodificar en caso de que esté URL-encoded
         if ($cookieTimezone) {
             $cookieTimezone = urldecode($cookieTimezone);

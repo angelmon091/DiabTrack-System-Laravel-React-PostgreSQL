@@ -2,10 +2,9 @@
 
 namespace Tests\Feature\Tracking;
 
+use App\Models\PatientProfile;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\NutritionLog;
-use App\Models\PatientProfile;
 use App\Services\DashboardMetricsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -36,7 +35,7 @@ class NutritionTrackingTest extends TestCase
     }
 
     /**
-     * Test: Paciente puede ver el formulario nutricional.
+     * Prueba: Paciente puede ver el formulario nutricional.
      */
     public function test_patient_can_view_create_nutrition_form(): void
     {
@@ -47,7 +46,7 @@ class NutritionTrackingTest extends TestCase
     }
 
     /**
-     * Test: Registro exitoso de comidas y conteo de carbohidratos en BD.
+     * Prueba: Registro exitoso de comidas y conteo de carbohidratos en BD.
      */
     public function test_patient_can_store_valid_nutrition_log(): void
     {
@@ -77,7 +76,7 @@ class NutritionTrackingTest extends TestCase
     }
 
     /**
-     * Test: Guardar datos nutricionales mediante AJAX.
+     * Prueba: Guardar datos nutricionales mediante AJAX.
      */
     public function test_patient_can_store_nutrition_via_ajax(): void
     {
@@ -92,12 +91,12 @@ class NutritionTrackingTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'Registro de nutrición guardado con éxito.'
+            'message' => 'Registro de nutrición guardado con éxito.',
         ]);
     }
 
     /**
-     * Test: Validación de campos obligatorios en NutritionLogRequest.
+     * Prueba: Validación de campos obligatorios en NutritionLogRequest.
      */
     public function test_store_nutrition_validation_fails_for_missing_required_fields(): void
     {
@@ -115,7 +114,7 @@ class NutritionTrackingTest extends TestCase
     }
 
     /**
-     * Test: Guardar una comida destruye de manera reactiva el caché del dashboard del usuario.
+     * Prueba: Guardar una comida destruye de manera reactiva el caché del dashboard del usuario.
      */
     public function test_storing_nutrition_log_invalidates_dashboard_cache(): void
     {

@@ -3,25 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Mail\EmailChangeAlert;
+use App\Mail\VerifyEmailChange;
+use App\Models\EmailChangeRequest;
+use App\Models\PatientLink;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
-use Illuminate\View\View;
 use Illuminate\Support\Facades\Storage;
-use Intervention\Image\ImageManager;
+use Illuminate\Support\Str;
+use Illuminate\View\View;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Encoders\JpegEncoder;
-use App\Models\EmailChangeRequest;
-use App\Models\PatientLink;
-use App\Mail\VerifyEmailChange;
-use App\Mail\EmailChangeAlert;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
+use Intervention\Image\ImageManager;
 
 /**
  * Clase ProfileController
- * 
+ *
  * Gestiona la visualización y edición del perfil del usuario.
  * Permite actualizar la información personal y eliminar la cuenta.
  */
@@ -29,9 +30,6 @@ class ProfileController extends Controller
 {
     /**
      * Muestra el formulario de edición del perfil.
-     * 
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\View\View
      */
     public function edit(Request $request): View
     {
@@ -42,9 +40,6 @@ class ProfileController extends Controller
 
     /**
      * Actualiza la información del perfil del usuario.
-     *
-     * @param \App\Http\Requests\ProfileUpdateRequest $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
@@ -57,7 +52,7 @@ class ProfileController extends Controller
 
         if ($oldEmail !== $newEmail) {
             // Validar contraseña obligatoriamente para cambio de email
-            if (!$request->current_password) {
+            if (! $request->current_password) {
                 return Redirect::route('profile.edit')->withErrors(['current_password' => 'Se requiere la contraseña actual para cambiar el correo electrónico.'])->withInput();
             }
 
@@ -74,24 +69,24 @@ class ProfileController extends Controller
 
             // Enviar alerta al correo ACTUAL
             Mail::to($oldEmail)->send(new EmailChangeAlert($user, $newEmail));
-            
+
             // Enviar verificación al NUEVO correo
             Mail::to($newEmail)->send(new VerifyEmailChange($user, $token, $newEmail));
-            
+
             $status = 'email-change-requested';
         }
 
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
-            $filename = 'avatars/' . $user->id . '_' . time() . '.jpg';
-            
-            if ($user->avatar && !str_starts_with($user->avatar, 'http')) {
+            $filename = 'avatars/'.$user->id.'_'.time().'.jpg';
+
+            if ($user->avatar && ! str_starts_with($user->avatar, 'http')) {
                 Storage::disk('public')->delete($user->avatar);
             }
 
             try {
                 if (function_exists('imagejpeg') && (function_exists('imagecreatefromjpeg') || function_exists('imagecreatefrompng') || function_exists('imagecreatefromwebp'))) {
-                    $manager = new ImageManager(new Driver());
+                    $manager = new ImageManager(new Driver);
                     $image = $manager->decode($file);
                     $encoded = $image->cover(150, 150)->encode(new JpegEncoder(80));
                     Storage::disk('public')->put($filename, $encoded->toString());
@@ -103,7 +98,7 @@ class ProfileController extends Controller
                 // En caso de cualquier error (incluyendo Error), guardar original como fallback
                 Storage::disk('public')->putFileAs('avatars', $file, basename($filename));
             }
-            
+
             $user->avatar = $filename;
         }
 
@@ -121,7 +116,7 @@ class ProfileController extends Controller
             ->where('expires_at', '>', now())
             ->first();
 
-        if (!$changeRequest) {
+        if (! $changeRequest) {
             return Redirect::route('profile.edit')->with('error', 'El enlace de verificación ha expirado o es inválido.');
         }
 
@@ -137,9 +132,6 @@ class ProfileController extends Controller
 
     /**
      * Elimina la cuenta del usuario.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(Request $request): RedirectResponse
     {
@@ -159,7 +151,7 @@ class ProfileController extends Controller
         return Redirect::to('/');
     }
 
-    public function unlinkCarer(Request $request, \App\Models\User $linkedUser): RedirectResponse
+    public function unlinkCarer(Request $request, User $linkedUser): RedirectResponse
     {
         PatientLink::where('patient_id', Auth::id())
             ->where('linked_user_id', $linkedUser->id)

@@ -7,7 +7,7 @@ use Illuminate\View\View;
 
 /**
  * Clase GuestLayout
- * 
+ *
  * Componente de diseño para páginas de invitados.
  * Proporciona la estructura base para páginas públicas de la aplicación.
  */

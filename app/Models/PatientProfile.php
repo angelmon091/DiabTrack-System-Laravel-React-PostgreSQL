@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Modelo PatientProfile
- * 
- * Contiene la información clínica y biométrica base del usuario, esencial 
+ *
+ * Contiene la información clínica y biométrica base del usuario, esencial
  * para personalizar las metas de salud y rangos de glucosa.
  */
 class PatientProfile extends Model
@@ -17,8 +17,8 @@ class PatientProfile extends Model
 
     /**
      * Atributos asignables de forma masiva.
-     * 
-     * - diabetes_type: Tipo de diabetes (Tipo 1, Tipo 2, Gestacional).
+     *
+     * - diabetes_type: Condición glucémica declarada por el usuario.
      * - target_glucose_min/max: Rango glucémico ideal personalizado por el médico.
      * - weight/height: Datos físicos para cálculo de IMC y metabolismo.
      */

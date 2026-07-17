@@ -1,27 +1,54 @@
 <x-guest-layout>
     <x-auth-card>
         <div class="verify-email-text">
-            {{ __('¡Gracias por registrarte! Antes de comenzar, ¿podrías verificar tu correo electrónico haciendo clic en el enlace que te acabamos de enviar? Si no recibiste el correo, con gusto te enviaremos otro.') }}
+            {{ __('Se envió un código de seis dígitos a :email. Ingrésalo para verificar tu correo y continuar con el registro.', ['email' => auth()->user()->email]) }}
         </div>
 
-        @if (session('status') == 'verification-link-sent')
+        @if (session('status') === 'verification-code-sent')
             <div class="auth-status auth-status--success">
-                {{ __('Se ha enviado un nuevo enlace de verificación al correo electrónico que proporcionaste durante el registro.') }}
+                {{ __('Se envió un código nuevo. Revisa también tu carpeta de correo no deseado.') }}
             </div>
         @endif
+
+        <form method="POST" action="{{ route('verification.code') }}" class="mt-4">
+            @csrf
+
+            <div>
+                <x-input-label for="code" :value="__('Código de verificación')" />
+                <x-text-input
+                    id="code"
+                    name="code"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="[0-9]{6}"
+                    maxlength="6"
+                    autocomplete="one-time-code"
+                    class="block mt-1 w-full"
+                    required
+                    autofocus
+                />
+                <x-input-error :messages="$errors->get('code')" class="mt-2" />
+            </div>
+
+            <div class="verify-email-actions">
+                <x-primary-button>
+                    {{ __('Verificar correo') }}
+                </x-primary-button>
+            </div>
+        </form>
 
         <div class="verify-email-actions">
             <form method="POST" action="{{ route('verification.send') }}">
                 @csrf
-                <x-primary-button>
-                    {{ __('Reenviar Correo') }}
-                </x-primary-button>
+                <button type="submit" class="btn-link">
+                    {{ __('Reenviar código') }}
+                </button>
             </form>
 
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="btn-link">
-                    {{ __('Cerrar Sesión') }}
+                    {{ __('Cerrar sesión') }}
                 </button>
             </form>
         </div>

@@ -8,6 +8,9 @@ use App\Models\NutritionLog;
 use App\Services\DashboardMetricsService;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Gestiona los registros nutricionales y las métricas relacionadas con la alimentación.
+ */
 class NutritionLogController extends Controller
 {
     protected $metricsService;
@@ -20,6 +23,7 @@ class NutritionLogController extends Controller
     public function index()
     {
         $metrics = $this->metricsService->getDashboardMetrics(Auth::id());
+
         return view('tracking.nutrition.index', $metrics);
     }
 
@@ -43,7 +47,7 @@ class NutritionLogController extends Controller
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => __('Registro de nutrición guardado con éxito.')
+                'message' => __('Registro de nutrición guardado con éxito.'),
             ]);
         }
 

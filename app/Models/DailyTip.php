@@ -7,12 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class DailyTip extends Model
 {
+    protected $attributes = [
+        'status' => 'approved',
+    ];
+
     protected $fillable = [
         'user_id',
         'tip_text',
         'status',
-        'reviewed_by',
-        'rejection_reason',
     ];
 
     /**
@@ -21,14 +23,6 @@ class DailyTip extends Model
     public function patient()
     {
         return $this->belongsTo(User::class, 'user_id');
-    }
-
-    /**
-     * Obtiene el médico o cuidador que revisó/moderó el consejo.
-     */
-    public function reviewer()
-    {
-        return $this->belongsTo(User::class, 'reviewed_by');
     }
 
     protected static function booted(): void

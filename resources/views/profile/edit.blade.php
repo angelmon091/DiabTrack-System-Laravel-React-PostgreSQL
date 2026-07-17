@@ -23,7 +23,7 @@
 
                 </div>
 
-                <!-- Password Update -->
+                <!-- Actualización de contraseña -->
                 <div class="diab-card p-4 p-md-5 mb-4 animate-fade-in" style="animation-delay: 0.2s;">
                     <div class="section-icon bg-diab-warning-light text-diab-warning mb-4" style="width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
                         <i class="fa-solid fa-key"></i>
@@ -85,7 +85,7 @@
                 @endif
                 @endif
 
-                <!-- Delete Account -->
+                <!-- Eliminación de la cuenta -->
                 <div class="diab-card p-4 p-md-5 mb-5 animate-fade-in border-danger-subtle" style="animation-delay: 0.3s;">
                     <div class="section-icon bg-diab-danger-light text-diab-danger mb-4" style="width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
                         <i class="fa-solid fa-user-slash"></i>

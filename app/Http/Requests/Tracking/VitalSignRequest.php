@@ -4,6 +4,9 @@ namespace App\Http\Requests\Tracking;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Valida los límites permitidos para los signos vitales registrados.
+ */
 class VitalSignRequest extends FormRequest
 {
     public function authorize(): bool

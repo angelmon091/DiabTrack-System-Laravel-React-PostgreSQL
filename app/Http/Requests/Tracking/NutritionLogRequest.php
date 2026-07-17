@@ -4,6 +4,9 @@ namespace App\Http\Requests\Tracking;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Centraliza las reglas de autorización y validación para los registros nutricionales.
+ */
 class NutritionLogRequest extends FormRequest
 {
     public function authorize(): bool

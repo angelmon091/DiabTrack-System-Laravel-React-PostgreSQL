@@ -2,22 +2,29 @@
 
 namespace App\Http\Requests\Admin;
 
-use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 use App\Models\User;
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 /**
  * Clase AdminUserRequest
- * 
+ *
  * Reglas de validación para la creación y actualización de usuarios.
  * Asegura que los datos del usuario sean válidos antes de ser procesados.
  */
 class AdminUserRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'email' => Str::lower(trim((string) $this->input('email'))),
+        ]);
+    }
+
     /**
      * Determina si el usuario está autorizado para realizar esta solicitud.
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -27,7 +34,7 @@ class AdminUserRequest extends FormRequest
     /**
      * Obtiene las reglas de validación que se aplican a la solicitud.
      *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {

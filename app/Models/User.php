@@ -2,20 +2,23 @@
 
 namespace App\Models;
 
+use App\Notifications\ResetPasswordNotification;
+use App\Notifications\VerifyEmailCodeNotification;
 use Database\Factories\UserFactory;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Notifications\ResetPasswordNotification;
+use Illuminate\Support\Facades\Hash;
 
 /**
- * Modelo User
- * 
+ * Modelo de usuario del sistema.
+ *
  * Representa a los usuarios del sistema, incluyendo pacientes y administradores.
  * Contiene información básica del usuario y relaciones con sus perfiles, roles y actividades.
  */
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
@@ -35,7 +38,6 @@ class User extends Authenticatable
         'timezone',
         'email_verified_at',
     ];
-
 
     protected $hidden = [
         'password',
@@ -77,14 +79,6 @@ class User extends Authenticatable
     public function dailyTips()
     {
         return $this->hasMany(DailyTip::class, 'user_id');
-    }
-
-    /**
-     * Consejos de salud diarios revisados por este médico o cuidador.
-     */
-    public function reviewedTips()
-    {
-        return $this->hasMany(DailyTip::class, 'reviewed_by');
     }
 
     /**
@@ -165,6 +159,25 @@ class User extends Authenticatable
     public function vitalSigns()
     {
         return $this->hasMany(VitalSign::class);
+    }
+
+    public function emailVerificationCode()
+    {
+        return $this->hasOne(EmailVerificationCode::class);
+    }
+
+    public function sendEmailVerificationNotification(): void
+    {
+        $code = (string) random_int(100000, 999999);
+
+        $this->emailVerificationCode()->updateOrCreate([], [
+            'code_hash' => Hash::make($code),
+            'attempts' => 0,
+            'expires_at' => now()->addMinutes(10),
+            'sent_at' => now(),
+        ]);
+
+        $this->notify(new VerifyEmailCodeNotification($code));
     }
 
     /**

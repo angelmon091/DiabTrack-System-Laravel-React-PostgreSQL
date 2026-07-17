@@ -6,7 +6,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
-    /* Colors */
+    /* Colores */
     --diab-primary: #00B4D8;
     --diab-primary-hover: #0096C7;
     --diab-primary-light: rgba(0, 180, 216, 0.1);
@@ -19,7 +19,7 @@
     --diab-text-muted: #94A3B8;
     --diab-white: #FFFFFF;
 
-    /* Semantic Colors */
+    /* Colores semánticos */
     --diab-success: #28C76F;
     --diab-success-light: rgba(40, 199, 111, 0.1);
     --diab-danger: #EA5455;
@@ -29,7 +29,7 @@
     --diab-info: #00CFE8;
     --diab-info-light: rgba(0, 207, 232, 0.1);
 
-    /* Spacing & Layout */
+    /* Espaciado y distribución */
     --diab-radius: 24px;
     --diab-radius-sm: 12px;
     --diab-radius-lg: 32px;
@@ -38,7 +38,7 @@
     --diab-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Base Styles */
+/* Estilos base */
 body {
     font-family: 'Inter', sans-serif;
     background: linear-gradient(160deg, #f0f7ff 0%, #e8f4f8 50%, #f1f5f9 100%);
@@ -49,7 +49,7 @@ body {
     min-height: 100vh;
 }
 
-/* Typography Helpers */
+/* Utilidades tipográficas */
 .text-diab-primary {
     color: var(--diab-primary) !important;
 }
@@ -74,7 +74,7 @@ body {
     color: var(--diab-info) !important;
 }
 
-/* Background Helpers */
+/* Utilidades de fondo */
 .bg-diab-primary-light {
     background-color: var(--diab-primary-light) !important;
 }
@@ -103,7 +103,7 @@ body {
     font-weight: 700 !important;
 }
 
-/* Unified Card System */
+/* Sistema unificado de tarjetas */
 .diab-card,
 .stat-card {
     background: rgba(255, 255, 255, 0.85) !important;
@@ -127,7 +127,7 @@ body {
 
 .stat-card {
     border-radius: var(--diab-radius);
-    /* Ensure consistent 24px */
+    /* Mantiene un espaciado uniforme de 24 píxeles. */
 }
 
 .stat-card.border-4 {
@@ -141,7 +141,7 @@ body {
 }
 
 
-/* Logo System */
+/* Sistema del logotipo */
 .diab-logo {
     font-size: 1.6rem;
     font-weight: 800;
@@ -157,7 +157,7 @@ body {
 .diab-logo span {
     color: var(--diab-primary);
     margin: 0 1px;
-    /* Precision spacing for 'ia' */
+    /* Espaciado preciso para las letras «ia». */
 }
 
 .diab-logo:hover {
@@ -165,7 +165,7 @@ body {
     filter: brightness(1.1);
 }
 
-/* Admin Specific UI refinement */
+/* Ajustes específicos de la interfaz administrativa */
 .admin-title-section {
     padding-bottom: 2rem;
     margin-bottom: 3rem;
@@ -173,7 +173,7 @@ body {
     position: relative;
 }
 
-/* Dashboard Metrics & Admin Cards */
+/* Métricas del panel y tarjetas administrativas */
 .admin-card-metrics {
     padding: 3rem 2rem !important;
     border-radius: var(--diab-radius) !important;
@@ -208,7 +208,7 @@ body {
     background: var(--diab-primary-light);
 }
 
-/* Utils */
+/* Utilidades */
 .fw-extrabold {
     font-weight: 800 !important;
 }
@@ -217,7 +217,7 @@ body {
     font-size: 0.7rem !important;
 }
 
-/* Button System */
+/* Sistema de botones */
 .btn-diab-primary {
     background: linear-gradient(135deg, var(--diab-primary) 0%, var(--diab-primary-hover) 100%);
     color: white;
@@ -269,7 +269,7 @@ body {
     filter: brightness(1.1);
 }
 
-/* Form Elements */
+/* Elementos de formulario */
 .diab-input {
     background: var(--diab-bg);
     border: 1px solid rgba(0, 0, 0, 0.05);
@@ -285,7 +285,7 @@ body {
     outline: none;
 }
 
-/* Glassmorphism Accents */
+/* Detalles con efecto de cristal */
 .glass-effect {
     background: rgba(255, 255, 255, 0.7);
     backdrop-filter: blur(10px);
@@ -293,7 +293,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
-/* Animations */
+/* Animaciones */
 @keyframes fadeIn {
     from {
         opacity: 0;
@@ -308,7 +308,7 @@ body {
     animation: fadeIn 0.5s ease forwards;
 }
 
-/* Modal System */
+/* Sistema de ventanas modales */
 .modal-content {
     background: rgba(255, 255, 255, 0.9) !important;
     backdrop-filter: blur(20px);
@@ -327,7 +327,7 @@ body {
 
 
 
-/* Layout Utilities para el Footer */
+/* Utilidades de distribución para el pie de página */
 .main-content-push {
     display: flex;
     flex-direction: column;

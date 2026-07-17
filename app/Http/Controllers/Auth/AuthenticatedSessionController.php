@@ -11,15 +11,13 @@ use Illuminate\View\View;
 
 /**
  * Clase AuthenticatedSessionController
- * 
+ *
  * Se encarga de gestionar el inicio de sesión y cierre de sesión de los usuarios.
  */
 class AuthenticatedSessionController extends Controller
 {
     /**
      * Muestra la vista de inicio de sesión.
-     * 
-     * @return View
      */
     public function create(): View
     {
@@ -28,12 +26,9 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Procesa una solicitud de autenticación entrante.
-     * 
-     * Autentica las credenciales, regenera la sesión y verifica si el usuario 
+     *
+     * Autentica las credenciales, regenera la sesión y verifica si el usuario
      * necesita completar su perfil de paciente (onboarding).
-     * 
-     * @param LoginRequest $request
-     * @return RedirectResponse
      */
     public function store(LoginRequest $request): RedirectResponse
     {
@@ -43,13 +38,17 @@ class AuthenticatedSessionController extends Controller
         // Regenera el ID de sesión para prevenir ataques de fijación de sesión
         $request->session()->regenerate();
 
+        if (! Auth::user()->hasVerifiedEmail()) {
+            return redirect()->route('verification.notice');
+        }
+
         // Si el usuario es administrador, redirigir directamente al panel administrativo
         if (Auth::user()->isAdmin()) {
             return redirect()->route('admin.dashboard');
         }
 
         // Si el usuario autenticado no tiene perfil de paciente, cuidador o médico ni ha completado el onboarding, lo envía al onboarding
-        if (!Auth::user()->patientProfile && !Auth::user()->caregiverProfile && !Auth::user()->doctorProfile && !Auth::user()->hasCompletedOnboarding()) {
+        if (! Auth::user()->patientProfile && ! Auth::user()->caregiverProfile && ! Auth::user()->doctorProfile && ! Auth::user()->hasCompletedOnboarding()) {
             return redirect()->route('onboarding.index');
         }
 
@@ -59,9 +58,6 @@ class AuthenticatedSessionController extends Controller
 
     /**
      * Destruye una sesión autenticada (Cierre de sesión).
-     * 
-     * @param Request $request
-     * @return RedirectResponse
      */
     public function destroy(Request $request): RedirectResponse
     {

@@ -93,6 +93,21 @@
             height: 220px;
             width: 100%;
         }
+        .chart-empty-state {
+            min-height: 220px;
+            color: var(--diab-text-secondary);
+        }
+        .chart-empty-state .empty-icon {
+            width: 52px;
+            height: 52px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            color: var(--diab-primary);
+            background: var(--diab-primary-light);
+            font-size: 1.25rem;
+        }
         .insight-card {
             background: rgba(255, 255, 255, 0.25);
             border-radius: 16px;
@@ -191,7 +206,7 @@
 @section('content')
 <main class="container-fluid py-4 px-md-5 mt-2">
         
-        <!-- Header -->
+        <!-- Encabezado -->
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
             <div>
                 <h2 class="fw-extrabold mb-1 fs-3">Visualización <span class="text-diab-primary">Integral</span></h2>
@@ -211,7 +226,7 @@
             </div>
         </div>
 
-        <!-- Metric Cards Row 1: Glucose & Ranges -->
+        <!-- Primera fila de métricas: glucosa y rangos -->
         <div class="row g-3 g-md-4 mb-4">
             <div class="col-6 col-md-3">
                 <div class="stat-card p-4 h-100 shadow-sm border-start border-4 border-primary">
@@ -275,7 +290,7 @@
             </div>
         </div>
 
-        <!-- Metric Cards Row 2: Vitals & Activity -->
+        <!-- Segunda fila de métricas: signos vitales y actividad -->
         <div class="row g-3 g-md-4 mb-5">
             <div class="col-6 col-md-3">
                 <div class="stat-card p-4 h-100 shadow-sm border-start border-4 border-info">
@@ -341,7 +356,7 @@
             </div>
         </div>
 
-        <!-- Main Charts Row -->
+        <!-- Fila de gráficas principales -->
         <div class="row g-4 mb-5">
             <div class="col-12 col-lg-8">
                 <div class="diab-card p-4 p-md-5 h-100">
@@ -352,9 +367,17 @@
                             <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="Este gráfico te muestra de forma fácil si tu azúcar ha subido o bajado en los últimos 7 días."></i>
                         </div>
                     </div>
+                    @if(collect($glucosaData)->contains(fn ($value) => (float) $value > 0))
                     <div style="height: 320px;">
                         <canvas id="mainDetailedChart"></canvas>
                     </div>
+                    @else
+                    <div class="chart-empty-state d-flex flex-column align-items-center justify-content-center text-center px-3" style="height:320px;">
+                        <span class="empty-icon mb-3"><i class="fa-solid fa-chart-line"></i></span>
+                        <p class="fw-bold text-dark mb-1">Aún no hay mediciones de glucosa</p>
+                        <p class="small mb-0">Registra una medición para visualizar la tendencia de los últimos 7 días.</p>
+                    </div>
+                    @endif
                 </div>
             </div>
             <div class="col-12 col-lg-4">
@@ -377,7 +400,7 @@
             </div>
         </div>
 
-        <!-- Secondary Charts Row -->
+        <!-- Fila de gráficas secundarias -->
         <div class="row g-4 mb-5">
             <div class="col-12 col-md-6">
                 <div class="diab-card p-4 p-md-5">
@@ -385,9 +408,17 @@
                         <h5 class="fw-bold mb-0">Frecuencia de Síntomas</h5>
                         <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="Cuáles han sido los síntomas o malestares que más has sentido últimamente."></i>
                     </div>
+                    @if($symptomsHistory->isNotEmpty())
                     <div class="chart-container-sm">
                         <canvas id="symptomsFrequencyChart"></canvas>
                     </div>
+                    @else
+                    <div class="chart-container-sm chart-empty-state d-flex flex-column align-items-center justify-content-center text-center px-3">
+                        <span class="empty-icon mb-3"><i class="fa-solid fa-notes-medical"></i></span>
+                        <p class="fw-bold text-dark mb-1">Sin síntomas registrados</p>
+                        <p class="small mb-0">Los síntomas aparecerán aquí cuando se agreguen al historial.</p>
+                    </div>
+                    @endif
                 </div>
             </div>
             <div class="col-12 col-md-6">
@@ -396,14 +427,22 @@
                         <h5 class="fw-bold mb-0">Glucosa por Momento del Día</h5>
                         <i class="fa-solid fa-circle-info info-icon opacity-50" data-bs-toggle="tooltip" title="Tu glucosa promedio según el momento en que la mides (en ayunas, antes/después de comer, al dormir). Te ayuda a ver a qué hora se te sube o baja el azúcar."></i>
                     </div>
+                    @if(collect($glucoseByMomentData)->contains(fn ($value) => (float) $value > 0))
                     <div class="chart-container-sm">
                         <canvas id="glucoseMomentChart"></canvas>
                     </div>
+                    @else
+                    <div class="chart-container-sm chart-empty-state d-flex flex-column align-items-center justify-content-center text-center px-3">
+                        <span class="empty-icon mb-3"><i class="fa-solid fa-clock"></i></span>
+                        <p class="fw-bold text-dark mb-1">Sin mediciones por momento del día</p>
+                        <p class="small mb-0">Registra la glucosa y su momento para comparar tus promedios.</p>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
 
-        <!-- Detailed History Tabs -->
+        <!-- Pestañas del historial detallado -->
         <div class="diab-card shadow-sm border-0">
             <div class="px-4 pt-4 px-md-5 pt-md-5">
                 <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
@@ -436,7 +475,7 @@
             <hr class="m-0 opacity-10">
             <div class="p-4 p-md-5">
                 <div class="tab-content" id="historyTabsContent">
-                    <!-- Vitals -->
+                    <!-- Signos vitales -->
                     <div class="tab-pane fade show active" id="vitals">
                         <div class="table-responsive">
                             <table class="table history-table" id="vitals-table">
@@ -516,7 +555,7 @@
                         </div>
                     </div>
 
-                    <!-- Nutrition -->
+                    <!-- Nutrición -->
                     <div class="tab-pane fade" id="nutrition">
                         <div class="table-responsive">
                             <table class="table history-table" id="nutrition-table">
@@ -565,7 +604,7 @@
                         </div>
                     </div>
 
-                    <!-- Activity -->
+                    <!-- Actividad -->
                     <div class="tab-pane fade" id="activity">
                         <div class="table-responsive">
                             <table class="table history-table" id="activity-table">
@@ -611,7 +650,7 @@
                         </div>
                     </div>
 
-                    <!-- Symptoms -->
+                    <!-- Síntomas -->
                     <div class="tab-pane fade" id="symptoms">
                         <div class="table-responsive">
                             <table class="table history-table" id="symptoms-table">
@@ -659,8 +698,53 @@
         const dangerColor = getComputedStyle(document.documentElement).getPropertyValue('--diab-danger').trim() || '#EA5455';
         const warningColor = getComputedStyle(document.documentElement).getPropertyValue('--diab-warning').trim() || '#FF9F43';
         const infoColor = getComputedStyle(document.documentElement).getPropertyValue('--diab-info').trim() || '#00CFE8';
+        const targetMin = @json($targetGlucoseMin ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MIN);
+        const targetMax = @json($targetGlucoseMax ?? \App\Models\VitalSign::GLUCOSE_DEFAULT_MAX);
 
-        // Main Glucose Trend Chart (30 days logic simplified for view)
+        const targetRangePlugin = {
+            id: 'targetRange',
+            beforeDatasetsDraw(chart, args, options) {
+                if (!options || !chart.scales.y) return;
+                const {ctx, chartArea: {left, right}, scales: {y}} = chart;
+                const top = y.getPixelForValue(options.max);
+                const bottom = y.getPixelForValue(options.min);
+                ctx.save();
+                ctx.fillStyle = 'rgba(40, 199, 111, 0.09)';
+                ctx.fillRect(left, top, right - left, bottom - top);
+                ctx.setLineDash([5, 4]);
+                ctx.strokeStyle = 'rgba(40, 199, 111, 0.55)';
+                [top, bottom].forEach(position => {
+                    ctx.beginPath();
+                    ctx.moveTo(left, position);
+                    ctx.lineTo(right, position);
+                    ctx.stroke();
+                });
+                ctx.restore();
+            }
+        };
+
+        const barValueLabelsPlugin = {
+            id: 'barValueLabels',
+            afterDatasetsDraw(chart, args, options) {
+                if (!options?.labels) return;
+                const {ctx} = chart;
+                ctx.save();
+                ctx.textAlign = 'center';
+                chart.getDatasetMeta(0).data.forEach((bar, index) => {
+                    const value = chart.data.datasets[0].data[index];
+                    if (!value) return;
+                    ctx.fillStyle = '#0F172A';
+                    ctx.font = '600 11px Inter, sans-serif';
+                    ctx.fillText(`${value} mg/dL`, bar.x, Math.max(bar.y - 18, 12));
+                    ctx.fillStyle = '#64748B';
+                    ctx.font = '500 9px Inter, sans-serif';
+                    ctx.fillText(options.labels[index] || '', bar.x, Math.max(bar.y - 6, 24));
+                });
+                ctx.restore();
+            }
+        };
+
+        // Gráfica principal de glucosa con una vista simplificada de 30 días.
         const mainCtx = document.getElementById('mainDetailedChart');
         if (mainCtx) {
             new Chart(mainCtx, {
@@ -675,6 +759,14 @@
                         borderWidth: 3,
                         pointRadius: 4,
                         pointHoverRadius: 6,
+                        pointBackgroundColor: (context) => {
+                            const value = context.raw;
+                            if (value < targetMin) return warningColor;
+                            if (value > targetMax) return dangerColor;
+                            return successColor;
+                        },
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
                         tension: 0.4,
                         fill: true,
                         spanGaps: true
@@ -685,17 +777,25 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
-                        tooltip: { backgroundColor: '#0F172A', padding: 12, cornerRadius: 8 }
+                        tooltip: {
+                            backgroundColor: '#0F172A', padding: 12, cornerRadius: 8,
+                            callbacks: { label: (context) => `Glucosa: ${context.parsed.y} mg/dL` }
+                        },
+                        targetRange: { min: targetMin, max: targetMax }
                     },
                     scales: {
-                        y: { grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { font: { size: 10 } } },
-                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                        y: {
+                            title: { display: true, text: 'mg/dL', color: '#64748B', font: { size: 11, weight: 600 } },
+                            grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 11 } }
+                        },
+                        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
                     }
-                }
+                },
+                plugins: [targetRangePlugin]
             });
         }
 
-        // Diet Composition Pie Chart
+        // Gráfica circular de composición de la dieta.
         const dietCtx = document.getElementById('dietCompositionChart');
         if (dietCtx) {
             new Chart(dietCtx, {
@@ -704,7 +804,7 @@
                     labels: @json($foodCategoryLabels),
                     datasets: [{
                         data: @json($foodCategoryData),
-                        backgroundColor: [primaryColor, successColor, warningColor, dangerColor, infoColor, '#64748B', '#48CAE4', '#90E0EF'],
+                        backgroundColor: [primaryColor, successColor, '#FFB55E', '#7C83FD', '#48CAE4', '#A78BFA', '#64748B', '#90E0EF'],
                         borderWidth: 2,
                         borderColor: '#ffffff',
                         cutout: '65%'
@@ -717,17 +817,18 @@
                         legend: { 
                             display: true, 
                             position: 'bottom',
-                            labels: { usePointStyle: true, font: { size: 9 } }
-                        }
+                            labels: { usePointStyle: true, padding: 14, font: { size: 10, family: 'Inter' } }
+                        },
+                        tooltip: { backgroundColor: '#0F172A', padding: 12, cornerRadius: 8 }
                     }
                 }
             });
         }
 
-        // Symptoms Frequency Bar Chart
+        // Gráfica de barras para la frecuencia de síntomas.
         const sympCtx = document.getElementById('symptomsFrequencyChart');
         if (sympCtx) {
-            // Processing symptoms data for chart
+            // Prepara los datos de síntomas utilizados por la gráfica.
             const symptoms = @json($symptomsHistory);
             const counts = {};
             symptoms.forEach(s => counts[s.name] = (counts[s.name] || 0) + 1);
@@ -740,7 +841,9 @@
                     labels: labels.length ? labels : ['Sin datos'],
                     datasets: [{
                         data: data.length ? data : [0],
-                        backgroundColor: 'rgba(234, 84, 85, 0.7)',
+                        backgroundColor: 'rgba(244, 124, 130, 0.78)',
+                        borderColor: '#F47C82',
+                        borderWidth: 1,
                         borderRadius: 8
                     }]
                 },
@@ -748,10 +851,13 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     indexAxis: 'y',
-                    plugins: { legend: { display: false } },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { callbacks: { label: (context) => `${context.parsed.x} registro${context.parsed.x === 1 ? '' : 's'}` } }
+                    },
                     scales: {
-                        x: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.03)' } },
-                        y: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                        x: { beginAtZero: true, ticks: { precision: 0, stepSize: 1, font: { size: 11 } }, grid: { color: 'rgba(0,0,0,0.03)' } },
+                        y: { grid: { display: false }, ticks: { font: { size: 11 } } }
                     }
                 }
             });
@@ -763,6 +869,8 @@
             const gLabels = @json($glucoseByMomentLabels);
             const gData   = @json($glucoseByMomentData);
             const colors  = @json($glucoseByMomentColors);
+            const counts  = @json($glucoseByMomentCounts ?? array_fill(0, 4, 0));
+            const statuses = @json($glucoseByMomentStatuses ?? array_fill(0, 4, 'Sin registros'));
 
             new Chart(momentCtx, {
                 type: 'bar',
@@ -780,13 +888,26 @@
                     maintainAspectRatio: false,
                     plugins: {
                         legend: { display: false },
-                        tooltip: { callbacks: { label: (c) => c.parsed.y > 0 ? c.parsed.y + ' mg/dL (promedio)' : 'Sin registros' } }
+                        barValueLabels: { labels: statuses },
+                        tooltip: {
+                            backgroundColor: '#0F172A', padding: 12, cornerRadius: 8,
+                            callbacks: {
+                                label: (c) => c.parsed.y > 0 ? `${c.parsed.y} mg/dL · ${statuses[c.dataIndex]}` : 'Sin registros',
+                                afterLabel: (c) => counts[c.dataIndex] ? `${counts[c.dataIndex]} medición${counts[c.dataIndex] === 1 ? '' : 'es'}` : ''
+                            }
+                        }
                     },
                     scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { font: { size: 10 } } },
-                        x: { grid: { display: false }, ticks: { font: { size: 10 } } }
+                        y: {
+                            beginAtZero: true,
+                            suggestedMax: Math.max(...gData, targetMax) + 40,
+                            title: { display: true, text: 'mg/dL', color: '#64748B', font: { size: 11, weight: 600 } },
+                            grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { font: { size: 11 } }
+                        },
+                        x: { grid: { display: false }, ticks: { font: { size: 11 } } }
                     }
-                }
+                },
+                plugins: [barValueLabelsPlugin]
             });
         }
     });

@@ -9,7 +9,7 @@
     </div>
 
     <div class="row g-4 mb-5">
-        <!-- Dashboard Card (Resumen) -->
+        <!-- Tarjeta de resumen del panel -->
         <div class="col-12 col-md-4">
             <a href="{{ route('admin.dashboard') }}" class="text-decoration-none h-100 d-block">
                 <div class="admin-card-metrics animate-fade-in" style="animation-delay: 0.1s;">
@@ -22,7 +22,7 @@
             </a>
         </div>
 
-        <!-- Users Card -->
+        <!-- Tarjeta de usuarios -->
         <div class="col-12 col-md-4">
             <a href="{{ route('admin.users.index') }}" class="text-decoration-none h-100 d-block">
                 <div class="admin-card-metrics animate-fade-in" style="animation-delay: 0.2s;">
@@ -35,7 +35,7 @@
             </a>
         </div>
 
-        <!-- Roles Card -->
+        <!-- Tarjeta de roles -->
         <div class="col-12 col-md-4">
             <a href="{{ route('admin.roles.index') }}" class="text-decoration-none h-100 d-block">
                 <div class="admin-card-metrics animate-fade-in" style="animation-delay: 0.3s;">
@@ -49,6 +49,17 @@
         </div>
 
         <!-- Placeholder Cards -->
+        <div class="col-12 col-md-6">
+            <a href="{{ route('admin.doctors.index') }}" class="text-decoration-none h-100 d-block">
+                <div class="diab-card p-4 animate-fade-in h-100">
+                    <div class="d-flex align-items-center gap-4">
+                        <div class="glass-effect p-3 rounded-4 shadow-sm"><i class="fa-solid fa-user-doctor text-diab-info fs-4"></i></div>
+                        <div><h6 class="fw-bold text-dark mb-0">Aprobación de médicos</h6><p class="text-muted extra-small mb-0">Validar cédulas y perfiles profesionales</p></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+
         <div class="col-12 col-md-6">
             <a href="{{ route('admin.api-usage.index') }}" class="text-decoration-none h-100 d-block">
                 <div class="diab-card p-4 animate-fade-in h-100" style="animation-delay: 0.4s;">
@@ -81,4 +92,3 @@
 
     </div>
 @endsection
-

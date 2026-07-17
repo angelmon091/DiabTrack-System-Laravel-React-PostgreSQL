@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 /**
  * Modelo Symptom
- * 
+ *
  * Representa los síntomas que pueden ser registrados por los usuarios.
  * Permite llevar un registro de los síntomas experimentados y su frecuencia.
  */

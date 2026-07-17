@@ -2,10 +2,9 @@
 
 namespace Tests\Feature\Tracking;
 
+use App\Models\PatientProfile;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\ActivityLog;
-use App\Models\PatientProfile;
 use App\Services\DashboardMetricsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
@@ -36,7 +35,7 @@ class ActivityTrackingTest extends TestCase
     }
 
     /**
-     * Test: Paciente puede visualizar la vista para crear actividades.
+     * Prueba: Paciente puede visualizar la vista para crear actividades.
      */
     public function test_patient_can_view_create_activity_form(): void
     {
@@ -47,7 +46,7 @@ class ActivityTrackingTest extends TestCase
     }
 
     /**
-     * Test: Registro exitoso de actividades deportivas.
+     * Prueba: Registro exitoso de actividades deportivas.
      */
     public function test_patient_can_store_valid_activity_log(): void
     {
@@ -77,7 +76,7 @@ class ActivityTrackingTest extends TestCase
     }
 
     /**
-     * Test: Guardar actividad deportiva mediante llamada AJAX.
+     * Prueba: Guardar actividad deportiva mediante llamada AJAX.
      */
     public function test_patient_can_store_activity_via_ajax(): void
     {
@@ -93,12 +92,12 @@ class ActivityTrackingTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'success' => true,
-            'message' => 'Registro de actividad guardado con éxito.'
+            'message' => 'Registro de actividad guardado con éxito.',
         ]);
     }
 
     /**
-     * Test: Validación de límites en duraciones de entrenamiento.
+     * Prueba: Validación de límites en duraciones de entrenamiento.
      */
     public function test_store_activity_validation_fails_for_excessive_duration(): void
     {
@@ -117,7 +116,7 @@ class ActivityTrackingTest extends TestCase
     }
 
     /**
-     * Test: La creación de un registro deportivo limpia la caché del panel principal.
+     * Prueba: La creación de un registro deportivo limpia la caché del panel principal.
      */
     public function test_storing_activity_invalidates_dashboard_cache(): void
     {

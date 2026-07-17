@@ -20,8 +20,8 @@ return [
     | Entorno de la aplicación
     |--------------------------------------------------------------------------
     |
-    | Este valor determina el "entorno" en el que se está ejecutando actualmente tu aplicación. 
-    | Esto puede determinar cómo prefieres configurar varios servicios que utiliza la aplicación. 
+    | Este valor determina el "entorno" en el que se está ejecutando actualmente tu aplicación.
+    | Esto puede determinar cómo prefieres configurar varios servicios que utiliza la aplicación.
     | Establécelo en tu archivo ".env".
     |
     */

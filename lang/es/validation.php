@@ -157,8 +157,11 @@ return [
     'attributes' => [
         'email' => 'correo electrónico',
         'password' => 'contraseña',
+        'password_confirmation' => 'confirmación de contraseña',
         'name' => 'nombre',
         'avatar' => 'foto de perfil',
+        'code' => 'código de verificación',
+        'current_password' => 'contraseña actual',
     ],
 
 ];

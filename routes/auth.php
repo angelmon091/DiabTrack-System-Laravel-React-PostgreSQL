@@ -8,6 +8,8 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\SocialiteController;
+use App\Http\Controllers\Auth\VerifyEmailCodeController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,12 +37,11 @@ Route::middleware('guest')->group(function () {
         ->name('password.store');
 
     // Socialite Routes
-    Route::get('auth/{provider}/redirect', [\App\Http\Controllers\Auth\SocialiteController::class, 'redirectToProvider'])
+    Route::get('auth/{provider}/redirect', [SocialiteController::class, 'redirectToProvider'])
         ->name('socialite.redirect');
-    Route::get('auth/{provider}/callback', [\App\Http\Controllers\Auth\SocialiteController::class, 'handleProviderCallback'])
+    Route::get('auth/{provider}/callback', [SocialiteController::class, 'handleProviderCallback'])
         ->name('socialite.callback');
 });
-
 
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
@@ -50,8 +51,12 @@ Route::middleware('auth')->group(function () {
         ->middleware(['signed', 'throttle:6,1'])
         ->name('verification.verify');
 
+    Route::post('verify-email', VerifyEmailCodeController::class)
+        ->middleware('throttle:10,1')
+        ->name('verification.code');
+
     Route::post('email/verification-notification', [EmailVerificationNotificationController::class, 'store'])
-        ->middleware('throttle:6,1')
+        ->middleware('throttle:3,1')
         ->name('verification.send');
 
     Route::get('confirm-password', [ConfirmablePasswordController::class, 'show'])

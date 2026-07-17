@@ -1,6 +1,6 @@
 <x-guest-layout>
     <x-auth-card>
-        <!-- Session Status -->
+        <!-- Estado de la sesión -->
         @if (session('status'))
             <div class="auth-status auth-status--success">
                 {{ session('status') }}
@@ -10,7 +10,7 @@
         <form method="POST" action="{{ route('password.email') }}">
             @csrf
 
-            <!-- Email Address -->
+            <!-- Dirección de correo electrónico -->
             <x-text-input 
                 type="email" 
                 name="email" 

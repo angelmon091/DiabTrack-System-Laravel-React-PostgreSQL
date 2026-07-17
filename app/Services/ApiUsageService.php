@@ -5,8 +5,10 @@ namespace App\Services;
 use App\Models\ApiUsageLog;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
+/**
+ * Calcula resúmenes y series estadísticas sobre el uso de las API de inteligencia artificial.
+ */
 class ApiUsageService
 {
     public function getSummary(): array
@@ -31,14 +33,14 @@ class ApiUsageService
             ->keyBy('provider');
 
         return [
-            'total_calls'       => (int) $all->total_calls,
-            'total_tokens'      => (int) $all->total_tokens,
-            'total_cost'        => round((float) $all->total_cost, 4),
-            'avg_cost_per_tip'  => $avgCostPerTip,
-            'anthropic_calls'   => (int) ($byProvider['anthropic']->calls ?? 0),
-            'gemini_calls'      => (int) ($byProvider['gemini']->calls ?? 0),
-            'anthropic_cost'    => round((float) ($byProvider['anthropic']->cost ?? 0), 4),
-            'gemini_cost'       => round((float) ($byProvider['gemini']->cost ?? 0), 4),
+            'total_calls' => (int) $all->total_calls,
+            'total_tokens' => (int) $all->total_tokens,
+            'total_cost' => round((float) $all->total_cost, 4),
+            'avg_cost_per_tip' => $avgCostPerTip,
+            'anthropic_calls' => (int) ($byProvider['anthropic']->calls ?? 0),
+            'gemini_calls' => (int) ($byProvider['gemini']->calls ?? 0),
+            'anthropic_cost' => round((float) ($byProvider['anthropic']->cost ?? 0), 4),
+            'gemini_cost' => round((float) ($byProvider['gemini']->cost ?? 0), 4),
         ];
     }
 
@@ -58,7 +60,7 @@ class ApiUsageService
             ->orderBy('date')
             ->get();
 
-        // Build a complete date range so days without data still appear as zero
+        // Construye el período completo para representar con cero los días sin consumo.
         $range = collect();
         for ($i = $days - 1; $i >= 0; $i--) {
             $range->push(now()->subDays($i)->format('Y-m-d'));
@@ -66,16 +68,16 @@ class ApiUsageService
 
         return $range->map(function (string $date) use ($rows) {
             $anthropic = $rows->where('date', $date)->where('provider', 'anthropic')->first();
-            $gemini    = $rows->where('date', $date)->where('provider', 'gemini')->first();
+            $gemini = $rows->where('date', $date)->where('provider', 'gemini')->first();
 
             return [
-                'date'             => $date,
-                'label'            => Carbon::parse($date)->format('d/m'),
+                'date' => $date,
+                'label' => Carbon::parse($date)->format('d/m'),
                 'anthropic_tokens' => (int) ($anthropic->tokens ?? 0),
-                'gemini_tokens'    => (int) ($gemini->tokens ?? 0),
-                'anthropic_cost'   => round((float) ($anthropic->cost ?? 0), 6),
-                'gemini_cost'      => round((float) ($gemini->cost ?? 0), 6),
-                'total_calls'      => (int) ($anthropic->calls ?? 0) + (int) ($gemini->calls ?? 0),
+                'gemini_tokens' => (int) ($gemini->tokens ?? 0),
+                'anthropic_cost' => round((float) ($anthropic->cost ?? 0), 6),
+                'gemini_cost' => round((float) ($gemini->cost ?? 0), 6),
+                'total_calls' => (int) ($anthropic->calls ?? 0) + (int) ($gemini->calls ?? 0),
             ];
         });
     }
@@ -103,16 +105,16 @@ class ApiUsageService
 
         return $range->map(function (string $month) use ($rows) {
             $anthropic = $rows->where('month', $month)->where('provider', 'anthropic')->first();
-            $gemini    = $rows->where('month', $month)->where('provider', 'gemini')->first();
+            $gemini = $rows->where('month', $month)->where('provider', 'gemini')->first();
 
             return [
-                'month'            => $month,
-                'label'            => Carbon::parse($month . '-01')->translatedFormat('M Y'),
+                'month' => $month,
+                'label' => Carbon::parse($month.'-01')->translatedFormat('M Y'),
                 'anthropic_tokens' => (int) ($anthropic->tokens ?? 0),
-                'gemini_tokens'    => (int) ($gemini->tokens ?? 0),
-                'anthropic_cost'   => round((float) ($anthropic->cost ?? 0), 4),
-                'gemini_cost'      => round((float) ($gemini->cost ?? 0), 4),
-                'total_calls'      => (int) ($anthropic->calls ?? 0) + (int) ($gemini->calls ?? 0),
+                'gemini_tokens' => (int) ($gemini->tokens ?? 0),
+                'anthropic_cost' => round((float) ($anthropic->cost ?? 0), 4),
+                'gemini_cost' => round((float) ($gemini->cost ?? 0), 4),
+                'total_calls' => (int) ($anthropic->calls ?? 0) + (int) ($gemini->calls ?? 0),
             ];
         });
     }

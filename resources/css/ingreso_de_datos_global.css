@@ -272,7 +272,7 @@ select {
 .double-select { display: flex; gap: 20px; }
 .double-select select { flex: 1; }
 
-/* Input Range */
+/* Campo de rango */
 input[type="range"] {
     -webkit-appearance: none; 
     appearance: none; 
@@ -294,7 +294,7 @@ input[type="range"]::-webkit-slider-thumb {
     box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* Pill Input (Text inputs redondeados) */
+/* Campos de texto redondeados */
 .pill-input {
     width: 100%;
     padding: 12px 20px;

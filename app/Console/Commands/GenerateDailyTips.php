@@ -2,18 +2,17 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Attributes\Description;
-use Illuminate\Console\Attributes\Signature;
-use Illuminate\Console\Command;
-use App\Models\User;
-use App\Models\DailyTip;
 use App\Models\ApiUsageLog;
+use App\Models\DailyTip;
+use App\Models\User;
 use App\Models\VitalSign;
 use App\Services\DailyTipSuggestionService;
 use App\Services\DashboardMetricsService;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Console\Attributes\Description;
+use Illuminate\Console\Attributes\Signature;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 
 #[Signature('app:generate-daily-tips')]
 #[Description('Genera tips de salud diarios personalizados para pacientes usando todos sus datos de salud disponibles')]
@@ -25,7 +24,7 @@ class GenerateDailyTips extends Command
     }
 
     /**
-     * Execute the console command.
+     * Ejecuta la generación programada de consejos diarios.
      */
     public function handle()
     {
@@ -35,6 +34,7 @@ class GenerateDailyTips extends Command
 
         if ($patients->isEmpty()) {
             $this->info('No se encontraron pacientes para generar tips.');
+
             return;
         }
 
@@ -55,8 +55,9 @@ class GenerateDailyTips extends Command
                              $patient->nutritionLogs()->where('created_at', '>=', $since)->exists() ||
                              DB::table('symptom_user')->where('user_id', $patient->id)->where('logged_at', '>=', $since)->exists();
 
-            if (!$hasRecentData) {
+            if (! $hasRecentData) {
                 $this->warn("  Paciente inactivo en los últimos {$maxInactivityDays} días. Omitiendo generación de tip.");
+
                 continue;
             }
 
@@ -70,38 +71,39 @@ class GenerateDailyTips extends Command
                     $resultado = $this->suggestionService->generateGemini($context, $geminiKey, $geminiModel);
                     $this->line("  Tip generado con Gemini: {$geminiModel}");
                 } catch (\Throwable $e) {
-                    $this->error("  Error con Gemini: " . $e->getMessage());
+                    $this->error('  Error con Gemini: '.$e->getMessage());
                 }
             }
 
-            if (!$resultado && $anthropicKey) {
+            if (! $resultado && $anthropicKey) {
                 try {
                     $resultado = $this->suggestionService->generateAnthropic($context, $anthropicKey, $anthropicModel);
                     $this->line("  Tip generado con Anthropic: {$anthropicModel}");
                 } catch (\Throwable $e) {
-                    $this->error("  Error con Anthropic: " . $e->getMessage());
+                    $this->error('  Error con Anthropic: '.$e->getMessage());
                 }
             }
 
-            if (!$resultado) {
+            if (! $resultado) {
                 $this->error("  No se pudo generar tip para el paciente {$patient->id} con ninguna IA configurada.");
+
                 continue;
             }
 
             $tip = DailyTip::create([
-                'user_id'  => $patient->id,
+                'user_id' => $patient->id,
                 'tip_text' => $resultado['tip'],
-                'status'   => 'approved',
+                'status' => 'approved',
             ]);
 
             ApiUsageLog::create([
-                'provider'          => $resultado['provider'],
-                'model'             => $resultado['model'],
-                'input_tokens'      => $resultado['input_tokens'],
-                'output_tokens'     => $resultado['output_tokens'],
-                'estimated_cost_usd'=> ApiUsageLog::calculateCost($resultado['provider'], $resultado['input_tokens'], $resultado['output_tokens']),
-                'daily_tip_id'      => $tip->id,
-                'patient_id'        => $patient->id,
+                'provider' => $resultado['provider'],
+                'model' => $resultado['model'],
+                'input_tokens' => $resultado['input_tokens'],
+                'output_tokens' => $resultado['output_tokens'],
+                'estimated_cost_usd' => ApiUsageLog::calculateCost($resultado['provider'], $resultado['input_tokens'], $resultado['output_tokens']),
+                'daily_tip_id' => $tip->id,
+                'patient_id' => $patient->id,
             ]);
 
             DashboardMetricsService::forgetUserCache($patient->id);
@@ -114,11 +116,11 @@ class GenerateDailyTips extends Command
 
     private function buildPatientContext(User $patient): array
     {
-        $profile   = $patient->patientProfile;
-        $now       = Carbon::now();
-        $today     = Carbon::today();
-        $ayer      = $today->copy()->subDay();
-        $hace30    = $now->copy()->subDays(30);
+        $profile = $patient->patientProfile;
+        $now = Carbon::now();
+        $today = Carbon::today();
+        $ayer = $today->copy()->subDay();
+        $hace30 = $now->copy()->subDays(30);
 
         // ── 1. Perfil clínico ───────────────────────────────────────────────
         $edad = $profile?->birth_date
@@ -128,7 +130,7 @@ class GenerateDailyTips extends Command
         $imc = null;
         if ($profile?->weight && $profile?->height && $profile->height > 0) {
             $alturaM = $profile->height / 100;
-            $imc     = round($profile->weight / ($alturaM * $alturaM), 1);
+            $imc = round($profile->weight / ($alturaM * $alturaM), 1);
         }
 
         $targetMin = $profile?->target_glucose_min ?? VitalSign::GLUCOSE_DEFAULT_MIN;
@@ -143,23 +145,24 @@ class GenerateDailyTips extends Command
             ->whereNotNull('glucose_level')
             ->where('glucose_level', '>', 0)
             ->map(function ($v) use ($targetMin, $targetMax) {
-                $valor   = (int) $v->glucose_level;
+                $valor = (int) $v->glucose_level;
                 $momento = $v->measurement_moment;
+
                 return [
-                    'hora'    => $v->created_at->format('H:i'),
+                    'hora' => $v->created_at->format('H:i'),
                     'momento' => $momento ?? 'No especificado',
-                    'valor'   => $valor,
-                    'clase'   => $this->clasificarGlucosa($valor, $momento, $targetMin, $targetMax),
+                    'valor' => $valor,
+                    'clase' => $this->clasificarGlucosa($valor, $momento, $targetMin, $targetMax),
                 ];
             })
             ->values()
             ->toArray();
 
-        $glucosaVals    = $vitals48h->whereNotNull('glucose_level')->where('glucose_level', '>', 0);
+        $glucosaVals = $vitals48h->whereNotNull('glucose_level')->where('glucose_level', '>', 0);
         $glucosaPromedio = $glucosaVals->avg('glucose_level');
-        $glucosaMin      = $glucosaVals->min('glucose_level');
-        $glucosaMax      = $glucosaVals->max('glucose_level');
-        $fueraDeRango    = collect($lecturasGlucosa)->filter(fn($l) => $l['clase'] !== 'Normal')->count();
+        $glucosaMin = $glucosaVals->min('glucose_level');
+        $glucosaMax = $glucosaVals->max('glucose_level');
+        $fueraDeRango = collect($lecturasGlucosa)->filter(fn ($l) => $l['clase'] !== 'Normal')->count();
 
         // ── 3. Otros signos vitales — presión y FC limitadas a 30 días (Bloque 2)
         $ultimaPresion = $patient->vitalSigns()
@@ -191,18 +194,18 @@ class GenerateDailyTips extends Command
             ->get();
 
         $minutosActividadAyer = $actividadAyer->sum('duration_minutes');
-        $tiposActividad       = $actividadAyer->pluck('activity_type')->filter()->unique()->values()->toArray();
-        $intensidades         = $actividadAyer->pluck('intensity')->filter()->unique()->values()->toArray();
+        $tiposActividad = $actividadAyer->pluck('activity_type')->filter()->unique()->values()->toArray();
+        $intensidades = $actividadAyer->pluck('intensity')->filter()->unique()->values()->toArray();
         $energiaPostActividad = $actividadAyer->pluck('energy_level')->filter()->last();
-        $horaEjercicio        = $actividadAyer->first()?->start_time;
+        $horaEjercicio = $actividadAyer->first()?->start_time;
 
         // ── 5. Nutrición (ayer) — con horario y completitud (Bloque 3) ────
         $nutricionAyer = $patient->nutritionLogs()
             ->whereDate('created_at', $ayer)
             ->get();
 
-        $carbsAyer          = $nutricionAyer->sum('carbs_grams');
-        $tiposComidaAyer    = $nutricionAyer->pluck('meal_type')->filter()->unique()->values()->toArray();
+        $carbsAyer = $nutricionAyer->sum('carbs_grams');
+        $tiposComidaAyer = $nutricionAyer->pluck('meal_type')->filter()->unique()->values()->toArray();
         $categoriaAlimentos = $nutricionAyer
             ->pluck('food_categories')
             ->filter()
@@ -213,7 +216,7 @@ class GenerateDailyTips extends Command
 
         $comidasConHora = $nutricionAyer
             ->whereNotNull('consumed_at')
-            ->map(fn($n) => ['comida' => $n->meal_type, 'hora' => $n->consumed_at])
+            ->map(fn ($n) => ['comida' => $n->meal_type, 'hora' => $n->consumed_at])
             ->values()
             ->toArray();
 
@@ -231,55 +234,55 @@ class GenerateDailyTips extends Command
 
         return [
             // Perfil
-            'nombre'            => $patient->name,
-            'edad'              => $edad,
-            'genero'            => $profile?->gender,
-            'tipo_diabetes'     => $profile?->diabetes_type,
-            'imc'               => $imc,
-            'peso_kg'           => $profile?->weight,
-            'altura_cm'         => $profile?->height,
+            'nombre' => $patient->name,
+            'edad' => $edad,
+            'genero' => $profile?->gender,
+            'tipo_diabetes' => $profile?->diabetes_type,
+            'imc' => $imc,
+            'peso_kg' => $profile?->weight,
+            'altura_cm' => $profile?->height,
             'rango_glucosa_min' => $targetMin,
             'rango_glucosa_max' => $targetMax,
 
             // Glucosa individual clasificada
-            'lecturas_glucosa'     => $lecturasGlucosa,
-            'total_lecturas'       => count($lecturasGlucosa),
+            'lecturas_glucosa' => $lecturasGlucosa,
+            'total_lecturas' => count($lecturasGlucosa),
             'lecturas_fuera_rango' => $fueraDeRango,
             'glucosa_promedio_48h' => $glucosaPromedio !== null ? round((float) $glucosaPromedio, 1) : null,
-            'glucosa_min_48h'      => $glucosaMin,
-            'glucosa_max_48h'      => $glucosaMax,
+            'glucosa_min_48h' => $glucosaMin,
+            'glucosa_max_48h' => $glucosaMax,
 
             // Otros signos vitales
-            'presion_sistolica'   => $ultimaPresion?->systolic,
-            'presion_diastolica'  => $ultimaPresion?->diastolic,
+            'presion_sistolica' => $ultimaPresion?->systolic,
+            'presion_diastolica' => $ultimaPresion?->diastolic,
             'frecuencia_cardiaca' => $ultimaFc?->heart_rate,
-            'nivel_estres'        => $ultimoNivelEstres?->stress_level,
-            'hba1c'               => $ultimaHba1c?->hba1c,
-            'hba1c_fecha'         => $ultimaHba1c?->created_at?->format('d/m/Y'),
-            'nota_vital'          => $ultimaNotaVital?->notes,
+            'nivel_estres' => $ultimoNivelEstres?->stress_level,
+            'hba1c' => $ultimaHba1c?->hba1c,
+            'hba1c_fecha' => $ultimaHba1c?->created_at?->format('d/m/Y'),
+            'nota_vital' => $ultimaNotaVital?->notes,
 
             // Actividad
             'minutos_actividad_ayer' => (int) $minutosActividadAyer,
-            'tipos_actividad_ayer'   => $tiposActividad,
-            'intensidad_actividad'   => $intensidades,
+            'tipos_actividad_ayer' => $tiposActividad,
+            'intensidad_actividad' => $intensidades,
             'energia_post_actividad' => $energiaPostActividad,
-            'hora_ejercicio'         => $horaEjercicio,
+            'hora_ejercicio' => $horaEjercicio,
 
             // Nutrición
-            'carbs_ayer_gramos'    => (int) $carbsAyer,
-            'tipos_comida_ayer'    => $tiposComidaAyer,
+            'carbs_ayer_gramos' => (int) $carbsAyer,
+            'tipos_comida_ayer' => $tiposComidaAyer,
             'categorias_alimentos' => $categoriaAlimentos,
-            'registro_desayuno'    => in_array('desayuno', $tiposComidaAyer),
-            'registro_almuerzo'    => in_array('almuerzo', $tiposComidaAyer),
-            'registro_cena'        => in_array('cena', $tiposComidaAyer),
-            'tiene_azucares'       => in_array('azucares', $categoriaAlimentos),
-            'comidas_con_hora'     => $comidasConHora,
+            'registro_desayuno' => in_array('desayuno', $tiposComidaAyer),
+            'registro_almuerzo' => in_array('almuerzo', $tiposComidaAyer),
+            'registro_cena' => in_array('cena', $tiposComidaAyer),
+            'tiene_azucares' => in_array('azucares', $categoriaAlimentos),
+            'comidas_con_hora' => $comidasConHora,
 
             // Síntomas
             'sintomas_recientes' => $sintomasRecientes,
 
             // Último consejo (fix: ahora sí lleva el texto)
-            'ultimo_consejo'     => $ultimoTip?->tip_text,
+            'ultimo_consejo' => $ultimoTip?->tip_text,
         ];
     }
 

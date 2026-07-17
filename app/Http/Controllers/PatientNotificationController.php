@@ -3,15 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\PatientNotification;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Gestiona la lectura individual y masiva de las notificaciones del paciente.
+ */
 class PatientNotificationController extends Controller
 {
     public function markRead(PatientNotification $notification)
     {
         abort_if($notification->user_id !== Auth::id(), 403);
         $notification->markRead();
+
         return response()->json(['ok' => true]);
     }
 
@@ -28,12 +31,14 @@ class PatientNotificationController extends Controller
     {
         abort_if($notification->user_id !== Auth::id(), 403);
         $notification->delete();
+
         return response()->json(['ok' => true]);
     }
 
     public function destroyAll()
     {
         PatientNotification::where('user_id', Auth::id())->delete();
+
         return response()->json(['ok' => true]);
     }
 }

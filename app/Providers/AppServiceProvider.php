@@ -3,12 +3,13 @@
 namespace App\Providers;
 
 use App\Services\DashboardMetricsService;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
 /**
  * Clase AppServiceProvider
- * 
+ *
  * Proveedor de servicios de la aplicación.
  * Se ejecuta durante el registro y arranque de la aplicación.
  */
@@ -28,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         if (app()->environment('production')) {
-            \Illuminate\Support\Facades\URL::forceScheme('https');
+            URL::forceScheme('https');
         }
 
         View::composer(['dashboard', 'tracking.nutrition.index'], function ($view) {

@@ -2,13 +2,10 @@
 
 namespace Tests\Feature\Search;
 
+use App\Models\PatientProfile;
 use App\Models\Role;
 use App\Models\User;
 use App\Models\VitalSign;
-use App\Models\ActivityLog;
-use App\Models\NutritionLog;
-use App\Models\Symptom;
-use App\Models\PatientProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -37,7 +34,7 @@ class SearchFeatureTest extends TestCase
     }
 
     /**
-     * Test: Búsqueda con query vacío o inferior a 2 caracteres retorna colecciones vacías.
+     * Prueba: una consulta vacía o menor de dos caracteres devuelve colecciones vacías.
      */
     public function test_search_returns_empty_results_for_short_query(): void
     {
@@ -47,12 +44,12 @@ class SearchFeatureTest extends TestCase
         $response->assertStatus(200);
         $response->assertJson([
             'sections' => [],
-            'records' => []
+            'records' => [],
         ]);
     }
 
     /**
-     * Test: Búsqueda de secciones por palabra clave coincide con las rutas correctas.
+     * Prueba: la búsqueda de secciones por palabra clave coincide con las rutas correctas.
      */
     public function test_search_can_find_application_sections(): void
     {
@@ -67,7 +64,7 @@ class SearchFeatureTest extends TestCase
     }
 
     /**
-     * Test: El buscador clínico local encuentra registros históricos del paciente.
+     * Prueba: el buscador clínico local encuentra registros históricos del paciente.
      */
     public function test_search_can_locate_vital_sign_records(): void
     {
@@ -86,7 +83,7 @@ class SearchFeatureTest extends TestCase
         $response->assertJsonFragment([
             'type' => 'Signo vital',
             'title' => 'Glucosa 185 mg/dL',
-            'subtitle' => 'Después de Comer · ' . now()->format('d/m/Y'),
+            'subtitle' => 'Después de Comer · '.now()->format('d/m/Y'),
         ]);
     }
 }

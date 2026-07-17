@@ -4,6 +4,9 @@ namespace App\Http\Requests\Tracking;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+/**
+ * Valida la selección de síntomas enviada por el paciente.
+ */
 class SymptomLogRequest extends FormRequest
 {
     public function authorize(): bool

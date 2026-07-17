@@ -6,12 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
  * Clase PasswordResetLinkController
- * 
+ *
  * Gestiona la solicitud de restablecimiento de contraseña.
  * Maneja la vista de formulario y el envío del enlace de restablecimiento.
  */
@@ -19,11 +20,9 @@ class PasswordResetLinkController extends Controller
 {
     /**
      * Muestra la vista de solicitud de restablecimiento de contraseña.
-     * 
-     * Se accede a esta vista cuando el usuario ha olvidado su contraseña y 
-     * necesita solicitar un enlace para restablecerla.
      *
-     * @return \Illuminate\View\View
+     * Se accede a esta vista cuando el usuario ha olvidado su contraseña y
+     * necesita solicitar un enlace para restablecerla.
      */
     public function create(): View
     {
@@ -32,17 +31,19 @@ class PasswordResetLinkController extends Controller
 
     /**
      * Procesa la solicitud de enlace de restablecimiento de contraseña.
-     * 
+     *
      * Valida el correo electrónico del usuario y envía un enlace para restablecer
      * la contraseña. Si es exitoso, muestra un mensaje de confirmación;
      * de lo contrario, devuelve los errores.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
+        $request->merge([
+            'email' => Str::lower(trim((string) $request->input('email'))),
+        ]);
+
         $request->validate([
             'email' => ['required', 'email'],
         ]);

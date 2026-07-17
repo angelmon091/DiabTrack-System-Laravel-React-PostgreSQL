@@ -9,13 +9,14 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 /**
  * Clase RegisteredUserController
- * 
+ *
  * Gestiona el registro de nuevos usuarios.
  * Maneja la vista de formulario y la lógica de creación de cuentas.
  */
@@ -23,8 +24,6 @@ class RegisteredUserController extends Controller
 {
     /**
      * Muestra la vista de registro de nuevos usuarios.
-     * 
-     * @return \Illuminate\View\View
      */
     public function create(): View
     {
@@ -37,15 +36,17 @@ class RegisteredUserController extends Controller
      * Valida los datos recibidos (nombre, correo, contraseña) y crea una nueva cuenta.
      * Si es exitoso, inicia sesión en la aplicación y redirige al usuario al onboarding.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\RedirectResponse
-     * @throws \Illuminate\Validation\ValidationException
+     * @throws ValidationException
      */
     public function store(Request $request): RedirectResponse
     {
+        $request->merge([
+            'email' => Str::lower(trim((string) $request->input('email'))),
+        ]);
+
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
@@ -59,6 +60,6 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('onboarding.index', absolute: false));
+        return redirect(route('verification.notice', absolute: false));
     }
 }

@@ -8,8 +8,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 /**
  * Modelo Role
- * 
- * Define los roles dentro del sistema, permitiendo asignar permisos específicos 
+ *
+ * Define los roles dentro del sistema, permitiendo asignar permisos específicos
  * a diferentes tipos de usuarios (ej. Médico, Paciente, Admin).
  */
 class Role extends Model

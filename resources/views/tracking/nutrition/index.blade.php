@@ -223,7 +223,7 @@
         const offset = currentSlide * -(100 / itemsToShow);
         track.style.transform = `translateX(${offset}%)`;
         
-        // Update dots
+        // Actualiza los indicadores visuales del carrusel.
         document.querySelectorAll('.dot').forEach((dot, index) => {
             dot.classList.toggle('active', index === currentSlide);
         });
@@ -270,7 +270,7 @@
         }, 1500);
     }
 
-    // Responsive adjustments
+    // Aplica los ajustes necesarios para pantallas pequeñas.
     window.addEventListener('resize', () => {
         location.reload(); // Refresh to recalculate itemsToShow
     });

@@ -1,31 +1,31 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\OnboardingController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\Admin\ApiUsageController;
+use App\Http\Controllers\Admin\DoctorApprovalController;
+use App\Http\Controllers\Admin\RoleController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\CaregiverController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DoctorController;
-use App\Http\Controllers\Tracking\VitalSignController;
+use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\PatientNotificationController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SearchController;
 use App\Http\Controllers\Tracking\ActivityLogController;
 use App\Http\Controllers\Tracking\NutritionLogController;
 use App\Http\Controllers\Tracking\SymptomLogController;
+use App\Http\Controllers\Tracking\VitalSignController;
 use App\Services\TipService;
-use App\Http\Controllers\PatientNotificationController;
-use App\Http\Controllers\DailyTipController;
-use App\Http\Controllers\SearchController;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
-    Route::post('/tips/{dailyTip}/reject', [DailyTipController::class, 'reject'])
-        ->middleware('role:cuidador,médico')
-        ->name('tips.reject');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
@@ -86,8 +86,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Doctor routes
     Route::middleware(['role:médico'])->prefix('doctor')->name('doctor.')->group(function () {
         Route::get('/', [DoctorController::class, 'dashboard'])->name('dashboard');
-        Route::get('/link', [DoctorController::class, 'showLinkForm'])->name('link');
-        Route::post('/link', [DoctorController::class, 'linkPatient'])->name('link.store');
+        Route::middleware('doctor.approved')->group(function () {
+            Route::get('/link', [DoctorController::class, 'showLinkForm'])->name('link');
+            Route::post('/link', [DoctorController::class, 'linkPatient'])->name('link.store');
+        });
         Route::get('/patient/{patient}', [DoctorController::class, 'showPatient'])->name('patient.show');
         Route::patch('/patient/{patient}/targets', [DoctorController::class, 'updateTargets'])->name('patient.targets.update');
         Route::delete('/patient/{patient}/unlink', [DoctorController::class, 'unlinkPatient'])->name('patient.unlink');
@@ -98,14 +100,17 @@ Route::middleware(['auth', 'verified'])->group(function () {
 require __DIR__.'/auth.php';
 
 // Admin Routes
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
         return view('admin.dashboard');
     })->name('dashboard');
 
-    Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
-    Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class);
-    Route::get('api-usage', [\App\Http\Controllers\Admin\ApiUsageController::class, 'index'])->name('api-usage.index');
+    Route::resource('users', UserController::class);
+    Route::resource('roles', RoleController::class);
+    Route::get('doctors', [DoctorApprovalController::class, 'index'])->name('doctors.index');
+    Route::patch('doctors/{doctorProfile}/approve', [DoctorApprovalController::class, 'approve'])->name('doctors.approve');
+    Route::patch('doctors/{doctorProfile}/reject', [DoctorApprovalController::class, 'reject'])->name('doctors.reject');
+    Route::get('api-usage', [ApiUsageController::class, 'index'])->name('api-usage.index');
 });
 
 if (app()->environment('local')) {

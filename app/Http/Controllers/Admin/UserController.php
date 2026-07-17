@@ -3,15 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\AdminUserController;
 use App\Http\Requests\Admin\AdminUserRequest;
 use App\Models\Role;
 use App\Models\User;
+use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 /**
  * Clase UserController
- * 
+ *
  * Controlador para la gestión de usuarios.
  * Permite crear, editar, eliminar y listar usuarios.
  */
@@ -20,8 +21,7 @@ class UserController extends Controller
     /**
      * Muestra un listado de los usuarios.
      *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function index(Request $request)
     {
@@ -41,24 +41,24 @@ class UserController extends Controller
     /**
      * Muestra el formulario para crear un nuevo usuario.
      *
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function create()
     {
         $roles = Role::all();
+
         return view('admin.users.create', compact('roles'));
     }
 
     /**
      * Almacena un nuevo usuario en el almacenamiento.
      *
-     * @param \App\Http\Requests\Admin\AdminUserRequest $request
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function store(AdminUserRequest $request)
     {
         $validated = $request->validated();
-        
+
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -78,23 +78,20 @@ class UserController extends Controller
     /**
      * Muestra el formulario para editar un usuario existente.
      *
-     * @param \App\Models\User $user
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function edit(User $user)
     {
         $roles = Role::all();
         $userRoles = $user->roles->pluck('id')->toArray();
-        
+
         return view('admin.users.edit', compact('user', 'roles', 'userRoles'));
     }
 
     /**
      * Actualiza un usuario existente en el almacenamiento.
      *
-     * @param \App\Http\Requests\Admin\AdminUserRequest $request
-     * @param \App\Models\User $user
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function update(AdminUserRequest $request, User $user)
     {
@@ -105,14 +102,14 @@ class UserController extends Controller
             'email' => $validated['email'],
         ];
 
-        if (!empty($validated['password'])) {
+        if (! empty($validated['password'])) {
             $updateData['password'] = $validated['password'];
         }
 
         $user->fill($updateData);
 
         // Prevenir que el administrador se revoque a sí mismo los privilegios por accidente
-        if ($user->id === auth()->id() && !$request->has('is_admin')) {
+        if ($user->id === auth()->id() && ! $request->has('is_admin')) {
             $user->is_admin = true;
         } else {
             $user->is_admin = $request->has('is_admin');
@@ -132,8 +129,7 @@ class UserController extends Controller
     /**
      * Elimina un usuario del almacenamiento.
      *
-     * @param \App\Models\User $user
-     * @return \Illuminate\Http\RedirectResponse
+     * @return RedirectResponse
      */
     public function destroy(User $user)
     {

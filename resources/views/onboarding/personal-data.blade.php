@@ -33,7 +33,7 @@
                     <div class="select-wrapper">
                         <label>{{ __('Año') }}</label>
                         <select name="birth_year" class="full-select">
-                            @for ($i = date('Y'); $i >= 1920; $i--)
+                            @for ($i = now()->subYears(18)->year; $i >= 1920; $i--)
                                 <option value="{{ $i }}" {{ old('birth_year') == $i ? 'selected' : '' }}>{{ $i }}</option>
                             @endfor
                         </select>
@@ -42,15 +42,16 @@
                 <x-input-error :messages="$errors->get('birth_day')" />
                 <x-input-error :messages="$errors->get('birth_month')" />
                 <x-input-error :messages="$errors->get('birth_year')" />
+                <x-input-error :messages="$errors->get('birth_date')" />
             </div>
 
             <div class="mb-4 animate-fade-in" style="animation-delay: 0.2s;">
-                <x-input-label value="{{ __('Tipo de Diabetes') }}" class="text-uppercase extra-small fw-bold mb-2" />
+                <x-input-label value="{{ __('Condición glucémica') }}" class="text-uppercase extra-small fw-bold mb-2" />
                 <div class="input-group">
                     <select class="full-select" name="diabetes_type">
-                        <option value="Diabetes Mellitus Tipo 1" {{ old('diabetes_type') == 'Diabetes Mellitus Tipo 1' ? 'selected' : '' }}>Diabetes Mellitus Tipo 1</option>
-                        <option value="Diabetes Mellitus Tipo 2" {{ old('diabetes_type') == 'Diabetes Mellitus Tipo 2' ? 'selected' : '' }}>Diabetes Mellitus Tipo 2</option>
-                        <option value="Diabetes Gestacional" {{ old('diabetes_type') == 'Diabetes Gestacional' ? 'selected' : '' }}>Diabetes Gestacional</option>
+                        @foreach(config('diabtrack.glycemic_conditions') as $value => $label)
+                            <option value="{{ $value }}" {{ old('diabetes_type') === $value ? 'selected' : '' }}>{{ __($label) }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <x-input-error :messages="$errors->get('diabetes_type')" />

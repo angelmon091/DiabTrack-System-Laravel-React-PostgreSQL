@@ -9,6 +9,9 @@ use Illuminate\Console\Command;
 
 #[Signature('tips:probar')]
 #[Description('Prueba la generación de tips con Anthropic y reglas clínicas de respaldo')]
+/**
+ * Permite comprobar desde consola la generación de consejos y su mecanismo de respaldo.
+ */
 class ProbarTip extends Command
 {
     public function handle(TipService $tipService): int
@@ -21,9 +24,9 @@ class ProbarTip extends Command
             'imc' => 28.5,
         ]);
 
-        $this->info('Fuente: ' . $resultado['fuente']);
-        $this->line('Label: ' . $resultado['label']);
-        $this->line('Tip: ' . $resultado['tip']);
+        $this->info('Fuente: '.$resultado['fuente']);
+        $this->line('Label: '.$resultado['label']);
+        $this->line('Tip: '.$resultado['tip']);
 
         return self::SUCCESS;
     }

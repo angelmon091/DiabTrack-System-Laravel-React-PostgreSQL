@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Middleware;
 
+use App\Models\PatientProfile;
 use App\Models\Role;
 use App\Models\User;
-use App\Models\PatientProfile;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -13,8 +13,11 @@ class RoleAccessTest extends TestCase
     use RefreshDatabase;
 
     private User $patient;
+
     private User $doctor;
+
     private User $caregiver;
+
     private User $admin;
 
     protected function setUp(): void
@@ -51,7 +54,7 @@ class RoleAccessTest extends TestCase
     }
 
     /**
-     * Test: Un paciente no puede acceder a las rutas privadas del médico.
+     * Prueba: un paciente no puede acceder a las rutas privadas del médico.
      */
     public function test_patient_cannot_access_doctor_routes(): void
     {
@@ -62,7 +65,7 @@ class RoleAccessTest extends TestCase
     }
 
     /**
-     * Test: Un paciente no puede acceder a las rutas privadas del cuidador.
+     * Prueba: un paciente no puede acceder a las rutas privadas del cuidador.
      */
     public function test_patient_cannot_access_caregiver_routes(): void
     {
@@ -72,7 +75,7 @@ class RoleAccessTest extends TestCase
     }
 
     /**
-     * Test: Un cuidador intentando entrar a una ruta de paciente es redirigido a su panel de cuidador.
+     * Prueba: un cuidador que intenta entrar a una ruta de paciente es redirigido a su panel.
      */
     public function test_caregiver_is_redirected_to_caregiver_dashboard_from_patient_route(): void
     {
@@ -82,7 +85,7 @@ class RoleAccessTest extends TestCase
     }
 
     /**
-     * Test: Un usuario no administrador intentando entrar al panel admin es redirigido a su dashboard.
+     * Prueba: un usuario no administrador es redirigido al intentar entrar al panel administrativo.
      */
     public function test_non_admin_cannot_access_admin_dashboard(): void
     {
@@ -92,7 +95,7 @@ class RoleAccessTest extends TestCase
     }
 
     /**
-     * Test: Un administrador real puede acceder al dashboard de TI (/admin).
+     * Prueba: un administrador puede acceder al panel de TI ubicado en /admin.
      */
     public function test_admin_can_access_admin_dashboard(): void
     {

@@ -7,6 +7,9 @@ use App\Http\Requests\Tracking\ActivityLogRequest;
 use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Atiende la consulta y el registro de actividad física del paciente.
+ */
 class ActivityLogController extends Controller
 {
     public function create()
@@ -29,7 +32,7 @@ class ActivityLogController extends Controller
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => __('Registro de actividad guardado con éxito.')
+                'message' => __('Registro de actividad guardado con éxito.'),
             ]);
         }
 

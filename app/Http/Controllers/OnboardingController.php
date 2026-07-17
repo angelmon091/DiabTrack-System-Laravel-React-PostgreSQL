@@ -2,18 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PatientProfile;
+use App\Http\Requests\Onboarding\PersonalDataRequest;
 use App\Models\CaregiverProfile;
 use App\Models\DoctorProfile;
+use App\Models\PatientProfile;
 use App\Models\Role;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-
 use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Clase OnboardingController
- * 
+ *
  * Gestiona el proceso de onboarding para nuevos usuarios.
  * Adapta el formulario según el rol seleccionado (paciente, cuidador o médico).
  */
@@ -29,10 +29,12 @@ class OnboardingController extends Controller implements HasMiddleware
                 if (Auth::check() && Auth::user()->isAdmin()) {
                     return redirect()->route('admin.dashboard');
                 }
+
                 return $next($request);
-            }
+            },
         ];
     }
+
     /**
      * Muestra la pantalla de selección de rol.
      */
@@ -56,28 +58,14 @@ class OnboardingController extends Controller implements HasMiddleware
     /**
      * Almacena los datos del paciente.
      */
-    public function storePatient(Request $request)
+    public function storePatient(PersonalDataRequest $request)
     {
-        $validated = $request->validate([
-            'birth_day' => 'required|integer|min:1|max:31',
-            'birth_month' => 'required|string',
-            'birth_year' => 'required|integer|min:1920|max:' . date('Y'),
-            'diabetes_type' => 'required|string',
-            'weight' => 'required|numeric|min:1|max:500',
-            'height' => 'required|numeric|min:30|max:300',
-            'gender' => 'required|string|in:Masculino,Femenino',
-        ]);
-
-        $birthDate = sprintf('%04d-%02d-%02d', 
-            $validated['birth_year'], 
-            $this->getMonthNumber($validated['birth_month']), 
-            $validated['birth_day']
-        );
+        $validated = $request->validated();
 
         PatientProfile::updateOrCreate(
             ['user_id' => Auth::id()],
             [
-                'birth_date' => $birthDate,
+                'birth_date' => $validated['birth_date'],
                 'diabetes_type' => $validated['diabetes_type'],
                 'weight' => $validated['weight'],
                 'height' => $validated['height'],
@@ -150,6 +138,10 @@ class OnboardingController extends Controller implements HasMiddleware
                 'gender' => $validated['gender'],
                 'license_number' => $validated['license_number'],
                 'specialty' => $validated['specialty'],
+                'approval_status' => DoctorProfile::STATUS_PENDING,
+                'review_notes' => null,
+                'approved_by' => null,
+                'approved_at' => null,
             ]
         );
 
@@ -157,16 +149,6 @@ class OnboardingController extends Controller implements HasMiddleware
         $role = Role::firstOrCreate(['name' => 'médico']);
         Auth::user()->roles()->syncWithoutDetaching([$role->id]);
 
-        return redirect()->route('doctor.dashboard')->with('status', __('¡Bienvenido! Tu perfil profesional ha sido configurado.'));
-    }
-
-    private function getMonthNumber($monthName)
-    {
-        $months = [
-            'Enero' => '01', 'Febrero' => '02', 'Marzo' => '03', 'Abril' => '04',
-            'Mayo' => '05', 'Junio' => '06', 'Julio' => '07', 'Agosto' => '08',
-            'Septiembre' => '09', 'Octubre' => '10', 'Noviembre' => '11', 'Diciembre' => '12'
-        ];
-        return $months[$monthName] ?? '01';
+        return redirect()->route('doctor.dashboard')->with('status', __('Tu perfil profesional fue registrado y será revisado por un administrador.'));
     }
 }

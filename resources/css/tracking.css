@@ -4,7 +4,7 @@
    Replaces: ingreso_de_datos_global.css
 ========================================= */
 
-/* ── Page Container ── */
+/* ── Contenedor de página ── */
 .tracking-container {
     max-width: 960px;
     margin: 2rem auto;
@@ -28,7 +28,7 @@
     margin-top: 0.25rem;
 }
 
-/* ── Category Navigation Tabs ── */
+/* ── Pestañas de navegación por categoría ── */
 .tracking-tabs {
     display: flex;
     gap: 12px;
@@ -86,7 +86,7 @@
     box-shadow: 0 0 0 3px var(--diab-primary-light), var(--diab-shadow-hover);
 }
 
-/* ── Form Layout ── */
+/* ── Distribución del formulario ── */
 .tracking-form-layout {
     display: flex;
     gap: 2rem;
@@ -102,7 +102,7 @@
     max-width: 400px;
 }
 
-/* ── Form Groups ── */
+/* ── Grupos del formulario ── */
 .tracking-field {
     margin-bottom: 1.75rem;
 }
@@ -121,7 +121,7 @@
     font-weight: 800;
 }
 
-/* ── Input Styles (unified with design-system) ── */
+/* ── Campos unificados con el sistema de diseño ── */
 .tracking-input {
     width: 100%;
     padding: 12px 18px;
@@ -145,7 +145,7 @@
     color: var(--diab-text-muted);
 }
 
-/* Select Dropdown */
+/* Selector desplegable */
 .tracking-select {
     width: 100%;
     padding: 12px 18px;
@@ -172,7 +172,7 @@
     box-shadow: 0 0 0 4px var(--diab-primary-light);
 }
 
-/* Range Slider */
+/* Control deslizante */
 .tracking-range {
     -webkit-appearance: none;
     appearance: none;
@@ -211,7 +211,7 @@
     box-shadow: 0 2px 8px rgba(0, 180, 216, 0.3);
 }
 
-/* ── Selector Buttons (moments, intensity, energy, meal type) ── */
+/* ── Botones de selección para momentos, intensidad, energía y comida ── */
 .selector-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -300,7 +300,7 @@
     opacity: 1;
 }
 
-/* ── Side Panel ── */
+/* ── Panel lateral ── */
 .tracking-panel {
     background: white;
     border-radius: var(--diab-radius);
@@ -318,7 +318,7 @@
     text-align: center;
 }
 
-/* ── Checkboxes ── */
+/* ── Casillas de selección ── */
 .tracking-checkbox {
     display: flex;
     align-items: center;
@@ -364,7 +364,7 @@
     border-color: var(--diab-primary);
 }
 
-/* ── Symptom Groups ── */
+/* ── Grupos de síntomas ── */
 .tracking-symptoms-grid {
     display: flex;
     flex-wrap: wrap;
@@ -392,7 +392,7 @@
     color: var(--diab-primary);
 }
 
-/* ── Action Buttons ── */
+/* ── Botones de acción ── */
 .tracking-actions {
     position: fixed;
     bottom: 0;
@@ -458,7 +458,7 @@
     filter: brightness(1.05);
 }
 
-/* ── Responsive ── */
+/* ── Adaptación responsiva ── */
 @media (max-width: 768px) {
     .tracking-container {
         padding: 0 1rem;

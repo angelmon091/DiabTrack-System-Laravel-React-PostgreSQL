@@ -12,16 +12,21 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Clase LoginRequest
- * 
+ *
  * Reglas de validación para el inicio de sesión.
  * Asegura que las credenciales del usuario sean válidas antes de ser procesadas.
  */
 class LoginRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $this->merge([
+            'email' => Str::lower(trim((string) $this->input('email'))),
+        ]);
+    }
+
     /**
      * Determina si el usuario está autorizado para realizar esta solicitud.
-     *
-     * @return bool
      */
     public function authorize(): bool
     {
@@ -86,8 +91,6 @@ class LoginRequest extends FormRequest
 
     /**
      * Obtiene la clave de limitación de velocidad para la solicitud.
-     *
-     * @return string
      */
     public function throttleKey(): string
     {

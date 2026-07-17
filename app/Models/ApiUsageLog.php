@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+/**
+ * Representa la trazabilidad de cada consumo realizado a los proveedores de inteligencia artificial.
+ */
 class ApiUsageLog extends Model
 {
     protected $fillable = [
@@ -19,14 +22,14 @@ class ApiUsageLog extends Model
 
     protected $casts = [
         'estimated_cost_usd' => 'decimal:6',
-        'input_tokens'       => 'integer',
-        'output_tokens'      => 'integer',
+        'input_tokens' => 'integer',
+        'output_tokens' => 'integer',
     ];
 
     // Cost per million tokens (USD)
     private const RATES = [
         'anthropic' => ['input' => 0.80,  'output' => 4.00],
-        'gemini'    => ['input' => 0.075, 'output' => 0.30],
+        'gemini' => ['input' => 0.075, 'output' => 0.30],
     ];
 
     public static function calculateCost(string $provider, int $inputTokens, int $outputTokens): float

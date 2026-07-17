@@ -7,7 +7,7 @@
                 <p>{{ __('Esta es un área segura. Por favor confirma tu contraseña antes de continuar.') }}</p>
             </div>
 
-            <!-- Password -->
+            <!-- Contraseña -->
             <x-text-input 
                 type="password" 
                 name="password" 

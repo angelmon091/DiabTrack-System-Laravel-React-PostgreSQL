@@ -1,12 +1,12 @@
 <x-guest-layout>
     <x-auth-card>
-        <!-- Session Status -->
+        <!-- Estado de la sesión -->
         <x-auth-session-status class="mb-4" :status="session('status')" />
 
         <form method="POST" action="{{ route('login') }}">
             @csrf
 
-            <!-- Email Address -->
+            <!-- Dirección de correo electrónico -->
             <x-text-input 
                 type="email" 
                 name="email" 
@@ -18,7 +18,7 @@
             />
             <x-input-error :messages="$errors->get('email')" />
 
-            <!-- Password -->
+            <!-- Contraseña -->
             <x-text-input 
                 type="password" 
                 name="password" 

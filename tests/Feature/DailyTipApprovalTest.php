@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\DailyTip;
-use App\Models\PatientLink;
 use App\Models\PatientProfile;
 use App\Models\Role;
 use App\Models\User;
@@ -104,21 +103,10 @@ class DailyTipApprovalTest extends TestCase
         $response->assertDontSee('Tip viejo en caché que no debería mostrarse', false);
     }
 
-    public function test_linked_caregiver_can_approve_a_pending_tip(): void
+    public function test_daily_tip_can_be_persisted_with_approved_status(): void
     {
         $patient = $this->createUserWithRole('paciente');
-        $reviewer = $this->createUserWithRole('cuidador');
 
-        PatientLink::create([
-            'patient_id' => $patient->id,
-            'linked_user_id' => $reviewer->id,
-            'role' => 'cuidador',
-            'invite_code' => 'ABC123',
-            'status' => 'active',
-            'expires_at' => now()->addDay(),
-        ]);
-
-        // Ahora los consejos se crean auto-aprobados
         $tip = DailyTip::create([
             'user_id' => $patient->id,
             'tip_text' => 'Camina 10 minutos después de comer.',
@@ -131,39 +119,18 @@ class DailyTipApprovalTest extends TestCase
         ]);
     }
 
-    public function test_linked_caregiver_can_reject_a_tip_with_reason(): void
+    public function test_daily_tip_is_approved_by_default_without_human_review(): void
     {
         $patient = $this->createUserWithRole('paciente');
-        $reviewer = $this->createUserWithRole('médico');
-
-        PatientLink::create([
-            'patient_id' => $patient->id,
-            'linked_user_id' => $reviewer->id,
-            'role' => 'médico',
-            'invite_code' => 'DEF456',
-            'status' => 'active',
-            'expires_at' => now()->addDay(),
-        ]);
-
-        // Los consejos se crean aprobados por defecto, pero el cuidador puede rechazarlos
+        // Los consejos forman parte del flujo automático del MVP.
         $tip = DailyTip::create([
             'user_id' => $patient->id,
-            'tip_text' => 'Aumenta la insulina antes de la cena.',
-            'status' => 'approved',
+            'tip_text' => 'Mantén horarios consistentes para registrar tus mediciones.',
         ]);
-
-        $response = $this->actingAs($reviewer)
-            ->post(route('tips.reject', $tip), [
-                'reason' => 'El consejo propone un cambio terapéutico no permitido.',
-            ]);
-
-        $response->assertRedirect();
 
         $this->assertDatabaseHas('daily_tips', [
             'id' => $tip->id,
-            'status' => 'rejected',
-            'reviewed_by' => $reviewer->id,
-            'rejection_reason' => 'El consejo propone un cambio terapéutico no permitido.',
+            'status' => 'approved',
         ]);
     }
 

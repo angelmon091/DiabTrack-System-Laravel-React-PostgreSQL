@@ -3,7 +3,6 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -15,11 +14,13 @@ class VerifyEmailChange extends Mailable
     use Queueable, SerializesModels;
 
     public $token;
+
     public $newEmail;
+
     public $user;
 
     /**
-     * Create a new message instance.
+     * Crea una nueva instancia del mensaje de verificación.
      */
     public function __construct($user, $token, $newEmail)
     {
@@ -29,7 +30,7 @@ class VerifyEmailChange extends Mailable
     }
 
     /**
-     * Get the message envelope.
+     * Define el asunto y los datos generales del mensaje.
      */
     public function envelope(): Envelope
     {
@@ -39,7 +40,7 @@ class VerifyEmailChange extends Mailable
     }
 
     /**
-     * Get the message content definition.
+     * Define la vista y el contenido del correo.
      */
     public function content(): Content
     {
@@ -49,7 +50,7 @@ class VerifyEmailChange extends Mailable
     }
 
     /**
-     * Get the attachments for the message.
+     * Devuelve los archivos adjuntos del mensaje, cuando existan.
      *
      * @return array<int, Attachment>
      */

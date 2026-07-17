@@ -16,7 +16,7 @@ class EnsureOnboardingComplete
     {
         $user = auth()->user();
 
-        if ($user && !$user->hasCompletedOnboarding() && !$user->isAdmin()) {
+        if ($user && ! $user->hasCompletedOnboarding() && ! $user->isAdmin()) {
             return redirect()->route('onboarding.index');
         }
 
