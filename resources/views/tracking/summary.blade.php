@@ -213,9 +213,6 @@
                 <p class="text-muted small mb-0">Análisis detallado de todos tus registros históricos</p>
             </div>
             <div class="d-flex gap-2">
-                <button class="btn btn-outline-secondary rounded-pill px-3 px-md-4 btn-sm">
-                    <i class="fa-solid fa-calendar-day me-2"></i> <span class="d-none d-sm-inline">Historial</span> Completo
-                </button>
                 <div class="btn btn-diab-primary rounded-pill px-3 px-md-4 btn-sm shadow-sm d-inline-flex align-items-center gap-2"
                      style="opacity: 0.55; cursor: not-allowed; pointer-events: none;">
                     <i class="fa-solid fa-file-pdf"></i> Reporte Médico
