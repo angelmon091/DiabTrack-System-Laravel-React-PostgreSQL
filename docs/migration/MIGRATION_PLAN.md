@@ -845,3 +845,18 @@ Completada el 28 de julio de 2026 reutilizando `AdminLayout`.
 - Suite completa: 120 pruebas pasan, 0 fallan, 611 assertions, 13.10 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 650 módulos; `git diff --check` sin errores.
 - `resources/views/admin/roles/edit.blade.php` permanece hasta Fase 8.
+
+## 30. Nivel 2: Listado de usuarios
+
+Completada el 28 de julio de 2026 reutilizando `AdminLayout`.
+
+- `GET /admin/users` conserva URL, middleware, búsqueda por nombre/correo y paginación, y ahora renderiza `Admin/Users/Index` mediante Inertia.
+- Se creó `UserResource` para exponer identidad, tipo de cuenta, roles y URLs de acciones sin serializar el modelo Eloquent completo.
+- La página reutiliza `Table`, `Pagination` y el `Modal` genérico. La búsqueda usa `router.get`; crear, editar, limpiar búsqueda y paginación conservan sus destinos existentes.
+- `destroy()` permanece intacto y sigue impidiendo que el administrador elimine su propia cuenta. React oculta esa acción para la sesión actual, pero la protección real continúa en backend.
+- Se recargó Octane y se copió el build al volumen aislado `public/build` del contenedor antes del QA.
+- QA real: `/admin/users`, título `Control de usuarios - DiabTrack`, F5 estable, usuario actual identificado y sin botón de eliminación; la búsqueda actualizó la URL a `?search=Role%20Assigned%20QA` y persistió tras recargar; el modal bloqueó el scroll y una eliminación válida redirigió al listado con flash. Consola limpia.
+- Suite específica: 3 pruebas pasan, 30 assertions.
+- Suite completa: 123 pruebas pasan, 0 fallan, 641 assertions, 14.40 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 651 módulos; `git diff --check` sin errores.
+- `resources/views/admin/users/index.blade.php` permanece hasta Fase 8.

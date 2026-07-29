@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AdminUserRequest;
+use App\Http\Resources\UserResource;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Clase UserController
@@ -23,7 +26,7 @@ class UserController extends Controller
      *
      * @return View
      */
-    public function index(Request $request)
+    public function index(Request $request): InertiaResponse
     {
         $search = $request->input('search');
 
@@ -35,7 +38,12 @@ class UserController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('admin.users.index', compact('users', 'search'));
+        return Inertia::render('Admin/Users/Index', [
+            'users' => UserResource::collection($users),
+            'filters' => ['search' => $search],
+            'createUrl' => route('admin.users.create', absolute: false),
+            'indexUrl' => route('admin.users.index', absolute: false),
+        ]);
     }
 
     /**
