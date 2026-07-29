@@ -906,3 +906,19 @@ Completada el 29 de julio de 2026 reutilizando `AdminLayout`, `Table`, `Paginati
 - Suite completa: 131 pruebas pasan, 0 fallan, 722 assertions, 16.75 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 655 módulos; `git diff --check` sin errores.
 - `resources/views/admin/doctors/index.blade.php` permanece hasta Fase 8.
+
+## 34. Nivel 2: Captura de signos vitales
+
+Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout` y los componentes de formulario del Nivel 0.
+
+- `GET /tracking/vitals` conserva URL y autorización, y ahora renderiza `Tracking/Vitals/Create` mediante Inertia. La navegación compartida del módulo se extrajo a `TrackingNav`.
+- La pantalla conserva exactamente los campos visibles del Blade: glucosa obligatoria; presión sistólica, presión diastólica, frecuencia cardiaca, HbA1c, estrés y notas opcionales; y momento de medición obligatorio. El backend también acepta peso, pero la pantalla original no lo capturaba y no se añadió a esta migración de presentación.
+- `VitalSignRequest` permanece intacto: glucosa 20–600 mg/dL; sistólica 40–250 mmHg; diastólica 30–150 mmHg; frecuencia cardiaca 30–220 bpm; peso 20–350 kg; HbA1c 3–15%; momento entre Ayunas, Antes de Comer, Después de Comer y Al Dormir; estrés con máximo 255 caracteres; notas con máximo 1000.
+- Se añadieron los componentes reutilizables `RangeField` y `ChoiceCards`, aptos para otras capturas de tracking, además de reutilizar `FormInput`, `FormTextarea` y `SubmitButton`.
+- Guardar un signo vital únicamente crea `VitalSign`; el evento `saved` invalida la caché del dashboard. No realiza llamadas a Gemini, Anthropic ni otra API de IA. Los tips diarios se generan por separado mediante el comando programado `app:generate-daily-tips` a las 02:00, por lo que el QA no consumió API ni generó costo.
+- No queda JavaScript legacy activo ni dependencia AJAX temporal en esta pantalla. El único consumidor antiguo era el propio formulario Blade interceptado genéricamente por `layouts.app`; ningún dashboard u otra pantalla consume este endpoint por AJAX. Se retiró la respuesta JSON heredada para no mantener convivencia innecesaria. Una petición Inertia válida usa `Inertia::location()` para realizar la recarga completa hacia el dashboard Blade; existe una prueba de regresión con los encabezados reales, incluido `X-Requested-With`.
+- QA real: `/tracking/vitals`, título `Registro de signos vitales - DiabTrack` y F5 estables; HbA1c 16 mostró el error backend; una medición válida persistió glucosa 120, presión 118/76, pulso 75, HbA1c 5.90, momento Después de Comer y estrés Medio; redirigió a `/dashboard`, mostró el flash de éxito y permaneció estable tras F5. La consola quedó limpia y MySQL confirmó cero registros de `DailyTip` para el usuario de QA.
+- Suite específica final: 6 pruebas pasan, 43 assertions.
+- Suite completa tras retirar la compatibilidad AJAX sin consumidores: 132 pruebas pasan, 0 fallan, 751 assertions.
+- Build Vite 8.1.5 correcto con 659 módulos; `git diff --check` sin errores.
+- `resources/views/tracking/vitals.blade.php` permanece hasta Fase 8.
