@@ -591,3 +591,25 @@ Completada el 28 de julio de 2026 como siguiente pantalla pendiente del Nivel 1.
 - Suite completa: 90 pruebas pasan, 0 fallan, 323 assertions, 10.53 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 626 módulos transformados y chunk `ForgotPassword` generado.
 - Siguiente pantalla sugerida: Restablecer contraseña (`Auth/ResetPassword`), porque es la siguiente del Nivel 1 y completa el flujo iniciado por esta pantalla sin introducir JavaScript complejo.
+
+## 15. Nivel 1: Restablecer contraseña
+
+Completada el 28 de julio de 2026 como última pieza pendiente del flujo de recuperación de contraseña.
+
+- `GET /reset-password/{token}` conserva la URL y ahora renderiza `Auth/ResetPassword` con `token`, `email` y la URL existente del POST como props.
+- `ResetPassword.jsx` reutiliza `GuestLayout`, `FormInput` y `SubmitButton`; usa `useForm()` con `token`, `email`, `password` y `password_confirmation`.
+- El token también se representa como un campo oculto y viaja en el cuerpo del POST a `/reset-password`; no se incorpora a la URL de destino del formulario.
+- `NewPasswordController::store()` permanece intacto, incluida validación, password broker, actualización de contraseña, evento y redirección.
+- Después del cambio del controlador se ejecutó `docker compose exec app php artisan octane:reload` antes del QA manual.
+- QA manual con un usuario temporal y un token generado por el password broker real de Laravel: la página mostró el email y título correctos; un token inválido conservó la pantalla y mostró `Este token de restablecimiento de contraseña es inválido.`; un token válido actualizó la contraseña y redirigió a `/login` con el estado `¡Tu contraseña ha sido restablecida!`. No hubo warnings ni errores de consola. El usuario y token temporales se eliminaron al terminar.
+- El caso expirado está cubierto con el tiempo de prueba adelantado 61 minutos sobre la expiración configurada de 60 minutos y devuelve error sin cambiar la contraseña.
+- Suite específica: 7 pruebas pasan, 0 fallan, 43 assertions.
+- Suite completa: 92 pruebas pasan, 0 fallan, 342 assertions, 12.48 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 627 módulos transformados y chunk `ResetPassword` generado.
+- `resources/views/auth/reset-password.blade.php` permanece en el repositorio hasta Fase 8.
+
+### Estado de verificación de email
+
+- La pantalla sí existe en `resources/views/auth/verify-email.blade.php` y la ruta activa es `GET /verify-email`, nombre `verification.notice`.
+- Registro redirige a esa ruta después de crear y autenticar al usuario no verificado. La pantalla permite verificar un código de seis dígitos, reenviarlo y cerrar sesión.
+- Sigue pendiente de migración: es la pantalla 6 del Nivel 1, después de `ConfirmPassword`, según el orden aprobado. No se migró dentro de este bloque.

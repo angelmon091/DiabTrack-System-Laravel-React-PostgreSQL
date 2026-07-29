@@ -12,7 +12,8 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Clase NewPasswordController
@@ -28,9 +29,13 @@ class NewPasswordController extends Controller
      * Se accede a esta vista cuando el usuario ha solicitado un restablecimiento
      * y se le proporciona un token único.
      */
-    public function create(Request $request): View
+    public function create(Request $request): InertiaResponse
     {
-        return view('auth.reset-password', ['request' => $request]);
+        return Inertia::render('Auth/ResetPassword', [
+            'token' => (string) $request->route('token'),
+            'email' => (string) $request->query('email', ''),
+            'passwordStoreUrl' => route('password.store', absolute: false),
+        ]);
     }
 
     /**

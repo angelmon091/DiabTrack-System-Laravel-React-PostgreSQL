@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Password;
 use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
@@ -56,13 +57,55 @@ class PasswordResetTest extends TestCase
 
         $this->post('/forgot-password', ['email' => $user->email]);
 
-        Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) {
-            $response = $this->get('/reset-password/'.$notification->token);
+        Notification::assertSentTo($user, ResetPasswordNotification::class, function ($notification) use ($user) {
+            $this->withoutVite();
 
-            $response->assertStatus(200);
+            $response = $this->get('/reset-password/'.$notification->token.'?email='.urlencode($user->email));
+
+            $response->assertStatus(200)
+                ->assertInertia(fn (Assert $page) => $page
+                    ->component('Auth/ResetPassword')
+                    ->where('token', $notification->token)
+                    ->where('email', $user->email)
+                    ->where('passwordStoreUrl', '/reset-password'));
 
             return true;
         });
+    }
+
+    public function test_invalid_reset_token_is_returned_as_an_inertia_error(): void
+    {
+        $user = User::factory()->create();
+
+        $response = $this->withHeader('X-Inertia', 'true')
+            ->from('/reset-password/invalid-token?email='.urlencode($user->email))
+            ->post('/reset-password', [
+                'token' => 'invalid-token',
+                'email' => $user->email,
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ]);
+
+        $response->assertRedirect('/reset-password/invalid-token?email='.urlencode($user->email))
+            ->assertSessionHasErrors('email');
+    }
+
+    public function test_expired_reset_token_is_rejected(): void
+    {
+        $user = User::factory()->create();
+        $token = Password::createToken($user);
+
+        $this->travel(61)->minutes();
+
+        $response = $this->from('/reset-password/'.$token.'?email='.urlencode($user->email))
+            ->post('/reset-password', [
+                'token' => $token,
+                'email' => $user->email,
+                'password' => 'new-password',
+                'password_confirmation' => 'new-password',
+            ]);
+
+        $response->assertSessionHasErrors('email');
     }
 
     public function test_password_can_be_reset_with_valid_token(): void
