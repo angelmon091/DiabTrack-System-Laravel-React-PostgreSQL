@@ -75,6 +75,14 @@
 - Sin emojis en código, comentarios ni copy de la interfaz, en ningún artefacto
   generado.
 
+### Protocolo de ejecución en lote
+
+- Avanzar de forma autónoma por las pantallas restantes del Nivel 2, en el orden definido, sin esperar aprobación después de cada una.
+- Cada pantalla mantiene el flujo completo: implementación, `octane:reload`, QA real en navegador, tests, build y commit local atómico únicamente cuando todo pasa.
+- Antes de cerrar una pantalla, comparar cada campo, límite y validación contra el Blade original. Si un slider, dropdown, `maxlength` u otro control React es más restrictivo que el backend y que el Blade anterior, tratarlo como regresión y corregirlo antes de continuar. Si la limitación ya existía en Blade, conservarla como paridad.
+- Detener el lote y reportar de inmediato únicamente si una regresión de paridad requiere decisión de producto; un test falla sin causa evidente tras una revisión rápida; aparece un hallazgo de seguridad; se requiere una decisión de arquitectura no cubierta por estas reglas; o una integración externa necesita confirmación antes de probarse en vivo.
+- Fuera de esas condiciones, continuar hasta completar todo el Nivel 2 y entregar un único resumen consolidado con pantallas migradas, commits, ajustes de paridad y estado final de tests/build.
+
 ## 1. Objetivo y límites
 
 Migrar incrementalmente la capa de presentación de DiabTrack desde Blade a componentes funcionales React, usando Inertia.js y Tailwind CSS 3.4, sin reescribir la lógica de negocio ni cambiar URLs, autorización, validaciones, modelos, Redis, Octane/RoadRunner o el mecanismo de despliegue.
