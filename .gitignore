@@ -57,7 +57,9 @@ CLAUDE.md
 CLAUDE.md.swp
 .CLAUDE.md
 .CLAUDE.md.swp
-/docs
+/docs/*
+!/docs/migration/
+!/docs/migration/*.md
 /scripts/build_phase1_docx.py
 /scripts/make_docx_contact_sheets.py
 /scripts/report_full_sections.py

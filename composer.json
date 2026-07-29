@@ -8,6 +8,7 @@
     "require": {
         "php": "^8.3",
         "google-gemini-php/client": "^2.7",
+        "inertiajs/inertia-laravel": "^3.2",
         "intervention/image": "^4.0",
         "laravel/framework": "^13.0",
         "laravel/octane": "^2.1",
