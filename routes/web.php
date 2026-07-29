@@ -110,7 +110,15 @@ require __DIR__.'/auth.php';
 // Admin Routes
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
-        return view('admin.dashboard');
+        return Inertia::render('Admin/Dashboard', [
+            'adminNavigation' => [
+                'dashboardUrl' => route('admin.dashboard', absolute: false),
+                'usersUrl' => route('admin.users.index', absolute: false),
+                'rolesUrl' => route('admin.roles.index', absolute: false),
+                'doctorsUrl' => route('admin.doctors.index', absolute: false),
+                'apiUsageUrl' => route('admin.api-usage.index', absolute: false),
+            ],
+        ]);
     })->name('dashboard');
 
     Route::resource('users', UserController::class);

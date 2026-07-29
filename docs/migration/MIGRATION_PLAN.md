@@ -789,3 +789,17 @@ Completada el 28 de julio de 2026.
 - Suite completa: 108 pruebas pasan, 515 assertions, 12.38 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 641 módulos; `git diff --check` sin errores.
 - `resources/views/doctor/link-patient.blade.php` permanece hasta Fase 8.
+
+## 26. Nivel 2: Dashboard administrativo
+
+Completada el 28 de julio de 2026 como primera pantalla del Nivel 2.
+
+- `GET /admin` conserva URL y middleware `auth`, `verified` y `admin`, y ahora renderiza `Admin/Dashboard` mediante Inertia.
+- Se creó `AdminLayout` con identidad administrativa, sidebar, perfil, logout y mensajes flash. Los destinos aún Blade usan navegación completa.
+- La página conserva accesos a resumen, usuarios, roles, aprobación de médicos, métricas de API y el placeholder de auditoría.
+- La autorización real permanece en backend: un usuario no administrador conserva la redirección existente a `dashboard`.
+- QA real: login administrativo redirigió a `/admin`; título `Panel administrativo - DiabTrack`, F5, identidad, sidebar y tarjetas correctos. El acceso a Usuarios abrió `/admin/users` Blade y el regreso mantuvo el dashboard React. Consola limpia.
+- Suite específica: 2 pruebas pasan, 22 assertions.
+- Suite completa: 110 pruebas pasan, 537 assertions, 12.87 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 643 módulos; `git diff --check` sin errores.
+- `resources/views/admin/dashboard.blade.php` permanece hasta Fase 8.
