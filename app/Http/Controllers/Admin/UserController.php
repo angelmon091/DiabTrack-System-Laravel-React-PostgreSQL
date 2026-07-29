@@ -51,11 +51,19 @@ class UserController extends Controller
      *
      * @return View
      */
-    public function create()
+    public function create(): InertiaResponse
     {
         $roles = Role::all();
 
-        return view('admin.users.create', compact('roles'));
+        return Inertia::render('Admin/Users/Create', [
+            'roles' => $roles->map(fn (Role $role) => [
+                'id' => $role->id,
+                'name' => $role->name,
+                'description' => $role->description,
+            ])->values(),
+            'storeUrl' => route('admin.users.store', absolute: false),
+            'indexUrl' => route('admin.users.index', absolute: false),
+        ]);
     }
 
     /**

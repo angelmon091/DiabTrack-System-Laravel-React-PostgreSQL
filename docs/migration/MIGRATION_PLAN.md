@@ -860,3 +860,19 @@ Completada el 28 de julio de 2026 reutilizando `AdminLayout`.
 - Suite completa: 123 pruebas pasan, 0 fallan, 641 assertions, 14.40 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 651 módulos; `git diff --check` sin errores.
 - `resources/views/admin/users/index.blade.php` permanece hasta Fase 8.
+
+## 31. Nivel 2: Crear usuario
+
+Completada el 28 de julio de 2026 reutilizando `AdminLayout` y componentes de formulario.
+
+- `GET /admin/users/create` conserva URL y autorización, y ahora renderiza `Admin/Users/Create` mediante Inertia.
+- Los roles se consultan con `Role::all()` y se entregan como props; React no contiene nombres ni opciones de rol hardcodeadas.
+- Se creó `Components/Admin/UserForm`, compartido con la futura edición, usando `FormInput`, `Checkbox`, `FormError` y `SubmitButton`.
+- El comportamiento backend permanece intacto: el administrador define manualmente la contraseña inicial y el cast del modelo la cifra. No se genera contraseña temporal ni se envía correo de bienvenida, credenciales o verificación, por lo que Resend no participa en este flujo.
+- `AdminUserRequest` conserva normalización y unicidad case-insensitive del correo, contraseña confirmada y validación de cada identificador de rol contra la base de datos.
+- Se recargó Octane antes del QA manual.
+- QA real: `/admin/users/create`, título `Crear usuario - DiabTrack`, F5 estable y rol temporal de base de datos visible; un correo duplicado en mayúsculas mostró `Este correo electrónico ya ha sido registrado.`; un usuario válido se creó con contraseña definida por el administrador, acceso administrativo y rol dinámico, redirigió a `/admin/users` con flash y apareció en el listado. Consola limpia.
+- Suite específica: 3 pruebas pasan, 24 assertions.
+- Suite completa: 126 pruebas pasan, 0 fallan, 665 assertions, 14.17 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 653 módulos; `git diff --check` sin errores.
+- `resources/views/admin/users/create.blade.php` permanece hasta Fase 8.
