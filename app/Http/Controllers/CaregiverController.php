@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\LinkedPatientResource;
 use App\Models\PatientLink;
 use App\Models\PatientNotification;
 use App\Models\User;
@@ -148,26 +149,35 @@ class CaregiverController extends Controller
             'hba1c' => $validated['hba1c'] ?? null,
         ]);
 
-        if ($request->expectsJson() || $request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => __('Registro de salud guardado con éxito.'),
-                'redirect_url' => route('caregiver.dashboard', ['patient_id' => $patient->id]),
-            ]);
-        }
-
-        return redirect()->route('caregiver.dashboard', ['patient_id' => $patient->id])
+        $response = redirect()->route('caregiver.dashboard', ['patient_id' => $patient->id])
             ->with('status', 'Registro de salud añadido correctamente.');
+
+        return $request->header('X-Inertia') ? Inertia::location($response->getTargetUrl()) : $response;
     }
 
     /**
      * Muestra el formulario premium para registrar signos vitales.
      */
-    public function createVital(User $patient)
+    public function createVital(User $patient): InertiaResponse
     {
         $this->checkLink($patient->id);
 
-        return view('caregiver.tracking.vital-create', compact('patient'));
+        return Inertia::render('Caregiver/Tracking/Vitals/Create', [
+            'patient' => LinkedPatientResource::make($patient)->resolve(),
+            'storeUrl' => route('caregiver.patient.vital.store', $patient, absolute: false),
+            'dashboardUrl' => route('caregiver.dashboard', ['patient_id' => $patient->id], absolute: false),
+            'measurementMoments' => [
+                ['value' => 'Ayunas', 'label' => 'En ayunas', 'description' => 'Al despertar, sin haber comido durante 8 horas o más.'],
+                ['value' => 'Antes de Comer', 'label' => 'Antes de comer', 'description' => 'Justo antes de desayunar, comer o cenar.'],
+                ['value' => 'Después de Comer', 'label' => 'Después de comer', 'description' => 'Entre una y dos horas después de la comida.'],
+                ['value' => 'Al Dormir', 'label' => 'Al dormir', 'description' => 'Antes de acostarse.'],
+            ],
+            'stressLevels' => [
+                ['value' => 'Bajo', 'label' => 'Bajo', 'description' => 'Relajado, sin tensión.'],
+                ['value' => 'Medio', 'label' => 'Medio', 'description' => 'Algo de presión o ansiedad.'],
+                ['value' => 'Alto', 'label' => 'Alto', 'description' => 'Muy estresado o tenso.'],
+            ],
+        ]);
     }
 
     /**

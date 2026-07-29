@@ -972,3 +972,14 @@ Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout`, `TrackingN
 - QA real: `/tracking/nutrition/create`, título y F5 correctos; se guardó comida con 50 g, frutas, lácteos y medicación, redirigió al dashboard Blade con flash y actualizó carbohidratos/calorías.
 - Suite específica: 6 pruebas pasan, 40 assertions. Suite completa: 135 pruebas, 825 assertions, 12.84 s. Build Vite correcto con 662 módulos; `git diff --check` correcto.
 - `resources/views/tracking/nutrition/create.blade.php` permanece hasta Fase 8.
+
+## 38. Nivel 2: Captura de vitales por cuidador
+
+Completada el 29 de julio de 2026 reutilizando los componentes de captura de vitales.
+
+- `GET /caregiver/patient/{patient}/vital/create` conserva URL y `checkLink()`, y renderiza `Caregiver/Tracking/Vitals/Create`. `LinkedPatientResource` limita los datos del paciente.
+- Se preservaron los controles Blade: glucosa visual 40–300 y backend 20–600; pulso visual 40–200 y backend 30–220; sistólica 40–250, diastólica 30–180, HbA1c 3–20, estrés 255 y notas 1000. No se modificó lógica de vínculo ni persistencia.
+- Se retiraron funciones inline y JSON genérico sin consumidores. Inertia realiza recarga completa al dashboard Blade del cuidador.
+- QA real: vínculo activo requerido; HbA1c 21 mostró error; valores válidos se guardaron para el paciente correcto, dashboard mostró flash y métricas, F5 estable, consola sin warnings/errores y cero tips IA.
+- Suite específica: 5 pruebas, 33 assertions. Suite completa: 140 pruebas, 858 assertions, 14.11 s. Build correcto con 663 módulos; `git diff --check` correcto.
+- `resources/views/caregiver/tracking/vital-create.blade.php` permanece hasta Fase 8.
