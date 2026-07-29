@@ -922,3 +922,18 @@ Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout` y los compo
 - Suite completa tras retirar la compatibilidad AJAX sin consumidores: 132 pruebas pasan, 0 fallan, 751 assertions.
 - Build Vite 8.1.5 correcto con 659 módulos; `git diff --check` sin errores.
 - `resources/views/tracking/vitals.blade.php` permanece hasta Fase 8.
+
+## 35. Nivel 2: Captura de actividad física
+
+Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout`, `TrackingNav`, `RangeField`, `ChoiceCards` y los componentes de formulario del Nivel 0.
+
+- `GET /tracking/activity` conserva URL y autorización, y ahora renderiza `Tracking/Activity/Create` mediante Inertia. Las opciones que antes vivían dentro del Blade se entregan como props del controlador.
+- La pantalla captura tipo de actividad obligatorio, duración obligatoria, intensidad obligatoria, hora de inicio y fin opcionales y nivel de energía opcional. Ofrece caminar, correr, nadar, bicicleta, yoga, gimnasio, baile, estiramiento y otro.
+- `ActivityLogRequest` permanece intacto: tipo de actividad como texto de máximo 100 caracteres; duración entera entre 1 y 480 minutos; intensidad entre `baja`, `media` y `alta`; horarios con formato `H:i`; energía entre `muy_baja`, `baja`, `normal`, `alta` y `muy_alta`. El slider conserva el máximo visual de 180 minutos del Blade original, mientras el backend continúa aceptando hasta 480.
+- No se conservó la respuesta AJAX genérica del Blade ni existe JavaScript legacy activo en la página React. Intensidad y energía, que antes dependían de funciones inline y manipulación del DOM, ahora usan estado de React mediante `useForm()` y `ChoiceCards`.
+- Guardar únicamente crea `ActivityLog` e invalida la caché del dashboard. No llama a una API de IA. El job diario puede usar posteriormente la actividad como contexto al generar tips, pero el QA de esta pantalla no consumió API y MySQL confirmó cero `DailyTip` nuevos.
+- QA real: `/tracking/activity`, título `Registro de movimiento - DiabTrack` y formulario correctos; omitir el tipo mostró `Selecciona un tipo de actividad.`; una actividad de caminar con intensidad y energía altas se persistió, redirigió al dashboard Blade y mostró el flash de éxito. URL y título de destino permanecieron estables después de F5 y no hubo errores de consola.
+- Suite específica: 6 pruebas pasan, 42 assertions. Incluye todos los rangos, ausencia de llamadas HTTP de IA, invalidación de caché y redirección Inertia hacia el dashboard Blade.
+- Suite completa: 133 pruebas pasan, 0 fallan, 779 assertions, 13.95 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 660 módulos; `git diff --check` sin errores.
+- `resources/views/tracking/activity/create.blade.php` permanece hasta Fase 8.
