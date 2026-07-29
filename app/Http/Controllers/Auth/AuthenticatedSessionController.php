@@ -78,7 +78,7 @@ class AuthenticatedSessionController extends Controller
     /**
      * Destruye una sesión autenticada (Cierre de sesión).
      */
-    public function destroy(Request $request): RedirectResponse
+    public function destroy(Request $request): Response
     {
         // Cierra la sesión en el guard web
         Auth::guard('web')->logout();
@@ -89,7 +89,7 @@ class AuthenticatedSessionController extends Controller
         // Regenera el token CSRF para mayor seguridad
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        return $this->inertiaAwareRedirect($request, redirect('/'));
     }
 
     private function inertiaAwareRedirect(Request $request, RedirectResponse $response): Response

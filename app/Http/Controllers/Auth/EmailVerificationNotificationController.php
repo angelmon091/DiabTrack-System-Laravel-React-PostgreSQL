@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Clase EmailVerificationNotificationController
@@ -20,10 +21,14 @@ class EmailVerificationNotificationController extends Controller
      * Si el usuario ya tiene su correo verificado, redirige al dashboard.
      * De lo contrario, genera y envía un nuevo enlace de verificación.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): Response
     {
         if ($request->user()->hasVerifiedEmail()) {
-            return redirect()->intended(route('dashboard', absolute: false));
+            $response = redirect()->intended(route('dashboard', absolute: false));
+
+            return $request->header('X-Inertia')
+                ? Inertia::location($response->getTargetUrl())
+                : $response;
         }
 
         $request->user()->sendEmailVerificationNotification();

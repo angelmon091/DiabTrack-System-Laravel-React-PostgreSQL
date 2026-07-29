@@ -613,3 +613,41 @@ Completada el 28 de julio de 2026 como última pieza pendiente del flujo de recu
 - La pantalla sí existe en `resources/views/auth/verify-email.blade.php` y la ruta activa es `GET /verify-email`, nombre `verification.notice`.
 - Registro redirige a esa ruta después de crear y autenticar al usuario no verificado. La pantalla permite verificar un código de seis dígitos, reenviarlo y cerrar sesión.
 - Sigue pendiente de migración: es la pantalla 6 del Nivel 1, después de `ConfirmPassword`, según el orden aprobado. No se migró dentro de este bloque.
+
+### Auditoría previa de verificación de email
+
+- El flujo principal real no depende de que el usuario abra un enlace: `User::sendEmailVerificationNotification()` genera un código aleatorio de seis dígitos, guarda únicamente su hash en `email_verification_codes`, fija una expiración de 10 minutos y envía `VerifyEmailCodeNotification`.
+- La pantalla actual no usa polling ni revalidación automática. El usuario introduce el código en `POST /verify-email`; al acertar se actualiza `email_verified_at` y se redirige a onboarding. `POST /email/verification-notification` permite reenviar y sustituye el código anterior. Si el usuario ya está verificado al pedir un reenvío, el backend redirige al dashboard.
+- La ruta firmada estándar `GET /verify-email/{id}/{hash}` sigue activa, pero la notificación personalizada actual entrega un código, no ese enlace. No se añadirá polling como parte de la migración de presentación salvo que se apruebe como un cambio funcional separado.
+- El mailer `log` existe en `config/mail.php` y `MAIL_MAILER=log` es el valor de `.env.example`, pero el contenedor local en ejecución tiene como mailer efectivo `resend`. Los tests fuerzan el mailer `array`. Por tanto, actualmente no existe un archivo de log local autoritativo del que leer el código o un enlace; el QA sin correo real debe usar `Notification::fake()` y un `EmailVerificationCode` controlado, como ya hace la suite Feature. Cambiar temporalmente el mailer requeriría una decisión explícita de entorno y no es necesario para probar la pantalla.
+
+Rutas protegidas por `verified`, agrupadas por dependencia funcional:
+
+- Aplicación principal: `dashboard`, `dashboard/invite`, `dashboard/weight`.
+- Onboarding: GET/POST de `onboarding`, `onboarding/patient`, `onboarding/caregiver` y `onboarding/doctor`.
+- Perfil: GET/PATCH/DELETE de `profile`, `profile/unlink/{linkedUser}` y `profile/verify-email/{token}`.
+- Paciente y seguimiento: `search`; GET/POST de actividad, nutrición, síntomas y vitales; `tracking/summary`.
+- Notificaciones: marcar una/todas como leídas y eliminar una/todas.
+- Cuidador: dashboard, vinculación, detalle/desvinculación de paciente y captura de vitales.
+- Médico: dashboard, vinculación, detalle/desvinculación de paciente y actualización de objetivos.
+- Administración: dashboard, métricas API, aprobación/rechazo de médicos y CRUD de roles/usuarios.
+
+Estas rutas no se modificaron durante la auditoría. `GET/POST /confirm-password` usan únicamente `auth`, mientras que `GET /verify-email`, envío del código, reenvío y logout también permanecen accesibles bajo `auth` sin `verified`, lo que evita bloquear el propio proceso de verificación.
+
+## 16. Nivel 1: Verificar email
+
+Completada el 28 de julio de 2026 sin añadir polling ni modificar la lógica de verificación.
+
+- `GET /verify-email` conserva la URL y ahora renderiza `Auth/VerifyEmail` con email y URLs de verificar, reenviar y cerrar sesión.
+- `VerifyEmail.jsx` reutiliza `GuestLayout`, `FormInput`, `SubmitButton` y `AuthSessionStatus`; usa `useForm()` para código, reenvío y logout.
+- Se preservó exactamente la semántica de intentos: los intentos fallidos 1 a 5 muestran `El código ingresado no es válido.` e incrementan el contador; el sexto intento detecta el contador en 5, elimina el código y muestra `Se alcanzó el límite de intentos. Solicita un código nuevo.`. El usuario debe reenviar para continuar.
+- Los redirects desde una petición Inertia hacia onboarding, dashboard o la página pública usan `Inertia::location()` para destinos Blade. No se cambiaron decisiones de autorización ni negocio.
+- Se ejecutó `octane:reload` después de los cambios de controladores y antes del QA.
+- QA real: `.env` local se cambió temporalmente de `resend` a `log`, sin modificar archivos versionados; tras el QA se restauraron todas sus entradas a `resend`, se limpió configuración y se recargó Octane. El mailer efectivo final quedó confirmado como `resend`.
+- El registro real creó un usuario no verificado y abrió `/verify-email` con título `Verificar correo - DiabTrack`. El primer código controlado mediante la misma generación y hasheo del sistema quedó inválido después de pulsar Reenviar. Los códigos nuevos se leyeron del correo escrito en `storage/logs/laravel.log`.
+- Código incorrecto: error visible y formulario estable. Código expirado: tras ajustar `expires_at` del usuario temporal, mostró `El código venció. Solicita uno nuevo para continuar.`. Reenvío: mostró estado de éxito, generó otro código y el anterior dejó de funcionar. Código correcto: verificó al usuario y realizó full-page reload a `/onboarding`, todavía Blade.
+- F5 conservó `/verify-email`, título y formulario. La consola no registró warnings ni errores. El usuario y códigos temporales se eliminaron al terminar.
+- Suite específica: 10 pruebas pasan, 0 fallan, 62 assertions.
+- Suite completa: 95 pruebas pasan, 0 fallan, 381 assertions, 13.31 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 628 módulos transformados y chunk `VerifyEmail` generado.
+- `resources/views/auth/verify-email.blade.php` permanece hasta Fase 8.
