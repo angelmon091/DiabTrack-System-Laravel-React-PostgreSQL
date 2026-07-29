@@ -96,12 +96,21 @@ class UserController extends Controller
      *
      * @return View
      */
-    public function edit(User $user)
+    public function edit(User $user): InertiaResponse
     {
         $roles = Role::all();
-        $userRoles = $user->roles->pluck('id')->toArray();
+        $user->load('roles');
 
-        return view('admin.users.edit', compact('user', 'roles', 'userRoles'));
+        return Inertia::render('Admin/Users/Edit', [
+            'user' => UserResource::make($user),
+            'roles' => $roles->map(fn (Role $role) => [
+                'id' => $role->id,
+                'name' => $role->name,
+                'description' => $role->description,
+            ])->values(),
+            'updateUrl' => route('admin.users.update', $user, absolute: false),
+            'indexUrl' => route('admin.users.index', absolute: false),
+        ]);
     }
 
     /**

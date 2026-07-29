@@ -876,3 +876,17 @@ Completada el 28 de julio de 2026 reutilizando `AdminLayout` y componentes de fo
 - Suite completa: 126 pruebas pasan, 0 fallan, 665 assertions, 14.17 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 653 módulos; `git diff --check` sin errores.
 - `resources/views/admin/users/create.blade.php` permanece hasta Fase 8.
+
+## 32. Nivel 2: Editar usuario
+
+Completada el 28 de julio de 2026 y con ella se cierra el CRUD de usuarios en React.
+
+- `GET /admin/users/{user}/edit` conserva URL y autorización, y ahora renderiza `Admin/Users/Edit` mediante Inertia con `UserResource` y roles consultados dinámicamente desde la base de datos.
+- La página reutiliza `AdminLayout`, `Components/Admin/UserForm` y el `Modal` genérico. El formulario se precarga con identidad, acceso administrativo y roles actuales; la contraseña queda vacía y solo cambia cuando el administrador proporciona una nueva.
+- `AdminUserRequest` permanece intacto: permite conservar el propio correo y rechaza el correo de otro usuario, sin distinguir mayúsculas por la normalización existente.
+- Se preservó la semántica de los checkboxes Blade: React omite `is_admin` del payload cuando está desmarcado para que el `request()->has('is_admin')` heredado siga funcionando igual. El administrador actual no puede desmarcar su propio acceso y el backend conserva la protección real.
+- QA real: `/admin/users/30/edit`, título `Editar usuario - DiabTrack`, F5 estable y datos/rol dinámico precargados; correo duplicado mostró el error backend; nombre y privilegio administrativo se actualizaron con flash, el rol se conservó y MySQL confirmó que la contraseña permaneció intacta. El modal de eliminación bloqueó el scroll; para la sesión actual no aparecen acciones de eliminar ni de revocar administración. Consola limpia en una pestaña nueva tras la corrección final.
+- Suite específica: 4 pruebas pasan, 28 assertions.
+- Suite completa: 130 pruebas pasan, 0 fallan, 693 assertions, 13.79 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 654 módulos; `git diff --check` sin errores.
+- `resources/views/admin/users/edit.blade.php` permanece hasta Fase 8.
