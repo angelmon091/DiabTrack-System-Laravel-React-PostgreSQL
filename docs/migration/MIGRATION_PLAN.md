@@ -488,3 +488,16 @@ Completada el 28 de julio de 2026 como primera pantalla del Nivel 1.
 - `docker compose exec app php artisan test`: 88 pruebas pasan, 0 fallan, 273 assertions, 10.68 s reportados por PHPUnit.
 - `npm run build`: correcto con Vite 8.1.5; 624 módulos transformados y chunk `Auth/Login` generado.
 - La pantalla siguiente sugerida es Registro: pertenece al Nivel 1, reutiliza el mismo `GuestLayout` y los componentes de formulario ya estabilizados, sin depender de gráficas, IA ni JavaScript legacy complejo.
+
+### Corrección de navegación Login ↔ Registro
+
+Corregida el 28 de julio de 2026 después de reproducir que un `<Link>` de Inertia apuntaba a `/register`, pero ese endpoint todavía devolvía Blade. La respuesta no-Inertia impedía que el cliente completara correctamente el historial y actualizara el título.
+
+- `GET /register` ahora renderiza `Auth/Register` mediante Inertia y conserva exactamente la URL `/register`.
+- Login mantiene `<Link href={registerUrl}>`, donde `registerUrl` es `/register`.
+- Registro usa `<Link href={loginUrl}>`, donde `loginUrl` es `/login`.
+- `RegisteredUserController::store()` conserva validación, creación de usuario, evento, login y destino. Solo adapta la respuesta a `Inertia::location()` cuando el destino posterior sigue siendo Blade.
+- Verificación manual en navegador: el clic desde Login cambió la URL a `/register`, actualizó el título a `Registro - DiabTrack` y mostró `register-form`; un refresh mantuvo URL, título y formulario. El enlace inverso volvió a `/login`, restauró `Iniciar sesión - DiabTrack` y mostró `login-form`.
+- La consola del navegador no registró warnings ni errores durante la navegación completa.
+- Fue necesario ejecutar `docker compose exec app php artisan octane:reload` antes de repetir el QA, porque los workers persistentes de RoadRunner todavía conservaban la versión anterior del controlador.
+- Regresión posterior: 89 pruebas pasan, 0 fallan, 307 assertions; build Vite correcto con 625 módulos transformados; `git diff --check` correcto.

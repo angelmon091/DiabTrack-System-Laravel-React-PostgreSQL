@@ -5,14 +5,15 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Clase RegisteredUserController
@@ -25,9 +26,13 @@ class RegisteredUserController extends Controller
     /**
      * Muestra la vista de registro de nuevos usuarios.
      */
-    public function create(): View
+    public function create(): InertiaResponse
     {
-        return view('auth.register');
+        return Inertia::render('Auth/Register', [
+            'registerUrl' => route('register', absolute: false),
+            'loginUrl' => route('login', absolute: false),
+            'googleLoginUrl' => route('socialite.redirect', 'google', absolute: false),
+        ]);
     }
 
     /**
@@ -38,7 +43,7 @@ class RegisteredUserController extends Controller
      *
      * @throws ValidationException
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): Response
     {
         $request->merge([
             'email' => Str::lower(trim((string) $request->input('email'))),
@@ -60,6 +65,10 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(route('verification.notice', absolute: false));
+        $response = redirect(route('verification.notice', absolute: false));
+
+        return $request->header('X-Inertia')
+            ? Inertia::location($response->getTargetUrl())
+            : $response;
     }
 }
