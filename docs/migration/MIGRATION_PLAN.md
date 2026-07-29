@@ -1,5 +1,80 @@
 # Plan de migración Blade a React con Inertia.js
 
+## Reglas permanentes
+
+### Infraestructura y entorno
+
+- Todos los comandos de Composer, Artisan y tests se ejecutan dentro del contenedor:
+  `docker compose exec app composer ...`
+  `docker compose exec app php artisan ...`
+  Nunca con el PHP/Composer del host.
+- Después de cualquier cambio en un controlador o middleware, ejecutar
+  `docker compose exec app php artisan octane:reload`
+  antes de la prueba manual. Octane mantiene el código anterior en memoria hasta
+  el reload.
+- Redis se queda como está (activo en producción). No modificar el mecanismo de
+  cache como efecto colateral de esta migración.
+- Tailwind se mantiene en 3.4. No activar el plugin de Tailwind 4; esa sería una
+  migración separada, fuera de alcance.
+
+### Alcance y lógica de negocio
+
+- Esta es una migración de capa de presentación, no una reescritura de lógica de
+  negocio. Controladores, validaciones, Policies y modelos se mantienen intactos
+  salvo cambios estrictamente necesarios para exponer datos a Inertia (ej. usar
+  API Resources en vez de arrays sueltos).
+- Las 5 plantillas de correo quedan excluidas del alcance; permanecen en Blade.
+- Los roles no se hardcodean en el frontend, porque el admin puede crear roles
+  adicionales. El backend expone permisos calculados (esAdmin, puedeVerVitales,
+  puedeVincularPacientes, y los que se necesiten después) como datos compartidos
+  de Inertia vía HandleInertiaRequests. React nunca compara nombres de rol
+  directamente para decidir autorización real.
+- Ningún archivo Blade se elimina hasta que su equivalente en React esté
+  confirmado funcionando en producción local. La eliminación real ocurre en la
+  Fase 8, no antes.
+
+### Reemplazo de JS legacy (decisión fija para todo el proyecto, no se re-decide pantalla por pantalla)
+
+- Alpine.js -> reemplazar por estado de React (useState, Context donde aplique).
+- Bootstrap JS (CDN) -> eliminar; Tailwind + React cubre el comportamiento.
+- SweetAlert2 (CDN) -> reemplazar por componentes propios Components/Modal y
+  Components/Toast.
+- Chart.js -> mantener, envolver con react-chartjs-2.
+- fetch() -> migrar a router/useForm de Inertia donde el flujo sea navegación o
+  formulario; mantener fetch() nativo solo para llamadas de datos puras en
+  segundo plano (ej. polling de notificaciones) que no calzan en el modelo de
+  página de Inertia.
+
+### Arquitectura de componentes
+
+- Solo componentes funcionales con hooks. Nada de componentes de clase.
+- PascalCase para componentes, camelCase para props y hooks.
+- layouts.app se divide en GuestLayout y AuthenticatedLayout (Nivel 0,
+  infraestructura). Ambos deben existir y estar probados antes de migrar
+  cualquier pantalla que dependa de ellos. No se cuentan como "pantalla migrada"
+  dentro del conteo de avance.
+- Componentes reutilizables en Components/, páginas en Pages/, layouts en
+  Layouts/, hooks personalizados en Hooks/, helpers puros en Utils/.
+- Preferir componentes pequeños de una sola responsabilidad sobre pantallas
+  monolíticas.
+
+### Git
+
+- Commit local después de cada pantalla, únicamente si tests + build + prueba
+  manual pasaron sin problemas. El commit es el registro de "esto funciona
+  verificado", no de intención.
+- Nunca ejecutar git push. Todo se queda en la rama feature/migracion-react-inertia
+  hasta autorización explícita.
+- Si algo falla después de un commit, repórtalo de inmediato y espera instrucción;
+  no lo arregles por cuenta propia sin avisar primero.
+- No mezclar en los commits de migración los cambios preexistentes ajenos en
+  tests/TestCase.php, documentacion/ y tools/.
+
+### Calidad
+
+- Sin emojis en código, comentarios ni copy de la interfaz, en ningún artefacto
+  generado.
+
 ## 1. Objetivo y límites
 
 Migrar incrementalmente la capa de presentación de DiabTrack desde Blade a componentes funcionales React, usando Inertia.js y Tailwind CSS 3.4, sin reescribir la lógica de negocio ni cambiar URLs, autorización, validaciones, modelos, Redis, Octane/RoadRunner o el mecanismo de despliegue.
@@ -501,3 +576,18 @@ Corregida el 28 de julio de 2026 después de reproducir que un `<Link>` de Inert
 - La consola del navegador no registró warnings ni errores durante la navegación completa.
 - Fue necesario ejecutar `docker compose exec app php artisan octane:reload` antes de repetir el QA, porque los workers persistentes de RoadRunner todavía conservaban la versión anterior del controlador.
 - Regresión posterior: 89 pruebas pasan, 0 fallan, 307 assertions; build Vite correcto con 625 módulos transformados; `git diff --check` correcto.
+
+## 14. Nivel 1: Recuperar contraseña
+
+Completada el 28 de julio de 2026 como siguiente pantalla pendiente del Nivel 1.
+
+- `GET /forgot-password` conserva la URL y ahora renderiza `Auth/ForgotPassword` mediante Inertia.
+- `ForgotPassword.jsx` reutiliza `GuestLayout`, `FormInput`, `SubmitButton` y `AuthSessionStatus`; usa `useForm()` para enviar el correo a la ruta existente.
+- `PasswordResetLinkController::store()` y toda su validación y lógica de envío permanecen intactos.
+- `resources/views/auth/forgot-password.blade.php` permanece en el repositorio hasta la limpieza de Fase 8.
+- Después del cambio del controlador se ejecutó `docker compose exec app php artisan octane:reload` antes del QA manual.
+- QA manual: el enlace desde Login navegó a `/forgot-password`, el título cambió a `Recuperar contraseña - DiabTrack`, F5 mantuvo la pantalla, el backend mostró el error español para un correo inválido y el enlace inverso volvió a `/login`. No hubo warnings ni errores de consola.
+- Suite específica: 5 pruebas pasan, 0 fallan, 24 assertions.
+- Suite completa: 90 pruebas pasan, 0 fallan, 323 assertions, 10.53 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 626 módulos transformados y chunk `ForgotPassword` generado.
+- Siguiente pantalla sugerida: Restablecer contraseña (`Auth/ResetPassword`), porque es la siguiente del Nivel 1 y completa el flujo iniciado por esta pantalla sin introducir JavaScript complejo.

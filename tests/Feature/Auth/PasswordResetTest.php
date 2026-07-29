@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Notifications\ResetPasswordNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class PasswordResetTest extends TestCase
@@ -14,9 +15,26 @@ class PasswordResetTest extends TestCase
 
     public function test_reset_password_link_screen_can_be_rendered(): void
     {
+        $this->withoutVite();
+
         $response = $this->get('/forgot-password');
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Auth/ForgotPassword')
+                ->url('/forgot-password')
+                ->where('passwordEmailUrl', '/forgot-password')
+                ->where('loginUrl', '/login'));
+    }
+
+    public function test_forgot_password_validation_errors_are_returned_to_inertia(): void
+    {
+        $response = $this->withHeader('X-Inertia', 'true')
+            ->from('/forgot-password')
+            ->post('/forgot-password', ['email' => 'invalid-email']);
+
+        $response->assertRedirect('/forgot-password')
+            ->assertSessionHasErrors('email');
     }
 
     public function test_reset_password_link_can_be_requested(): void
