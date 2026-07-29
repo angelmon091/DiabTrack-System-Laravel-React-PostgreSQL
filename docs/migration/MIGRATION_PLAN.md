@@ -651,3 +651,19 @@ Completada el 28 de julio de 2026 sin añadir polling ni modificar la lógica de
 - Suite completa: 95 pruebas pasan, 0 fallan, 381 assertions, 13.31 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 628 módulos transformados y chunk `VerifyEmail` generado.
 - `resources/views/auth/verify-email.blade.php` permanece hasta Fase 8.
+
+## 17. Nivel 1: Confirmar contraseña
+
+Completada el 28 de julio de 2026 después de Verificar email, sin depender del middleware `verified`.
+
+- `GET /confirm-password` conserva la URL y ahora renderiza `Auth/ConfirmPassword` mediante Inertia.
+- `ConfirmPassword.jsx` reutiliza `GuestLayout`, `FormInput` y `SubmitButton`; usa `useForm()` únicamente para la contraseña actual.
+- La validación con `Auth::guard('web')->validate()`, el mensaje backend y la escritura de `auth.password_confirmed_at` permanecen intactos.
+- El redirect Inertia posterior usa `Inertia::location()` porque el destino `dashboard` todavía pertenece al stack Blade.
+- Se ejecutó `docker compose exec app php artisan octane:reload` antes del QA manual.
+- QA manual con usuario verificado temporal: `/confirm-password`, título `Confirmar contraseña - DiabTrack` y F5 conservaron el formulario; una contraseña incorrecta mostró `La contraseña es incorrecta.`; la contraseña correcta confirmó la sesión y realizó full-page reload hacia `dashboard`. El usuario sin perfil continuó mediante la lógica existente a `/onboarding` Blade. No hubo warnings ni errores de consola.
+- Suite específica: 4 pruebas pasan, 0 fallan, 18 assertions.
+- Suite completa: 96 pruebas pasan, 0 fallan, 395 assertions, 11.35 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 629 módulos transformados y chunk `ConfirmPassword` generado.
+- `resources/views/auth/confirm-password.blade.php` permanece hasta Fase 8.
+- Estado local del mailer después del QA de autenticación: todas las entradas `MAIL_MAILER` de `.env` están en `resend`; `.env` está ignorado, no está trackeado y no aparece en el historial Git.
