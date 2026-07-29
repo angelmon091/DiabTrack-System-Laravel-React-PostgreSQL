@@ -85,6 +85,13 @@ class HandleInertiaRequests extends Middleware
                 'notificationsReadAllUrl' => route('notifications.read-all', absolute: false),
                 'notificationsDestroyAllUrl' => route('notifications.destroy-all', absolute: false),
             ] : null,
+            'adminNavigation' => ($user && ($user->isAdmin())) ? [
+                'dashboardUrl' => route('admin.dashboard', absolute: false),
+                'usersUrl' => route('admin.users.index', absolute: false),
+                'rolesUrl' => route('admin.roles.index', absolute: false),
+                'doctorsUrl' => route('admin.doctors.index', absolute: false),
+                'apiUsageUrl' => route('admin.api-usage.index', absolute: false),
+            ] : null,
             'notifications' => $notifications->map(fn ($notification) => [
                 'id' => $notification->id,
                 'title' => $notification->title,

@@ -803,3 +803,18 @@ Completada el 28 de julio de 2026 como primera pantalla del Nivel 2.
 - Suite completa: 110 pruebas pasan, 537 assertions, 12.87 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 643 módulos; `git diff --check` sin errores.
 - `resources/views/admin/dashboard.blade.php` permanece hasta Fase 8.
+
+## 27. Nivel 2: Listado de roles
+
+Completada el 28 de julio de 2026 reutilizando el `AdminLayout` existente.
+
+- `RoleController@index` conserva paginación y `withCount`, y renderiza `Admin/Roles/Index` mediante Inertia.
+- Los modelos se serializan con `RoleResource`; se exponen únicamente campos visibles, conteo y URLs necesarias.
+- Se añadieron componentes reutilizables `Table`, `Pagination` y `Modal`. `Modal` acepta título, contenido y acciones; cierra con Escape, botón o clic en el backdrop, bloquea el scroll de fondo y lo restaura al cerrar. El modal React reemplaza Bootstrap JS y conserva el bloqueo cuando el rol tiene usuarios.
+- `destroy()` y sus reglas de negocio permanecen intactos.
+- `adminNavigation` pasó a ser dato compartido para todos los administradores; Dashboard, Roles y futuras pantallas reutilizan el mismo `AdminLayout`.
+- QA real: `/admin/roles`, título `Control de roles - DiabTrack`, F5 y tabla correctos; un rol con usuario mostró acción bloqueada; un rol vacío fue eliminado, desapareció y mostró flash. Consola limpia.
+- Suite específica: 3 pruebas pasan, 22 assertions.
+- Suite completa: 113 pruebas pasan, 559 assertions, 12.59 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 647 módulos; `git diff --check` sin errores.
+- `resources/views/admin/roles/index.blade.php` permanece hasta Fase 8.
