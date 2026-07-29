@@ -937,3 +937,18 @@ Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout`, `TrackingN
 - Suite completa: 133 pruebas pasan, 0 fallan, 779 assertions, 13.95 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 660 módulos; `git diff --check` sin errores.
 - `resources/views/tracking/activity/create.blade.php` permanece hasta Fase 8.
+
+## 36. Nivel 2: Captura de síntomas
+
+Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout`, `TrackingNav`, `FormError` y `SubmitButton`.
+
+- `GET /tracking/symptoms` conserva URL y autorización, y ahora renderiza `Tracking/Symptoms/Create` mediante Inertia. Los síntomas continúan consultándose dinámicamente desde MySQL y agrupándose por categoría; no existe un catálogo hardcodeado en React.
+- Se creó `SymptomResource` para exponer únicamente identificador, nombre y categoría. El controlador aporta las etiquetas de las categorías físicas, nocturnas, neurológicas y atípicas, con fallback para categorías futuras.
+- `SymptomLogRequest` permanece intacto: `symptoms` debe ser un arreglo con al menos un elemento y cada valor debe ser un entero correspondiente a un registro existente en `symptoms`.
+- La selección múltiple usa `useForm()` y estado de React. No existe JavaScript legacy activo ni consumidor externo de la respuesta AJAX genérica del Blade, por lo que esa rama fue retirada.
+- `store()` conserva su lógica: adjunta cada síntoma al usuario con `logged_at` e invalida la caché de métricas. No llama a una API de IA; el QA confirmó cero `DailyTip` nuevos.
+- QA real: `/tracking/symptoms`, título `Registro de síntomas - DiabTrack`, 16 síntomas en cuatro categorías y F5 estable; enviar vacío mostró `Selecciona al menos un síntoma.`; seleccionar Fatiga y Mareos persistió ambas relaciones, actualizó el contador del dashboard a dos y mostró el flash de éxito. El destino permaneció estable tras F5 y no hubo errores de consola.
+- Suite específica: 6 pruebas pasan, 37 assertions. Incluye catálogo serializado, selección múltiple, arreglo vacío, ID inexistente, caché y redirección Inertia hacia el dashboard Blade.
+- Suite completa: 134 pruebas pasan, 0 fallan, 800 assertions, 14.62 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 661 módulos; `git diff --check` sin errores.
+- `resources/views/tracking/symptom/create.blade.php` permanece hasta Fase 8.
