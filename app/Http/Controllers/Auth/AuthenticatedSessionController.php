@@ -7,7 +7,9 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Clase AuthenticatedSessionController
@@ -19,9 +21,14 @@ class AuthenticatedSessionController extends Controller
     /**
      * Muestra la vista de inicio de sesión.
      */
-    public function create(): View
+    public function create(): InertiaResponse
     {
-        return view('auth.login');
+        return Inertia::render('Auth/Login', [
+            'loginUrl' => route('login', absolute: false),
+            'forgotPasswordUrl' => route('password.request', absolute: false),
+            'registerUrl' => route('register', absolute: false),
+            'googleLoginUrl' => route('socialite.redirect', 'google', absolute: false),
+        ]);
     }
 
     /**
@@ -30,7 +37,7 @@ class AuthenticatedSessionController extends Controller
      * Autentica las credenciales, regenera la sesión y verifica si el usuario
      * necesita completar su perfil de paciente (onboarding).
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request): Response
     {
         // Ejecuta la validación y el intento de autenticación definido en el Request
         $request->authenticate();
@@ -39,21 +46,33 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         if (! Auth::user()->hasVerifiedEmail()) {
-            return redirect()->route('verification.notice');
+            return $this->inertiaAwareRedirect(
+                $request,
+                redirect()->route('verification.notice'),
+            );
         }
 
         // Si el usuario es administrador, redirigir directamente al panel administrativo
         if (Auth::user()->isAdmin()) {
-            return redirect()->route('admin.dashboard');
+            return $this->inertiaAwareRedirect(
+                $request,
+                redirect()->route('admin.dashboard'),
+            );
         }
 
         // Si el usuario autenticado no tiene perfil de paciente, cuidador o médico ni ha completado el onboarding, lo envía al onboarding
         if (! Auth::user()->patientProfile && ! Auth::user()->caregiverProfile && ! Auth::user()->doctorProfile && ! Auth::user()->hasCompletedOnboarding()) {
-            return redirect()->route('onboarding.index');
+            return $this->inertiaAwareRedirect(
+                $request,
+                redirect()->route('onboarding.index'),
+            );
         }
 
         // Redirige al destino deseado o al panel de control (Dashboard)
-        return redirect()->intended(route('dashboard', absolute: false));
+        return $this->inertiaAwareRedirect(
+            $request,
+            redirect()->intended(route('dashboard', absolute: false)),
+        );
     }
 
     /**
@@ -71,5 +90,14 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerateToken();
 
         return redirect('/');
+    }
+
+    private function inertiaAwareRedirect(Request $request, RedirectResponse $response): Response
+    {
+        if ($request->header('X-Inertia')) {
+            return Inertia::location($response->getTargetUrl());
+        }
+
+        return $response;
     }
 }

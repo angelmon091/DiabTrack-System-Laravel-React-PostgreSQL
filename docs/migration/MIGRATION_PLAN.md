@@ -461,3 +461,30 @@ Se crearon `GuestLayout`, `BrandMark`, `FormInput`, `FormSelect`, `FormError`, `
 | Fase 6: formularios y estado | Pendiente/transversal |
 | Fase 7: testing | Pendiente/transversal |
 | Fase 8: limpieza y cierre | Pendiente |
+
+## 13. Nivel 1: Login
+
+Completada el 28 de julio de 2026 como primera pantalla del Nivel 1.
+
+### Alcance implementado
+
+- `GET /login` conserva la URL y ahora renderiza `Auth/Login` mediante Inertia.
+- El formulario React usa `GuestLayout`, `FormInput`, `Checkbox`, `SubmitButton` y `AuthSessionStatus`; `FormInput` delega la presentación del error al componente compartido `FormError`.
+- El estado de `email`, `password` y `remember`, el envío, los errores y el estado de carga se gestionan con `useForm()`.
+- El método `store()` conserva la autenticación, regeneración de sesión y decisiones de destino existentes. Solo se añadió la adaptación de sus redirecciones para devolver `Inertia::location()` cuando el origen es una petición Inertia y el destino todavía es Blade.
+- `resources/views/auth/login.blade.php` permanece en el repositorio y se eliminará únicamente en Fase 8 después de la confirmación final.
+
+### Verificación funcional
+
+- La respuesta inicial de `GET /login` fue HTTP 200, expuso el componente `Auth/Login` y entregó la cookie `XSRF-TOKEN`. El root de Inertia no incluye un meta tag CSRF manual; Axios/Inertia usa la cookie y el encabezado XSRF automáticamente.
+- El POST Inertia exitoso quedó cubierto por una prueba Feature: autentica al usuario y devuelve HTTP 409 con `X-Inertia-Location`, instruyendo al cliente a hacer una navegación de página completa hacia el destino Blade. La lógica contempla dashboard, onboarding, verificación y dashboard administrativo sin cambiar sus reglas.
+- El POST Inertia fallido quedó cubierto por una prueba Feature: conserva al visitante como invitado, redirige a `/login` y comparte el error de `email`, que `Login.jsx` presenta mediante `FormError`.
+- No se observaron respuestas HTTP 419 en las verificaciones. El token CSRF se resuelve mediante la cookie `XSRF-TOKEN`, sin `@csrf` ni meta tag manual en la página React.
+- El navegador integrado de Codex bloqueó el acceso a `localhost`/`127.0.0.1` por aislamiento de red. Por ello no fue posible certificar visualmente la consola del navegador en este entorno; la carga de módulos quedó validada mediante el build de producción y la transición full-page mediante la respuesta `X-Inertia-Location`. La inspección visual/consola queda como punto explícito de QA en un navegador con acceso al puerto local.
+
+### Resultado de regresión
+
+- `docker compose exec app php artisan test --filter=AuthenticationTest`: 7 pruebas pasan, 0 fallan, 39 assertions.
+- `docker compose exec app php artisan test`: 88 pruebas pasan, 0 fallan, 273 assertions, 10.68 s reportados por PHPUnit.
+- `npm run build`: correcto con Vite 8.1.5; 624 módulos transformados y chunk `Auth/Login` generado.
+- La pantalla siguiente sugerida es Registro: pertenece al Nivel 1, reutiliza el mismo `GuestLayout` y los componentes de formulario ya estabilizados, sin depender de gráficas, IA ni JavaScript legacy complejo.
