@@ -684,3 +684,19 @@ Completada el 28 de julio de 2026 como pantalla pública posterior al bloque de 
 - Suite completa: 96 pruebas pasan, 0 fallan, 412 assertions, 11.59 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 630 módulos transformados y chunk `Welcome` generado.
 - Siguiente pantalla del Nivel 1: selección de rol de onboarding (`Pages/Onboarding/RoleSelection.jsx`).
+
+## 19. Nivel 1: Selección de rol de onboarding
+
+Completada el 28 de julio de 2026.
+
+- `GET /onboarding` conserva la URL y ahora renderiza `Onboarding/RoleSelection` mediante Inertia con las tres URLs generadas en backend.
+- La pantalla reutiliza `GuestLayout` y presenta las opciones paciente, cuidador y médico sin comparar nombres de rol para autorización. Las decisiones reales permanecen en rutas, middleware y controladores.
+- Los redirects de administrador o usuario con onboarding completo usan `Inertia::location()` cuando el destino todavía es Blade.
+- Los enlaces a los tres formularios usan navegación completa temporalmente porque esos destinos todavía eran Blade al validar este commit; se convertirán a `<Link>` conforme cada destino sea migrado.
+- Se ejecutó `octane:reload` antes del QA manual.
+- QA manual con usuario verificado sin onboarding: Login redirigió a `/onboarding`, título `Seleccionar rol - DiabTrack`, tres opciones y URLs correctas; F5 conservó la pantalla y el enlace paciente abrió `/onboarding/patient` Blade. No hubo warnings ni errores de consola.
+- Suite específica: 6 pruebas pasan, 0 fallan, 36 assertions.
+- Suite completa: 96 pruebas pasan, 0 fallan, 426 assertions, 10.68 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 631 módulos transformados y chunk `RoleSelection` generado.
+- `resources/views/onboarding/role-selection.blade.php` permanece hasta Fase 8.
+- Siguiente pantalla: datos de paciente (`Pages/Onboarding/PatientData.jsx`).

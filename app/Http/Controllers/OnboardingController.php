@@ -10,6 +10,9 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Clase OnboardingController
@@ -27,7 +30,11 @@ class OnboardingController extends Controller implements HasMiddleware
         return [
             function ($request, $next) {
                 if (Auth::check() && Auth::user()->isAdmin()) {
-                    return redirect()->route('admin.dashboard');
+                    $response = redirect()->route('admin.dashboard');
+
+                    return $request->header('X-Inertia')
+                        ? Inertia::location($response->getTargetUrl())
+                        : $response;
                 }
 
                 return $next($request);
@@ -38,13 +45,21 @@ class OnboardingController extends Controller implements HasMiddleware
     /**
      * Muestra la pantalla de selección de rol.
      */
-    public function index()
+    public function index(Request $request): InertiaResponse|Response
     {
         if (Auth::user()->hasCompletedOnboarding()) {
-            return redirect()->route('dashboard');
+            $response = redirect()->route('dashboard');
+
+            return $request->header('X-Inertia')
+                ? Inertia::location($response->getTargetUrl())
+                : $response;
         }
 
-        return view('onboarding.role-selection');
+        return Inertia::render('Onboarding/RoleSelection', [
+            'patientUrl' => route('onboarding.patient', absolute: false),
+            'caregiverUrl' => route('onboarding.caregiver', absolute: false),
+            'doctorUrl' => route('onboarding.doctor', absolute: false),
+        ]);
     }
 
     /**

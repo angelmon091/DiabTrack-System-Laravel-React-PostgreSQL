@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class OnboardingTest extends TestCase
@@ -13,10 +14,17 @@ class OnboardingTest extends TestCase
     public function test_onboarding_screen_can_be_rendered(): void
     {
         $user = User::factory()->create();
+        $this->withoutVite();
 
         $response = $this->actingAs($user)->get('/onboarding');
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Onboarding/RoleSelection')
+                ->url('/onboarding')
+                ->where('patientUrl', '/onboarding/patient')
+                ->where('caregiverUrl', '/onboarding/caregiver')
+                ->where('doctorUrl', '/onboarding/doctor'));
     }
 
     public function test_user_can_submit_personal_data(): void
