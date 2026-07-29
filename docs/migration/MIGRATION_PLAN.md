@@ -890,3 +890,19 @@ Completada el 28 de julio de 2026 y con ella se cierra el CRUD de usuarios en Re
 - Suite completa: 130 pruebas pasan, 0 fallan, 693 assertions, 13.79 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 654 módulos; `git diff --check` sin errores.
 - `resources/views/admin/users/edit.blade.php` permanece hasta Fase 8.
+
+## 33. Nivel 2: Aprobación de médicos
+
+Completada el 29 de julio de 2026 reutilizando `AdminLayout`, `Table`, `Pagination`, `Modal` y componentes de formulario.
+
+- `GET /admin/doctors` conserva URL, autorización administrativa, filtros y paginación, y ahora renderiza `Admin/Doctors/Index` mediante Inertia con `DoctorProfileResource`.
+- Los únicos estados del modelo son `pending`, `approved` y `rejected`. Las transiciones siguen usando exclusivamente los endpoints administrativos existentes: aprobar registra administrador/fecha y notifica solo si antes no estaba aprobado; rechazar exige observaciones, limpia administrador/fecha y no envía notificación.
+- La interfaz permite aprobar perfiles pendientes o rechazados, rechazar pendientes y revocar la aprobación de perfiles aprobados mediante confirmación. No se modificó la lógica de los métodos `approve()` ni `reject()`.
+- La aprobación se verificó con `MAIL_MAILER=resend` y el destinatario controlado `delivered@resend.dev`; el envío síncrono fue aceptado sin excepción y el flash confirmó la notificación. No se enviaron mensajes a direcciones personales externas. El rechazo no disparó correo, conforme al flujo existente.
+- El middleware `doctor.approved` consulta el estado en cada petición. QA con la misma cookie médica: `/doctor/link` respondió correctamente mientras estaba aprobado; tras el rechazo, la siguiente petición redirigió inmediatamente a `/doctor` con warning y estado `Requiere corrección`, sin cerrar sesión y sin periodo de gracia.
+- Limitación preexistente documentada, fuera del alcance de esta migración: `doctor.approved` solo envuelve GET/POST de `/doctor/link`. Las rutas directas `doctor.patient.show`, `doctor.patient.targets.update` y `doctor.patient.unlink` quedan fuera de ese middleware; el dashboard oculta pacientes al rechazarse, pero la cobertura backend no es global.
+- QA administrativo: `/admin/doctors`, título `Aprobación de médicos - DiabTrack`, filtros con query string y F5 estable; aprobación, validación requerida del rechazo, revocación, flashes, cierre del modal, bloqueo de scroll y consola limpia confirmados.
+- Suite específica: 6 pruebas pasan, 51 assertions.
+- Suite completa: 131 pruebas pasan, 0 fallan, 722 assertions, 16.75 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 655 módulos; `git diff --check` sin errores.
+- `resources/views/admin/doctors/index.blade.php` permanece hasta Fase 8.

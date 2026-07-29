@@ -3,18 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\DoctorProfileResource;
 use App\Models\DoctorProfile;
 use App\Notifications\DoctorApprovedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Gestiona la revisión administrativa, aprobación y rechazo de los perfiles médicos.
  */
 class DoctorApprovalController extends Controller
 {
-    public function index(Request $request): View
+    public function index(Request $request): InertiaResponse
     {
         $status = $request->string('status')->toString() ?: DoctorProfile::STATUS_PENDING;
         $allowedStatuses = [DoctorProfile::STATUS_PENDING, DoctorProfile::STATUS_APPROVED, DoctorProfile::STATUS_REJECTED, 'all'];
@@ -32,7 +34,18 @@ class DoctorApprovalController extends Controller
 
         $pendingCount = DoctorProfile::where('approval_status', DoctorProfile::STATUS_PENDING)->count();
 
-        return view('admin.doctors.index', compact('doctors', 'status', 'pendingCount'));
+        return Inertia::render('Admin/Doctors/Index', [
+            'doctors' => DoctorProfileResource::collection($doctors),
+            'filters' => ['status' => $status],
+            'pendingCount' => $pendingCount,
+            'indexUrl' => route('admin.doctors.index', absolute: false),
+            'statusOptions' => [
+                ['value' => DoctorProfile::STATUS_PENDING, 'label' => 'Pendientes'],
+                ['value' => DoctorProfile::STATUS_APPROVED, 'label' => 'Aprobados'],
+                ['value' => DoctorProfile::STATUS_REJECTED, 'label' => 'Rechazados'],
+                ['value' => 'all', 'label' => 'Todos'],
+            ],
+        ]);
     }
 
     public function approve(Request $request, DoctorProfile $doctorProfile): RedirectResponse
