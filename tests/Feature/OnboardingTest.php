@@ -49,6 +49,21 @@ class OnboardingTest extends TestCase
         ]);
     }
 
+    public function test_patient_data_screen_is_rendered_with_backend_options(): void
+    {
+        $user = User::factory()->create();
+        $this->withoutVite();
+
+        $this->actingAs($user)->get('/onboarding/patient')
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Onboarding/PatientData')
+                ->url('/onboarding/patient')
+                ->where('storeUrl', '/onboarding/patient')
+                ->where('backUrl', '/onboarding')
+                ->has('months', 12)
+                ->has('glycemicConditions'));
+    }
+
     public function test_user_can_select_prediabetes_as_glycemic_condition(): void
     {
         $user = User::factory()->create();

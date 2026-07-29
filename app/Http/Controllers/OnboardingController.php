@@ -65,9 +65,25 @@ class OnboardingController extends Controller implements HasMiddleware
     /**
      * Muestra el formulario de datos de paciente.
      */
-    public function showPatientForm()
+    public function showPatientForm(): InertiaResponse
     {
-        return view('onboarding.personal-data');
+        $months = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
+        ];
+
+        return Inertia::render('Onboarding/PatientData', [
+            'storeUrl' => route('onboarding.patient.store', absolute: false),
+            'backUrl' => route('onboarding.index', absolute: false),
+            'months' => $months,
+            'maximumBirthYear' => now()->subYears(18)->year,
+            'minimumBirthYear' => 1920,
+            'glycemicConditions' => collect(config('diabtrack.glycemic_conditions'))
+                ->map(fn (string $label, string $value) => [
+                    'value' => $value,
+                    'label' => __($label),
+                ])->values()->all(),
+        ]);
     }
 
     /**
@@ -92,7 +108,11 @@ class OnboardingController extends Controller implements HasMiddleware
         $role = Role::firstOrCreate(['name' => 'paciente']);
         Auth::user()->roles()->syncWithoutDetaching([$role->id]);
 
-        return redirect()->route('dashboard')->with('status', __('¡Bienvenido! Tu perfil de paciente ha sido configurado.'));
+        $response = redirect()->route('dashboard')->with('status', __('¡Bienvenido! Tu perfil de paciente ha sido configurado.'));
+
+        return $request->header('X-Inertia')
+            ? Inertia::location($response->getTargetUrl())
+            : $response;
     }
 
     /**

@@ -700,3 +700,20 @@ Completada el 28 de julio de 2026.
 - Build Vite 8.1.5 correcto con 631 módulos transformados y chunk `RoleSelection` generado.
 - `resources/views/onboarding/role-selection.blade.php` permanece hasta Fase 8.
 - Siguiente pantalla: datos de paciente (`Pages/Onboarding/PatientData.jsx`).
+
+## 20. Nivel 1: Datos de paciente
+
+Completada el 28 de julio de 2026.
+
+- `GET /onboarding/patient` conserva la URL y ahora renderiza `Onboarding/PatientData` mediante Inertia. Las opciones de condición glucémica, meses y límites de año se exponen desde el backend.
+- `PatientData.jsx` reutiliza `GuestLayout`, `FormInput`, `FormSelect`, `FormError` y `SubmitButton`; usa `useForm()` para fecha de nacimiento, condición glucémica, peso, altura y género.
+- `POST /onboarding/patient` conserva validaciones, creación del perfil, asignación del rol y transacción originales. Para peticiones Inertia, el destino Blade existente se abre mediante `Inertia::location()`.
+- El enlace Paciente de `RoleSelection` se convirtió a `<Link>` de Inertia; las opciones de cuidador y médico permanecen como navegación completa hasta migrar sus destinos.
+- Se ejecutó `docker compose exec app php artisan octane:reload` antes del QA manual.
+- QA manual con usuario verificado temporal: navegación Inertia desde `/onboarding` a `/onboarding/patient`, URL y título `Datos personales - DiabTrack` correctos; F5 conservó formulario y ruta; el envío vacío mostró los tres errores requeridos; un envío válido creó el perfil y realizó full-page reload a `/dashboard` Blade. No hubo warnings ni errores de consola.
+- Suite específica: 7 pruebas pasan, 0 fallan, 51 assertions.
+- Suite completa: 97 pruebas pasan, 0 fallan, 441 assertions, 12.12 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 633 módulos transformados y chunk `PatientData` generado.
+- `git diff --check` finalizó sin errores.
+- `resources/views/onboarding/personal-data.blade.php` permanece hasta Fase 8.
+- Siguiente pantalla: datos de cuidador (`Pages/Onboarding/CaregiverData.jsx`).

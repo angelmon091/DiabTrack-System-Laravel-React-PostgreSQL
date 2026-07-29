@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 
 import GuestLayout from '../../Layouts/GuestLayout';
 
@@ -41,6 +41,23 @@ export default function RoleSelection(props) {
 
             <div className="space-y-4" data-testid="role-selection">
                 {choices.map((choice) => (
+                    choice.key === 'patient' ? (
+                    <Link
+                        key={choice.key}
+                        href={props[choice.urlProp]}
+                        className="flex items-center gap-4 rounded-2xl border border-cyan-500/20 bg-white/80 p-4 text-left transition hover:-translate-y-0.5 hover:border-cyan-500 hover:bg-cyan-50 hover:shadow-lg"
+                    >
+                        <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${choice.accent}`}>
+                            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="h-7 w-7">
+                                <path d={choice.path} />
+                            </svg>
+                        </span>
+                        <span>
+                            <strong className="block text-slate-900">{choice.title}</strong>
+                            <span className="mt-1 block text-xs leading-5 text-slate-500">{choice.description}</span>
+                        </span>
+                    </Link>
+                    ) : (
                     <a
                         key={choice.key}
                         href={props[choice.urlProp]}
@@ -56,6 +73,7 @@ export default function RoleSelection(props) {
                             <span className="mt-1 block text-xs leading-5 text-slate-500">{choice.description}</span>
                         </span>
                     </a>
+                    )
                 ))}
             </div>
         </GuestLayout>
