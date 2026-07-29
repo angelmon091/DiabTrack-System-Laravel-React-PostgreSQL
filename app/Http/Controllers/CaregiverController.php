@@ -9,6 +9,8 @@ use App\Models\VitalSign;
 use App\Services\DashboardMetricsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Dashboard y gestión de pacientes para cuidadores.
@@ -49,9 +51,20 @@ class CaregiverController extends Controller
     /**
      * Muestra el formulario para vincular un paciente con código.
      */
-    public function showLinkForm()
+    public function showLinkForm(): InertiaResponse
     {
-        return view('caregiver.link-patient');
+        return Inertia::render('Caregiver/LinkPatient', [
+            'storeUrl' => route('caregiver.link.store', absolute: false),
+            'dashboardUrl' => route('caregiver.dashboard', absolute: false),
+            'relationships' => [
+                ['value' => 'Padre/Madre', 'label' => __('Padre / Madre')],
+                ['value' => 'Hijo/a', 'label' => __('Hijo / a')],
+                ['value' => 'Hermano/a', 'label' => __('Hermano / a')],
+                ['value' => 'Pareja', 'label' => __('Pareja')],
+                ['value' => 'Médico Particular', 'label' => __('Médico Particular')],
+                ['value' => 'Otro', 'label' => __('Otro')],
+            ],
+        ]);
     }
 
     /**
@@ -87,8 +100,12 @@ class CaregiverController extends Controller
             'icon' => 'fa-solid fa-user-nurse',
         ]);
 
-        return redirect()->route('caregiver.dashboard')
+        $response = redirect()->route('caregiver.dashboard')
             ->with('status', '¡Paciente vinculado exitosamente!');
+
+        return $request->header('X-Inertia')
+            ? Inertia::location($response->getTargetUrl())
+            : $response;
     }
 
     /**

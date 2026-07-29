@@ -762,3 +762,16 @@ Completado el 28 de julio de 2026 antes de iniciar las páginas autenticadas.
 - Redis y Tailwind 3.4 permanecen sin cambios.
 - Suite completa: 101 pruebas pasan, 0 fallan, 475 assertions, 10.41 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 635 módulos transformados; `git diff --check` sin errores.
+
+## 24. Nivel 1: Vincular paciente como cuidador
+
+Completada el 28 de julio de 2026.
+
+- `GET /caregiver/link` conserva URL y autorización, y renderiza `Caregiver/LinkPatient` mediante Inertia con parentescos proporcionados por backend.
+- El formulario usa `AuthenticatedLayout`, `useForm()`, mayúsculas para el código, errores backend y estado `processing`.
+- `POST /caregiver/link` conserva búsqueda del vínculo pendiente, expiración, actualización, parentesco y notificación. El dashboard Blade se abre con `Inertia::location()`.
+- QA real: título `Vincular paciente - DiabTrack`, F5 estable; el código ya utilizado `USED12` mostró `El código es inválido o ha expirado.`; el código válido se normalizó a mayúsculas, vinculó al paciente y redirigió a `/caregiver` con flash. MySQL confirmó vínculo activo y notificación. Consola limpia.
+- Suite específica: 3 pruebas pasan, 20 assertions.
+- Suite completa: 104 pruebas pasan, 495 assertions, 12.50 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 640 módulos; `git diff --check` sin errores.
+- `resources/views/caregiver/link-patient.blade.php` permanece hasta Fase 8.
