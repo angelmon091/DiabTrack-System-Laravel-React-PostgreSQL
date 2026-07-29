@@ -85,6 +85,36 @@ class OnboardingTest extends TestCase
         ]);
     }
 
+    public function test_caregiver_data_screen_is_rendered_with_backend_options(): void
+    {
+        $user = User::factory()->create();
+        $this->withoutVite();
+
+        $this->actingAs($user)->get('/onboarding/caregiver')
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Onboarding/CaregiverData')
+                ->url('/onboarding/caregiver')
+                ->where('storeUrl', '/onboarding/caregiver')
+                ->where('backUrl', '/onboarding')
+                ->has('relationships', 6));
+    }
+
+    public function test_user_can_submit_caregiver_data(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/onboarding/caregiver', [
+            'gender' => 'Femenino',
+            'relationship' => 'Hermano/a',
+        ])->assertRedirect(route('caregiver.dashboard'));
+
+        $this->assertDatabaseHas('caregiver_profiles', [
+            'user_id' => $user->id,
+            'gender' => 'Femenino',
+            'relationship' => 'Hermano/a',
+        ]);
+    }
+
     public function test_unknown_glycemic_condition_is_rejected(): void
     {
         $user = User::factory()->create();

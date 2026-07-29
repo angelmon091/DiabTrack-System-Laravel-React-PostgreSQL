@@ -717,3 +717,20 @@ Completada el 28 de julio de 2026.
 - `git diff --check` finalizó sin errores.
 - `resources/views/onboarding/personal-data.blade.php` permanece hasta Fase 8.
 - Siguiente pantalla: datos de cuidador (`Pages/Onboarding/CaregiverData.jsx`).
+
+## 21. Nivel 1: Datos de cuidador
+
+Completada el 28 de julio de 2026.
+
+- `GET /onboarding/caregiver` conserva la URL y ahora renderiza `Onboarding/CaregiverData` mediante Inertia; las relaciones disponibles se entregan como props desde el backend.
+- `CaregiverData.jsx` reutiliza `GuestLayout`, `FormSelect`, `FormError` y `SubmitButton`; el selector de género reemplaza el script inline por estado de `useForm()`.
+- `POST /onboarding/caregiver` conserva validación, perfil y asignación de rol originales. El destino Blade nominal `caregiver.dashboard`, cuya URL real es `/caregiver`, usa `Inertia::location()`.
+- El enlace Cuidador de `RoleSelection` se convirtió a `<Link>` de Inertia; Médico permanece como navegación completa hasta migrar su destino.
+- Se recargó Octane antes del QA manual.
+- QA manual con usuario verificado temporal: navegación Inertia desde `/onboarding`, URL y título `Perfil de cuidador - DiabTrack`, F5 estable, errores requeridos visibles, selección de género y parentesco funcional, y envío válido con full-page reload a `/caregiver` Blade. No hubo warnings ni errores de consola.
+- Suite específica: 9 pruebas pasan, 0 fallan, 68 assertions.
+- Suite completa: 99 pruebas pasan, 0 fallan, 458 assertions, 15.23 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 634 módulos transformados y chunk `CaregiverData` generado.
+- `git diff --check` finalizó sin errores.
+- `resources/views/onboarding/caregiver-data.blade.php` permanece hasta Fase 8.
+- Siguiente pantalla: datos de médico (`Pages/Onboarding/DoctorData.jsx`).

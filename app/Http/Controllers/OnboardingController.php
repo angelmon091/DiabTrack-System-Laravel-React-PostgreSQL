@@ -118,9 +118,20 @@ class OnboardingController extends Controller implements HasMiddleware
     /**
      * Muestra el formulario de datos de cuidador.
      */
-    public function showCaregiverForm()
+    public function showCaregiverForm(): InertiaResponse
     {
-        return view('onboarding.caregiver-data');
+        return Inertia::render('Onboarding/CaregiverData', [
+            'storeUrl' => route('onboarding.caregiver.store', absolute: false),
+            'backUrl' => route('onboarding.index', absolute: false),
+            'relationships' => [
+                ['value' => 'Padre/Madre', 'label' => __('Padre / Madre')],
+                ['value' => 'Hijo/a', 'label' => __('Hijo / a')],
+                ['value' => 'Hermano/a', 'label' => __('Hermano / a')],
+                ['value' => 'Pareja', 'label' => __('Pareja')],
+                ['value' => 'Médico Particular', 'label' => __('Médico Particular')],
+                ['value' => 'Otro', 'label' => __('Otro')],
+            ],
+        ]);
     }
 
     /**
@@ -145,7 +156,11 @@ class OnboardingController extends Controller implements HasMiddleware
         $role = Role::firstOrCreate(['name' => 'cuidador']);
         Auth::user()->roles()->syncWithoutDetaching([$role->id]);
 
-        return redirect()->route('caregiver.dashboard')->with('status', __('¡Bienvenido! Tu perfil de cuidador ha sido configurado.'));
+        $response = redirect()->route('caregiver.dashboard')->with('status', __('¡Bienvenido! Tu perfil de cuidador ha sido configurado.'));
+
+        return $request->header('X-Inertia')
+            ? Inertia::location($response->getTargetUrl())
+            : $response;
     }
 
     /**

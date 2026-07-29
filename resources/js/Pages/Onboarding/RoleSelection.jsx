@@ -41,7 +41,7 @@ export default function RoleSelection(props) {
 
             <div className="space-y-4" data-testid="role-selection">
                 {choices.map((choice) => (
-                    choice.key === 'patient' ? (
+                    ['patient', 'caregiver'].includes(choice.key) ? (
                     <Link
                         key={choice.key}
                         href={props[choice.urlProp]}
