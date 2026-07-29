@@ -818,3 +818,15 @@ Completada el 28 de julio de 2026 reutilizando el `AdminLayout` existente.
 - Suite completa: 113 pruebas pasan, 559 assertions, 12.59 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 647 módulos; `git diff --check` sin errores.
 - `resources/views/admin/roles/index.blade.php` permanece hasta Fase 8.
+
+## 28. Nivel 2: Crear rol
+
+Completada el 28 de julio de 2026 reutilizando `AdminLayout`.
+
+- `RoleController@create` renderiza `Admin/Roles/Create` mediante Inertia; `store()` y `AdminRoleRequest` permanecen intactos.
+- El formulario usa `useForm()`, `FormInput`, el nuevo `FormTextarea`, errores backend y estado `processing`.
+- QA real: `/admin/roles/create`, título `Crear rol - DiabTrack` y F5 correctos; un nombre duplicado mostró el mensaje backend; nombre y descripción válidos se persistieron en MySQL y redirigieron al listado React con flash. Consola limpia.
+- Suite específica: 3 pruebas pasan, 21 assertions.
+- Suite completa: 116 pruebas pasan, 580 assertions, 13.13 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 649 módulos; `git diff --check` sin errores.
+- `resources/views/admin/roles/create.blade.php` permanece hasta Fase 8.

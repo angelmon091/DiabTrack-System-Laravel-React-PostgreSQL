@@ -38,9 +38,12 @@ class RoleController extends Controller
      *
      * @return View
      */
-    public function create()
+    public function create(): InertiaResponse
     {
-        return view('admin.roles.create');
+        return Inertia::render('Admin/Roles/Create', [
+            'storeUrl' => route('admin.roles.store', absolute: false),
+            'indexUrl' => route('admin.roles.index', absolute: false),
+        ]);
     }
 
     /**
