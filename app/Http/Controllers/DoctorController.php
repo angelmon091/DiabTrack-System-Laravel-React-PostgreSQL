@@ -9,6 +9,8 @@ use App\Models\VitalSign;
 use App\Services\DashboardMetricsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Dashboard y gestión de pacientes para médicos.
@@ -49,9 +51,12 @@ class DoctorController extends Controller
     /**
      * Muestra el formulario para vincular un paciente con código.
      */
-    public function showLinkForm()
+    public function showLinkForm(): InertiaResponse
     {
-        return view('doctor.link-patient');
+        return Inertia::render('Doctor/LinkPatient', [
+            'storeUrl' => route('doctor.link.store', absolute: false),
+            'dashboardUrl' => route('doctor.dashboard', absolute: false),
+        ]);
     }
 
     /**
@@ -85,8 +90,12 @@ class DoctorController extends Controller
             'icon' => 'fa-solid fa-user-doctor',
         ]);
 
-        return redirect()->route('doctor.dashboard')
+        $response = redirect()->route('doctor.dashboard')
             ->with('status', '¡Paciente vinculado exitosamente!');
+
+        return $request->header('X-Inertia')
+            ? Inertia::location($response->getTargetUrl())
+            : $response;
     }
 
     /**

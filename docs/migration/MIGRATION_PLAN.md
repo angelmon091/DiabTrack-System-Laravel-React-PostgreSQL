@@ -775,3 +775,17 @@ Completada el 28 de julio de 2026.
 - Suite completa: 104 pruebas pasan, 495 assertions, 12.50 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 640 módulos; `git diff --check` sin errores.
 - `resources/views/caregiver/link-patient.blade.php` permanece hasta Fase 8.
+
+## 25. Nivel 1: Vincular paciente como médico
+
+Completada el 28 de julio de 2026.
+
+- `GET /doctor/link` conserva URL y middleware `doctor.approved`, y renderiza `Doctor/LinkPatient` mediante Inertia.
+- El formulario usa `AuthenticatedLayout`, `useForm()`, normalización a mayúsculas, errores backend y estado de carga.
+- `POST /doctor/link` mantiene consulta del vínculo pendiente, expiración, actualización y notificación; el dashboard Blade usa `Inertia::location()`.
+- QA real con médico aprobado: título `Vincular paciente - DiabTrack`, F5 estable, código usado rechazado, código válido vinculado y full-page reload a `/doctor` con flash; MySQL confirmó vínculo y notificación. Consola limpia.
+- La restricción para médicos pendientes permanece cubierta y redirige al dashboard.
+- Suite específica: 4 pruebas pasan, 20 assertions.
+- Suite completa: 108 pruebas pasan, 515 assertions, 12.38 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 641 módulos; `git diff --check` sin errores.
+- `resources/views/doctor/link-patient.blade.php` permanece hasta Fase 8.
