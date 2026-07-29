@@ -166,9 +166,19 @@ class OnboardingController extends Controller implements HasMiddleware
     /**
      * Muestra el formulario de datos del médico.
      */
-    public function showDoctorForm()
+    public function showDoctorForm(): InertiaResponse
     {
-        return view('onboarding.doctor-data');
+        return Inertia::render('Onboarding/DoctorData', [
+            'storeUrl' => route('onboarding.doctor.store', absolute: false),
+            'backUrl' => route('onboarding.index', absolute: false),
+            'specialties' => [
+                'Endocrinología',
+                'Medicina Interna',
+                'Nutrición Clínica',
+                'Medicina General',
+                'Pediatría',
+            ],
+        ]);
     }
 
     /**
@@ -199,6 +209,10 @@ class OnboardingController extends Controller implements HasMiddleware
         $role = Role::firstOrCreate(['name' => 'médico']);
         Auth::user()->roles()->syncWithoutDetaching([$role->id]);
 
-        return redirect()->route('doctor.dashboard')->with('status', __('Tu perfil profesional fue registrado y será revisado por un administrador.'));
+        $response = redirect()->route('doctor.dashboard')->with('status', __('Tu perfil profesional fue registrado y será revisado por un administrador.'));
+
+        return $request->header('X-Inertia')
+            ? Inertia::location($response->getTargetUrl())
+            : $response;
     }
 }

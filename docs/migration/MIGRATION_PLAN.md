@@ -734,3 +734,19 @@ Completada el 28 de julio de 2026.
 - `git diff --check` finalizó sin errores.
 - `resources/views/onboarding/caregiver-data.blade.php` permanece hasta Fase 8.
 - Siguiente pantalla: datos de médico (`Pages/Onboarding/DoctorData.jsx`).
+
+## 22. Nivel 1: Datos de médico
+
+Completada el 28 de julio de 2026.
+
+- `GET /onboarding/doctor` conserva la URL y ahora renderiza `Onboarding/DoctorData` mediante Inertia; las especialidades se entregan desde el backend.
+- `DoctorData.jsx` reutiliza componentes de Nivel 0 y reemplaza el script inline de género por `useForm()`; incluye género, cédula profesional y especialidad.
+- `POST /onboarding/doctor` mantiene validaciones, asignación del rol y creación del perfil con estado `pending`. El destino Blade nominal `doctor.dashboard`, cuya URL real es `/doctor`, usa `Inertia::location()`.
+- Los tres destinos de `RoleSelection` usan ahora `<Link>` de Inertia.
+- Se recargó Octane antes del QA manual.
+- QA manual con usuario verificado temporal: navegación desde `/onboarding`, URL y título `Perfil profesional - DiabTrack`, F5 estable, tres errores requeridos visibles, controles funcionales y envío válido. El dashboard Blade `/doctor` mostró la cédula, especialidad y estado `En revisión`, sin warnings ni errores de consola.
+- Suite específica: 11 pruebas pasan, 0 fallan, 85 assertions.
+- Suite completa: 101 pruebas pasan, 0 fallan, 475 assertions, 13.58 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 635 módulos transformados y chunk `DoctorData` generado.
+- `git diff --check` finalizó sin errores.
+- `resources/views/onboarding/doctor-data.blade.php` permanece hasta Fase 8.

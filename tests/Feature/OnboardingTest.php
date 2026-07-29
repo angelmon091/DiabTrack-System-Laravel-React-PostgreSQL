@@ -115,6 +115,38 @@ class OnboardingTest extends TestCase
         ]);
     }
 
+    public function test_doctor_data_screen_is_rendered_with_backend_options(): void
+    {
+        $user = User::factory()->create();
+        $this->withoutVite();
+
+        $this->actingAs($user)->get('/onboarding/doctor')
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Onboarding/DoctorData')
+                ->url('/onboarding/doctor')
+                ->where('storeUrl', '/onboarding/doctor')
+                ->where('backUrl', '/onboarding')
+                ->has('specialties', 5));
+    }
+
+    public function test_user_can_submit_doctor_data(): void
+    {
+        $user = User::factory()->create();
+
+        $this->actingAs($user)->post('/onboarding/doctor', [
+            'gender' => 'Masculino',
+            'license_number' => '12345678',
+            'specialty' => 'Medicina General',
+        ])->assertRedirect(route('doctor.dashboard'));
+
+        $this->assertDatabaseHas('doctor_profiles', [
+            'user_id' => $user->id,
+            'license_number' => '12345678',
+            'specialty' => 'Medicina General',
+            'approval_status' => 'pending',
+        ]);
+    }
+
     public function test_unknown_glycemic_condition_is_rejected(): void
     {
         $user = User::factory()->create();
