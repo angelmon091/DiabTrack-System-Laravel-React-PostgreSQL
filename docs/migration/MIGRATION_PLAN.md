@@ -667,3 +667,20 @@ Completada el 28 de julio de 2026 después de Verificar email, sin depender del 
 - Build Vite 8.1.5 correcto con 629 módulos transformados y chunk `ConfirmPassword` generado.
 - `resources/views/auth/confirm-password.blade.php` permanece hasta Fase 8.
 - Estado local del mailer después del QA de autenticación: todas las entradas `MAIL_MAILER` de `.env` están en `resend`; `.env` está ignorado, no está trackeado y no aparece en el historial Git.
+
+## 18. Nivel 1: Welcome
+
+Completada el 28 de julio de 2026 como pantalla pública posterior al bloque de autenticación.
+
+- `GET /` conserva la URL y ahora renderiza `Welcome` mediante Inertia, con URLs generadas en backend, metadatos absolutos y año actual.
+- `Welcome.jsx` replica hero, características, llamada a la acción y footer con Tailwind 3.4. Conserva los metadatos SEO, Open Graph, Twitter y favicon del Blade.
+- El collapse de Bootstrap JS fue reemplazado por `useState`; la página React no carga Bootstrap JS ni Font Awesome CDN. Los iconos necesarios son SVG locales del componente.
+- Login y Registro usan `<Link>` de Inertia. Dashboard conserva navegación de página completa porque ese destino todavía es Blade.
+- No se cambió lógica de negocio, autenticación, Redis ni rutas. `resources/views/welcome.blade.php` permanece hasta Fase 8.
+- Se ejecutó `docker compose exec app php artisan octane:reload` antes del QA porque cambió la closure persistente de la ruta pública.
+- QA manual de invitado: `/`, título `Monitorea tu salud, vive mejor - DiabTrack`, descripción SEO, contenido principal y F5 correctos; el enlace a Login actualizó URL/título y el historial volvió correctamente a Welcome.
+- QA responsive a 390×844: el menú inició cerrado, el botón React cambió a estado expandido y mostró todos los enlaces sin Bootstrap. El viewport se restauró al terminar. No hubo warnings ni errores de consola.
+- Suite específica: 2 pruebas pasan, 0 fallan, 19 assertions.
+- Suite completa: 96 pruebas pasan, 0 fallan, 412 assertions, 11.59 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 630 módulos transformados y chunk `Welcome` generado.
+- Siguiente pantalla del Nivel 1: selección de rol de onboarding (`Pages/Onboarding/RoleSelection.jsx`).
