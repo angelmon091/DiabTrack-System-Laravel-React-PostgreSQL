@@ -7,6 +7,8 @@ use App\Http\Requests\Tracking\NutritionLogRequest;
 use App\Models\NutritionLog;
 use App\Services\DashboardMetricsService;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Gestiona los registros nutricionales y las métricas relacionadas con la alimentación.
@@ -27,9 +29,35 @@ class NutritionLogController extends Controller
         return view('tracking.nutrition.index', $metrics);
     }
 
-    public function create()
+    public function create(): InertiaResponse
     {
-        return view('tracking.nutrition.create');
+        return Inertia::render('Tracking/Nutrition/Create', [
+            'storeUrl' => route('tracking.nutrition.store', absolute: false),
+            'dashboardUrl' => route('dashboard', absolute: false),
+            'trackingNavigation' => [
+                ['key' => 'vitals', 'label' => 'Signos vitales', 'url' => route('tracking.vital.create', absolute: false)],
+                ['key' => 'symptoms', 'label' => 'Síntomas', 'url' => route('tracking.symptom.create', absolute: false)],
+                ['key' => 'nutrition', 'label' => 'Nutrición', 'url' => route('tracking.nutrition.create', absolute: false)],
+                ['key' => 'activity', 'label' => 'Movimiento', 'url' => route('tracking.activity.create', absolute: false)],
+            ],
+            'mealTypes' => [
+                ['value' => 'desayuno', 'label' => 'Desayuno', 'description' => 'Primera comida del día.'],
+                ['value' => 'almuerzo', 'label' => 'Comida', 'description' => 'Comida del mediodía.'],
+                ['value' => 'cena', 'label' => 'Cena', 'description' => 'Última comida del día.'],
+                ['value' => 'snack', 'label' => 'Snack', 'description' => 'Algo pequeño entre comidas.'],
+                ['value' => 'correccion', 'label' => 'Corrección', 'description' => 'Jugo o azúcar rápida para subir glucosa.'],
+            ],
+            'foodCategories' => [
+                ['value' => 'frutas', 'label' => 'Frutas'],
+                ['value' => 'verduras', 'label' => 'Verduras'],
+                ['value' => 'cereales', 'label' => 'Cereales / Granos'],
+                ['value' => 'proteinas', 'label' => 'Proteínas'],
+                ['value' => 'lacteos', 'label' => 'Lácteos'],
+                ['value' => 'grasas', 'label' => 'Grasas saludables'],
+                ['value' => 'azucares', 'label' => 'Azúcares / Dulces'],
+                ['value' => 'bebidas', 'label' => 'Bebidas'],
+            ],
+        ]);
     }
 
     public function store(NutritionLogRequest $request)
@@ -44,13 +72,10 @@ class NutritionLogController extends Controller
             'medication_dose' => $request->medication_dose,
         ]);
 
-        if ($request->expectsJson() || $request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => __('Registro de nutrición guardado con éxito.'),
-            ]);
-        }
+        $response = redirect()->route('dashboard')->with('status', __('Registro de nutrición guardado con éxito.'));
 
-        return redirect()->route('dashboard')->with('status', __('Registro de nutrición guardado con éxito.'));
+        return $request->header('X-Inertia')
+            ? Inertia::location($response->getTargetUrl())
+            : $response;
     }
 }

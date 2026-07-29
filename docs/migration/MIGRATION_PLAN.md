@@ -960,3 +960,15 @@ Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout`, `TrackingN
 - Suite completa: 134 pruebas pasan, 0 fallan, 800 assertions, 14.62 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 661 módulos; `git diff --check` sin errores.
 - `resources/views/tracking/symptom/create.blade.php` permanece hasta Fase 8.
+
+## 37. Nivel 2: Captura de nutrición
+
+Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout`, `TrackingNav`, `RangeField`, `ChoiceCards` y componentes de formulario.
+
+- `GET /tracking/nutrition/create` conserva URL y autorización, y ahora renderiza `Tracking/Nutrition/Create` mediante Inertia. Tipos de comida y categorías se entregan como props del controlador.
+- Se preservaron campos y límites: comida obligatoria entre cinco opciones; carbohidratos enteros 0–500 en backend y slider visual 0–300, idéntico al Blade; hora opcional `H:i`; categorías opcionales; medicamento máximo 100 y dosis máximo 50 caracteres.
+- La selección de comida reemplaza la función inline por estado React. No hay JavaScript legacy activo ni consumidor externo del JSON genérico, por lo que se retiró esa rama.
+- Guardar solo crea `NutritionLog` e invalida caché. No llama IA; el QA confirmó cero tips nuevos.
+- QA real: `/tracking/nutrition/create`, título y F5 correctos; se guardó comida con 50 g, frutas, lácteos y medicación, redirigió al dashboard Blade con flash y actualizó carbohidratos/calorías.
+- Suite específica: 6 pruebas pasan, 40 assertions. Suite completa: 135 pruebas, 825 assertions, 12.84 s. Build Vite correcto con 662 módulos; `git diff --check` correcto.
+- `resources/views/tracking/nutrition/create.blade.php` permanece hasta Fase 8.
