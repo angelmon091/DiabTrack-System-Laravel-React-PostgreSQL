@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\PatientNotification;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -50,6 +51,10 @@ class HandleInertiaRequests extends Middleware
             $user->loadMissing('doctorProfile');
         }
 
+        $notifications = $user
+            ? PatientNotification::where('user_id', $user->id)->latest()->take(8)->get()
+            : collect();
+
         return [
             ...parent::share($request),
             'auth' => [
@@ -69,8 +74,27 @@ class HandleInertiaRequests extends Middleware
                     'puedeVerVitales' => $esPaciente || $esCuidador || $esMedico,
                     'puedeVincularPacientes' => $esCuidador
                         || ($esMedico && ($user->doctorProfile?->isApproved() ?? false)),
+                    'puedeBuscar' => $esPaciente,
                 ],
             ],
+            'navigation' => $user ? [
+                'dashboardUrl' => route('dashboard', absolute: false),
+                'profileUrl' => route('profile.edit', absolute: false),
+                'logoutUrl' => route('logout', absolute: false),
+                'searchUrl' => $esPaciente ? route('search', absolute: false) : null,
+                'notificationsReadAllUrl' => route('notifications.read-all', absolute: false),
+                'notificationsDestroyAllUrl' => route('notifications.destroy-all', absolute: false),
+            ] : null,
+            'notifications' => $notifications->map(fn ($notification) => [
+                'id' => $notification->id,
+                'title' => $notification->title,
+                'body' => $notification->body,
+                'type' => $notification->type,
+                'read' => $notification->read_at !== null,
+                'createdAt' => $notification->created_at->diffForHumans(),
+                'readUrl' => route('notifications.read', $notification, absolute: false),
+                'destroyUrl' => route('notifications.destroy', $notification, absolute: false),
+            ])->values()->all(),
             'flash' => [
                 'success' => fn () => $request->session()->get('success'),
                 'error' => fn () => $request->session()->get('error'),

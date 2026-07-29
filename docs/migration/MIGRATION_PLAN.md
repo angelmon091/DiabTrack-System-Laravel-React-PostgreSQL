@@ -750,3 +750,15 @@ Completada el 28 de julio de 2026.
 - Build Vite 8.1.5 correcto con 635 módulos transformados y chunk `DoctorData` generado.
 - `git diff --check` finalizó sin errores.
 - `resources/views/onboarding/doctor-data.blade.php` permanece hasta Fase 8.
+
+## 23. Nivel 0: Layout autenticado y servicios compartidos
+
+Completado el 28 de julio de 2026 antes de iniciar las páginas autenticadas.
+
+- Se creó `AuthenticatedLayout` con cabecera, identidad, logout, mensajes flash y pie de página.
+- Búsqueda global mantiene `fetch()` nativo por ser consulta de datos en segundo plano, con espera de 250 ms y cancelación de solicitudes anteriores.
+- Notificaciones usan estado React y `router` de Inertia para leer y eliminar; Bootstrap JS y SweetAlert2 no se incorporan al layout React.
+- `HandleInertiaRequests` comparte navegación, las últimas ocho notificaciones y el permiso calculado `puedeBuscar`. React no compara nombres de roles.
+- Redis y Tailwind 3.4 permanecen sin cambios.
+- Suite completa: 101 pruebas pasan, 0 fallan, 475 assertions, 10.41 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 635 módulos transformados; `git diff --check` sin errores.
