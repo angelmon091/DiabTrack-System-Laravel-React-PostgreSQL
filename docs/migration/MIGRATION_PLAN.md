@@ -830,3 +830,18 @@ Completada el 28 de julio de 2026 reutilizando `AdminLayout`.
 - Suite completa: 116 pruebas pasan, 580 assertions, 13.13 s reportados por PHPUnit.
 - Build Vite 8.1.5 correcto con 649 módulos; `git diff --check` sin errores.
 - `resources/views/admin/roles/create.blade.php` permanece hasta Fase 8.
+
+## 29. Nivel 2: Editar rol
+
+Completada el 28 de julio de 2026 reutilizando `AdminLayout`.
+
+- `GET /admin/roles/{role}/edit` conserva URL y autorización, y `RoleController@edit` renderiza `Admin/Roles/Edit` mediante Inertia con `RoleResource`.
+- El formulario usa `useForm()` precargado, `FormInput`, `FormTextarea`, `SubmitButton` y el `Modal` genérico para informar la restricción de eliminación cuando corresponde.
+- `AdminRoleRequest` permanece intacto: su regla `unique()->ignore($roleId)` permite guardar el rol sin cambiar su propio nombre y rechaza el nombre de cualquier otro registro.
+- La lógica existente permite editar un rol con usuarios asignados. La única restricción relacionada permanece en `destroy()`, que impide eliminarlo mientras tenga usuarios.
+- Se recargó Octane antes del QA manual.
+- QA real: `/admin/roles/9/edit`, título `Editar rol - DiabTrack`, F5 estable y datos precargados; el nombre de otro rol mostró `Este nombre ya ha sido registrado.`; el propio nombre se guardó sin colisión, la descripción se actualizó y el listado React mostró el flash de éxito. El modal informó el bloqueo de eliminación y la consola permaneció limpia.
+- Suite específica: 4 pruebas pasan, 31 assertions.
+- Suite completa: 120 pruebas pasan, 0 fallan, 611 assertions, 13.10 s reportados por PHPUnit.
+- Build Vite 8.1.5 correcto con 650 módulos; `git diff --check` sin errores.
+- `resources/views/admin/roles/edit.blade.php` permanece hasta Fase 8.

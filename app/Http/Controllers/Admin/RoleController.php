@@ -63,9 +63,15 @@ class RoleController extends Controller
      *
      * @return View
      */
-    public function edit(Role $role)
+    public function edit(Role $role): InertiaResponse
     {
-        return view('admin.roles.edit', compact('role'));
+        $role->loadCount('users');
+
+        return Inertia::render('Admin/Roles/Edit', [
+            'role' => RoleResource::make($role),
+            'updateUrl' => route('admin.roles.update', $role, absolute: false),
+            'indexUrl' => route('admin.roles.index', absolute: false),
+        ]);
     }
 
     /**
