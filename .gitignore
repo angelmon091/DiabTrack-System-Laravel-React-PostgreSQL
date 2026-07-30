@@ -64,3 +64,9 @@ CLAUDE.md.swp
 /scripts/make_docx_contact_sheets.py
 /scripts/report_full_sections.py
 /scripts/php-dusk.ini
+
+# Documentos Word y artefactos locales de documentación
+*.docx
+/documentacion/
+/tools/build_update_report.py
+/tools/apply_diabtrack_template.py
