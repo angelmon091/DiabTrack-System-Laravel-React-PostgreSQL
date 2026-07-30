@@ -6,6 +6,7 @@ import FormInput from '../../../Components/FormInput';
 import RangeField from '../../../Components/RangeField';
 import SubmitButton from '../../../Components/SubmitButton';
 import TrackingNav from '../../../Components/TrackingNav';
+import TrackingPageHeader from '../../../Components/TrackingPageHeader';
 import AuthenticatedLayout from '../../../Layouts/AuthenticatedLayout';
 
 const defaults = { meal_type: 'desayuno', carbs_grams: 50, consumed_at: '', food_categories: [], medication_taken: '', medication_dose: '' };
@@ -19,7 +20,7 @@ export default function Create({ storeUrl, dashboardUrl, trackingNavigation, mea
     return <AuthenticatedLayout>
         <Head title="Registro de nutrición" />
         <section data-testid="nutrition-create">
-            <div className="mb-7"><h1 className="text-3xl font-extrabold text-slate-900">Registro de Alimentación</h1><p className="mt-2 text-slate-500">Anota lo que comiste y cuántos carbohidratos aproximados tenía</p></div>
+            <TrackingPageHeader title="Registro de Alimentación" subtitle="Anota lo que comiste y cuántos carbohidratos aproximados tenía" />
             <TrackingNav items={trackingNavigation} active="nutrition" />
             <form onSubmit={submit} noValidate className="grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.75fr)]">
                 <div className="space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">

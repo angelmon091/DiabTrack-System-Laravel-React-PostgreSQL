@@ -6,6 +6,7 @@ import FormSelect from '../../../Components/FormSelect';
 import RangeField from '../../../Components/RangeField';
 import SubmitButton from '../../../Components/SubmitButton';
 import TrackingNav from '../../../Components/TrackingNav';
+import TrackingPageHeader from '../../../Components/TrackingPageHeader';
 import AuthenticatedLayout from '../../../Layouts/AuthenticatedLayout';
 
 const defaults = {
@@ -33,10 +34,7 @@ export default function Create({ storeUrl, dashboardUrl, trackingNavigation, act
     return <AuthenticatedLayout>
         <Head title="Registro de movimiento" />
         <section data-testid="activity-create">
-            <div className="mb-7">
-                <h1 className="text-3xl font-extrabold text-slate-900">Registro de Actividad Física</h1>
-                <p className="mt-2 text-slate-500">Registra tu movimiento y nivel de energía diario</p>
-            </div>
+            <TrackingPageHeader title="Registro de Actividad Física" subtitle="Registra tu movimiento y nivel de energía diario" />
 
             <TrackingNav items={trackingNavigation} active="activity" />
 

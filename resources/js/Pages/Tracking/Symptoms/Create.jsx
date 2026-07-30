@@ -8,6 +8,7 @@ import TriangleAlert from 'lucide-react/dist/esm/icons/triangle-alert.mjs';
 import FormError from '../../../Components/FormError';
 import SubmitButton from '../../../Components/SubmitButton';
 import TrackingNav from '../../../Components/TrackingNav';
+import TrackingPageHeader from '../../../Components/TrackingPageHeader';
 import AuthenticatedLayout from '../../../Layouts/AuthenticatedLayout';
 
 const groupIcons = { physical: Hospital, nocturnal: Moon, neurological: Brain, atypical: TriangleAlert };
@@ -34,10 +35,7 @@ export default function Create({ storeUrl, dashboardUrl, trackingNavigation, sym
     return <AuthenticatedLayout>
         <Head title="Registro de síntomas" />
         <section data-testid="symptoms-create">
-            <div className="mb-7">
-                <h1 className="text-3xl font-extrabold text-slate-900">Registro de Síntomas</h1>
-                <p className="mt-2 text-slate-500">Selecciona los síntomas que presentas hoy. Si te sientes bien, no es necesario marcar nada.</p>
-            </div>
+            <TrackingPageHeader title="Registro de Síntomas" subtitle="Selecciona los síntomas que presentas hoy. Si te sientes bien, no es necesario marcar nada." />
 
             <TrackingNav items={trackingNavigation} active="symptoms" />
 
