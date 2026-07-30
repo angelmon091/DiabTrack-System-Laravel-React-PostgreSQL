@@ -104,12 +104,12 @@ export default function AuthenticatedLayout({ children }) {
             <Alert tone="error">{flash?.error}</Alert>
         </div>}
 
-        <main className="mx-auto w-full min-w-0 max-w-7xl flex-1 px-4 py-8 pb-24 sm:px-6 md:pb-8 lg:px-8">
+        <main className="mx-auto min-h-[calc(100vh-62px)] w-full min-w-0 max-w-7xl flex-1 px-4 py-8 pb-24 sm:px-6 md:min-h-[calc(100vh-72px)] md:pb-8 lg:px-8">
             {children}
         </main>
 
-        <footer className="hidden border-t border-slate-200 bg-white py-10 md:block">
-            <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-8">
+        <footer className="border-t border-slate-200 bg-white py-10">
+            <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-5 px-8 text-center md:flex-row md:text-left">
                 <div><Brand /><div className="mt-3 flex gap-6 text-xs text-slate-500"><a href="#">Políticas</a><a href="#">Términos</a><a href="#">Ayuda</a></div></div>
                 <p className="text-xs text-slate-500">© {new Date().getFullYear()} DiabTrack App. Cuidando tu salud.</p>
             </div>

@@ -85,6 +85,11 @@
 
 - Sin emojis en código, comentarios ni copy de la interfaz, en ningún artefacto
   generado.
+- Ningún footer puede ser visible al entrar a una pantalla en su posición inicial.
+  Debe quedar naturalmente debajo del primer viewport mediante la altura mínima
+  del contenido o layout y aparecer solo después de desplazar la página, poco o
+  mucho según su contenido. No se permite conseguirlo ocultando el footer,
+  fijándolo, superponiéndolo ni mediante JavaScript.
 - NINGUNA pantalla se marca como QA visual aprobado sin una captura de pantalla
   real comparada contra producción, guardada en `docs/migration/qa-visual/`. Un
   reporte de texto describiendo que "se ve bien" no es evidencia suficiente.

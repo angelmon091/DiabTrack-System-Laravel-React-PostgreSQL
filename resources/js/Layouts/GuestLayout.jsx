@@ -13,7 +13,7 @@ export default function GuestLayout({
     description = 'Con DiabTrack lleva un control más inteligente para una vida más saludable',
 }) {
     return <div className="flex min-h-screen flex-col bg-[linear-gradient(160deg,#f0f7ff_0%,#e8f4f8_50%,#f1f5f9_100%)] font-sans text-slate-900 antialiased">
-        <main className="mx-auto flex w-full max-w-[1200px] flex-1 flex-col items-center justify-center gap-8 px-3 py-6 sm:px-6 sm:py-12 lg:min-h-screen lg:flex-row lg:justify-around lg:gap-8 lg:px-8">
+        <main className="mx-auto flex min-h-screen w-full max-w-[1200px] flex-1 flex-col items-center justify-center gap-8 px-3 py-6 sm:px-6 sm:py-12 lg:flex-row lg:justify-around lg:gap-8 lg:px-8">
             <section className="flex max-w-[450px] flex-col items-center text-center lg:items-start lg:text-left" aria-labelledby="guest-brand-title">
                 <h1 id="guest-brand-title"><BrandMark className="text-[35px] sm:text-5xl lg:text-[56px]" /></h1>
                 <p className="mt-2 text-[15px] text-slate-500 sm:text-xl">{slogan}</p>
