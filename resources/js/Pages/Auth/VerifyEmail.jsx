@@ -64,12 +64,12 @@ export default function VerifyEmail({ email, verificationCodeUrl, resendUrl, log
                 </SubmitButton>
             </form>
 
-            <div className="mt-5 flex flex-wrap justify-center gap-4 text-sm">
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-4 text-sm">
                 <form onSubmit={resend}>
                     <button
                         type="submit"
                         disabled={resendForm.processing}
-                        className="font-semibold text-cyan-600 hover:text-cyan-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                        className="text-slate-500 underline transition hover:text-cyan-600 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         {resendForm.processing ? 'Reenviando...' : 'Reenviar código'}
                     </button>
@@ -79,7 +79,7 @@ export default function VerifyEmail({ email, verificationCodeUrl, resendUrl, log
                     <button
                         type="submit"
                         disabled={logoutForm.processing}
-                        className="font-semibold text-slate-500 hover:text-slate-700 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                        className="text-slate-500 underline transition hover:text-cyan-600 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                         Cerrar sesión
                     </button>
