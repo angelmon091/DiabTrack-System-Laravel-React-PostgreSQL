@@ -29,12 +29,8 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.jsx',
-                'resources/css/admin.css',
                 'resources/css/alimentacion.css',
-                'resources/css/auth-global.css',
                 'resources/css/dashboard_admin.css',
-                'resources/css/dashboardc.css',
-                'resources/css/design-system.css',
                 'resources/css/index.css',
                 'resources/css/ingreso_de_datos_global.css',
                 'resources/css/segunda_opcion_dashboard.css',

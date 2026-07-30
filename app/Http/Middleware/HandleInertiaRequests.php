@@ -63,6 +63,7 @@ class HandleInertiaRequests extends Middleware
                     'name' => $user->name,
                     'email' => $user->email,
                     'avatar' => $user->avatar,
+                    'gender' => $user->patientProfile?->gender,
                     'emailVerifiedAt' => $user->email_verified_at?->toISOString(),
                 ] : null,
                 'roles' => $user?->roles->map(fn ($role) => [
@@ -82,6 +83,8 @@ class HandleInertiaRequests extends Middleware
                 'profileUrl' => route('profile.edit', absolute: false),
                 'logoutUrl' => route('logout', absolute: false),
                 'searchUrl' => $esPaciente ? route('search', absolute: false) : null,
+                'summaryUrl' => $esPaciente ? route('tracking.summary', absolute: false) : null,
+                'vitalsCreateUrl' => $esPaciente ? route('tracking.vital.create', absolute: false) : null,
                 'notificationsReadAllUrl' => route('notifications.read-all', absolute: false),
                 'notificationsDestroyAllUrl' => route('notifications.destroy-all', absolute: false),
             ] : null,

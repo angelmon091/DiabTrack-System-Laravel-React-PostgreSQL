@@ -16,6 +16,13 @@
   cache como efecto colateral de esta migración.
 - Tailwind se mantiene en 3.4. No activar el plugin de Tailwind 4; esa sería una
   migración separada, fuera de alcance.
+- Toda corrección de paridad visual en React usa exclusivamente Tailwind CSS y
+  `lucide-react`. Bootstrap CSS, Bootstrap JS, Font Awesome y los CSS legacy
+  (`design-system.css`, `dashboardc.css`, `admin.css`, `auth-global.css`) pueden
+  consultarse como referencia de medidas, colores, tipografía y breakpoints,
+  pero nunca importarse ni consumirse como dependencias reales del bundle React.
+  Esta regla aplica a `AuthenticatedLayout`, `AdminLayout`, `GuestLayout` y a
+  todas las pantallas corregidas posteriormente.
 
 ### Alcance y lógica de negocio
 
@@ -74,6 +81,9 @@
 
 - Sin emojis en código, comentarios ni copy de la interfaz, en ningún artefacto
   generado.
+- NINGUNA pantalla se marca como QA visual aprobado sin una captura de pantalla
+  real comparada contra producción, guardada en `docs/migration/qa-visual/`. Un
+  reporte de texto describiendo que "se ve bien" no es evidencia suficiente.
 
 ### Protocolo de ejecución en lote
 
