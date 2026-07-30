@@ -5,6 +5,13 @@ import BrandMark from '../Components/BrandMark';
 import GlobalSearch from '../Components/GlobalSearch';
 import NotificationMenu from '../Components/NotificationMenu';
 
+const flashMessages = {
+    'profile-updated': 'Perfil actualizado con éxito.',
+    'email-change-requested': 'Solicitud enviada. Revisa tu nuevo correo.',
+    'email-updated': 'Correo electrónico actualizado correctamente.',
+    'password-updated': 'Contraseña actualizada.',
+};
+
 export default function AuthenticatedLayout({ children }) {
     const { auth, flash, navigation, notifications = [] } = usePage().props;
     const logoutForm = useForm({});
@@ -20,7 +27,7 @@ export default function AuthenticatedLayout({ children }) {
                 </div>
             </div>
         </header>
-        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8"><div className="mb-5 space-y-3"><Alert>{flash?.success || flash?.status}</Alert><Alert tone="error">{flash?.error}</Alert></div>{children}</main>
+        <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8"><div className="mb-5 space-y-3"><Alert>{flash?.success || flashMessages[flash?.status] || flash?.status}</Alert><Alert tone="error">{flash?.error}</Alert></div>{children}</main>
         <footer className="border-t bg-white px-4 py-6 text-center text-sm text-slate-500">© {new Date().getFullYear()} DiabTrack App. Cuidando tu salud.</footer>
     </div>;
 }

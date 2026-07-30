@@ -983,3 +983,19 @@ Completada el 29 de julio de 2026 reutilizando los componentes de captura de vit
 - QA real: vínculo activo requerido; HbA1c 21 mostró error; valores válidos se guardaron para el paciente correcto, dashboard mostró flash y métricas, F5 estable, consola sin warnings/errores y cero tips IA.
 - Suite específica: 5 pruebas, 33 assertions. Suite completa: 140 pruebas, 858 assertions, 14.11 s. Build correcto con 663 módulos; `git diff --check` correcto.
 - `resources/views/caregiver/tracking/vital-create.blade.php` permanece hasta Fase 8.
+
+## 39. Nivel 2: Configuración de perfil
+
+Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout`, los componentes de formulario y el `Modal` genérico.
+
+- `GET /profile` conserva URL y autorización, y ahora renderiza `Profile/Edit` mediante Inertia. Los datos expuestos se limitan a perfil, solicitud pendiente de correo, zonas horarias y personas vinculadas; las etiquetas de relación se calculan en backend y React no compara nombres de rol para autorizar.
+- Se preservaron campos y validaciones existentes: nombre y correo con máximo de 255 caracteres; avatar de imagen con máximo de 5 MB; contraseña actual obligatoria solo al solicitar cambio de correo; zona horaria con máximo de 100 caracteres y las mismas diez opciones del Blade; cambio de contraseña confirmado y validado contra la actual; eliminación de cuenta protegida por contraseña actual.
+- La actualización de perfil usa `PATCH` con `forceFormData`, incluida la carga de avatar. El QA detectó y corrigió una regresión inicial que enviaba `POST`; se agregó una prueba Inertia específica para impedir que reaparezca.
+- Las bolsas de errores nombradas `updatePassword` y `userDeletion` se enlazaron explícitamente a sus formularios React. El QA confirmó que una contraseña actual incorrecta se muestra tanto al cambiar contraseña como dentro del modal de eliminación.
+- Para pacientes, la lista de médicos y cuidadores vinculados conserva la desvinculación existente mediante confirmación con `Modal`; el QA confirmó persistencia, bloqueo de scroll y eliminación correcta del vínculo.
+- La suite usa `Mail::fake()` para confirmar los dos correos del cambio de dirección: `EmailChangeAlert` llega al correo actual con el nuevo destinatario en el contenido, y `VerifyEmailChange` llega al correo nuevo con destinatario, asunto, token y llamada a verificar esperados. También confirma que sin contraseña actual no se despacha ningún correo.
+- QA real con `MAIL_MAILER=resend`: se usaron exclusivamente `delivered@resend.dev` y `delivered+profile-change@resend.dev`. Ambos envíos síncronos terminaron sin excepción y la respuesta HTTP regresó con flash en 3149 ms; no se usaron correos personales ni de terceros. El correo actual permaneció sin cambios y la solicitud pendiente quedó visible hasta confirmar el enlace.
+- QA adicional: actualización de nombre y zona horaria, solicitud de cambio de correo, contraseña inválida, modal de eliminación, desvinculación, URL `/profile`, título `Configuración de perfil - DiabTrack`, estado estable tras F5 y consola limpia.
+- Suite específica: 10 pruebas, 72 assertions. Suite completa: 145 pruebas, 910 assertions, 15.22 s. Build Vite 8.1.5 correcto con 664 módulos; `git diff --check` correcto.
+- `resources/views/profile/edit.blade.php` permanece hasta Fase 8.
+- Con esta pantalla queda completado el Nivel 2 del plan de migración.
