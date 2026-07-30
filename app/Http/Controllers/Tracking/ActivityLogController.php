@@ -37,16 +37,16 @@ class ActivityLogController extends Controller
                 ['value' => 'otro', 'label' => 'Otro'],
             ],
             'intensities' => [
-                ['value' => 'baja', 'label' => 'Baja', 'description' => 'Podías platicar fácilmente.'],
-                ['value' => 'media', 'label' => 'Media', 'description' => 'Costaba hablar seguido.'],
-                ['value' => 'alta', 'label' => 'Alta', 'description' => 'Sin aliento para hablar.'],
+                ['value' => 'baja', 'label' => 'Baja', 'description' => 'Podías platicar fácilmente.', 'icon' => 'gauge', 'iconClass' => 'text-emerald-600'],
+                ['value' => 'media', 'label' => 'Media', 'description' => 'Costaba hablar seguido.', 'icon' => 'gauge', 'iconClass' => 'text-amber-500'],
+                ['value' => 'alta', 'label' => 'Alta', 'description' => 'Sin aliento para hablar.', 'icon' => 'gauge', 'iconClass' => 'text-red-500'],
             ],
             'energyLevels' => [
-                ['value' => 'muy_baja', 'label' => 'Muy baja', 'description' => 'Sin energía, agotado.'],
-                ['value' => 'baja', 'label' => 'Baja', 'description' => 'Algo cansado.'],
-                ['value' => 'normal', 'label' => 'Normal', 'description' => 'Energía habitual.'],
-                ['value' => 'alta', 'label' => 'Alta', 'description' => 'Con más fuerza de lo usual.'],
-                ['value' => 'muy_alta', 'label' => 'Muy alta', 'description' => 'Lleno de energía.'],
+                ['value' => 'muy_baja', 'label' => 'Muy baja', 'description' => 'Sin energía, agotado.', 'icon' => 'batteryWarning'],
+                ['value' => 'baja', 'label' => 'Baja', 'description' => 'Algo cansado.', 'icon' => 'batteryLow'],
+                ['value' => 'normal', 'label' => 'Normal', 'description' => 'Energía habitual.', 'icon' => 'batteryMedium'],
+                ['value' => 'alta', 'label' => 'Alta', 'description' => 'Con más fuerza de lo usual.', 'icon' => 'batteryFull'],
+                ['value' => 'muy_alta', 'label' => 'Muy alta', 'description' => 'Lleno de energía.', 'icon' => 'batteryFull', 'iconClass' => 'text-emerald-600'],
             ],
         ]);
     }

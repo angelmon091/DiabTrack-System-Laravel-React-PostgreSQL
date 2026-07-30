@@ -63,11 +63,11 @@ class NutritionLogController extends Controller
                 ['key' => 'activity', 'label' => 'Movimiento', 'url' => route('tracking.activity.create', absolute: false)],
             ],
             'mealTypes' => [
-                ['value' => 'desayuno', 'label' => 'Desayuno', 'description' => 'Primera comida del día.'],
-                ['value' => 'almuerzo', 'label' => 'Comida', 'description' => 'Comida del mediodía.'],
-                ['value' => 'cena', 'label' => 'Cena', 'description' => 'Última comida del día.'],
-                ['value' => 'snack', 'label' => 'Snack', 'description' => 'Algo pequeño entre comidas.'],
-                ['value' => 'correccion', 'label' => 'Corrección', 'description' => 'Jugo o azúcar rápida para subir glucosa.'],
+                ['value' => 'desayuno', 'label' => 'Desayuno', 'description' => 'Primera comida del día.', 'icon' => 'coffee'],
+                ['value' => 'almuerzo', 'label' => 'Comida', 'description' => 'Comida del mediodía.', 'icon' => 'cloudSun'],
+                ['value' => 'cena', 'label' => 'Cena', 'description' => 'Última comida del día.', 'icon' => 'moon'],
+                ['value' => 'snack', 'label' => 'Snack', 'description' => 'Algo pequeño entre comidas.', 'icon' => 'apple'],
+                ['value' => 'correccion', 'label' => 'Corrección', 'description' => 'Jugo o azúcar rápida para subir glucosa.', 'icon' => 'cookie'],
             ],
             'foodCategories' => [
                 ['value' => 'frutas', 'label' => 'Frutas'],

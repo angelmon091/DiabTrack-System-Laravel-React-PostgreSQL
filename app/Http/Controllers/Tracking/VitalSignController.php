@@ -26,15 +26,15 @@ class VitalSignController extends Controller
                 ['key' => 'activity', 'label' => 'Movimiento', 'url' => route('tracking.activity.create', absolute: false)],
             ],
             'measurementMoments' => [
-                ['value' => 'Ayunas', 'label' => 'En ayunas', 'description' => 'Al despertar, sin haber comido durante 8 horas o más.'],
-                ['value' => 'Antes de Comer', 'label' => 'Antes de comer', 'description' => 'Justo antes de desayunar, comer o cenar.'],
-                ['value' => 'Después de Comer', 'label' => 'Después de comer', 'description' => 'Entre una y dos horas después de la comida.'],
-                ['value' => 'Al Dormir', 'label' => 'Al dormir', 'description' => 'Antes de acostarte.'],
+                ['value' => 'Ayunas', 'label' => 'En ayunas', 'description' => 'Al despertar, sin haber comido durante 8 horas o más.', 'icon' => 'sun'],
+                ['value' => 'Antes de Comer', 'label' => 'Antes de comer', 'description' => 'Justo antes de desayunar, comer o cenar.', 'icon' => 'clock'],
+                ['value' => 'Después de Comer', 'label' => 'Después de comer', 'description' => 'Entre una y dos horas después de la comida.', 'icon' => 'utensils'],
+                ['value' => 'Al Dormir', 'label' => 'Al dormir', 'description' => 'Antes de acostarte.', 'icon' => 'moon'],
             ],
             'stressLevels' => [
-                ['value' => 'Bajo', 'label' => 'Bajo', 'description' => 'Relajado, sin tensión.'],
-                ['value' => 'Medio', 'label' => 'Medio', 'description' => 'Algo de presión o ansiedad.'],
-                ['value' => 'Alto', 'label' => 'Alto', 'description' => 'Muy estresado o tenso.'],
+                ['value' => 'Bajo', 'label' => 'Bajo', 'description' => 'Relajado, sin tensión.', 'icon' => 'smile', 'iconClass' => 'text-emerald-600'],
+                ['value' => 'Medio', 'label' => 'Medio', 'description' => 'Algo de presión o ansiedad.', 'icon' => 'meh', 'iconClass' => 'text-amber-500'],
+                ['value' => 'Alto', 'label' => 'Alto', 'description' => 'Muy estresado o tenso.', 'icon' => 'frown', 'iconClass' => 'text-red-500'],
             ],
         ]);
     }
