@@ -8,6 +8,7 @@ use App\Models\PatientNotification;
 use App\Models\User;
 use App\Models\VitalSign;
 use App\Services\DashboardMetricsService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -18,7 +19,7 @@ use Inertia\Response as InertiaResponse;
  */
 class CaregiverController extends Controller
 {
-    public function dashboard(Request $request, DashboardMetricsService $metricsService)
+    public function dashboard(Request $request, DashboardMetricsService $metricsService): InertiaResponse
     {
         $user = Auth::user();
         $patients = $user->linkedPatients()->with('patientProfile', 'vitalSigns')->get();
@@ -46,7 +47,45 @@ class CaregiverController extends Controller
                 ->get();
         }
 
-        return view('caregiver.dashboard', array_merge($metrics, compact('user', 'patients', 'selectedPatient', 'recentLogs')));
+        return Inertia::render('Caregiver/Dashboard', [
+            'patients' => $patients->map(fn (User $patient) => [
+                'id' => $patient->id,
+                'name' => $patient->name,
+                'relationship' => $patient->pivot->relationship ?? $user->caregiverProfile?->relationship ?? 'Paciente',
+                'latestGlucose' => $patient->vitalSigns->sortByDesc('created_at')->first()?->glucose_level,
+                'selected' => $selectedPatient?->id === $patient->id,
+                'dashboardUrl' => route('caregiver.dashboard', ['patient_id' => $patient->id], absolute: false),
+                'unlinkUrl' => route('caregiver.patient.unlink', $patient, absolute: false),
+            ])->values(),
+            'selectedPatient' => $selectedPatient ? [
+                'id' => $selectedPatient->id,
+                'name' => $selectedPatient->name,
+                'diabetesType' => $selectedPatient->patientProfile?->diabetes_type ?? '--',
+                'age' => $selectedPatient->patientProfile?->birth_date
+                    ? Carbon::parse($selectedPatient->patientProfile->birth_date)->age
+                    : null,
+                'weight' => $selectedPatient->patientProfile?->weight,
+                'vitalCreateUrl' => route('caregiver.patient.vital.create', $selectedPatient, absolute: false),
+            ] : null,
+            'metrics' => [
+                'latestGlucose' => $metrics['ultimaMedicion']['glucose_level'] ?? null,
+                'timeInRange' => $metrics['tiempoEnRango'] ?? 0,
+                'latestHba1c' => $metrics['ultimaHba1c']['hba1c'] ?? null,
+                'glucoseLabels' => $metrics['glucosaLabels'] ?? [],
+                'glucoseData' => $metrics['glucosaData'] ?? [],
+            ],
+            'recentLogs' => $recentLogs->map(fn (VitalSign $log) => [
+                'id' => $log->id,
+                'date' => $log->created_at->format('d/m/Y H:i'),
+                'glucose' => $log->glucose_level,
+                'moment' => $log->measurement_moment,
+                'elevated' => $log->glucose_level > 140,
+            ])->values(),
+            'urls' => [
+                'link' => route('caregiver.link', absolute: false),
+                'profile' => route('profile.edit', absolute: false),
+            ],
+        ]);
     }
 
     /**

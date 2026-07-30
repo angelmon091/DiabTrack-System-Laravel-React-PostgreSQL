@@ -999,3 +999,17 @@ Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout`, los compon
 - Suite específica: 10 pruebas, 72 assertions. Suite completa: 145 pruebas, 910 assertions, 15.22 s. Build Vite 8.1.5 correcto con 664 módulos; `git diff --check` correcto.
 - `resources/views/profile/edit.blade.php` permanece hasta Fase 8.
 - Con esta pantalla queda completado el Nivel 2 del plan de migración.
+
+## 40. Nivel 3: Dashboard de cuidador
+
+Completada el 29 de julio de 2026 con `AuthenticatedLayout`, `Modal`, `Table` y el nuevo `ChartCard` basado en `react-chartjs-2`.
+
+- Se instalaron `react-chartjs-2` 5.3.1 y `chart.js` 4.5.1; npm reportó cero vulnerabilidades. Tailwind permaneció sin cambios.
+- `GET /caregiver` conserva URL, selección mediante `patient_id`, autorización y fallback al primer paciente, y ahora renderiza `Caregiver/Dashboard` mediante Inertia con props explícitas.
+- Se preservaron paciente seleccionado, parentesco, última glucosa, edad, peso, diabetes, tiempo en rango, HbA1c, tendencia semanal de siete días y cinco registros recientes. La fecha de nacimiento sin cast se procesa con `Carbon::parse`, igual que en Blade.
+- La gráfica conserva línea suavizada, relleno, puntos y huecos entre días sin datos. El estado vacío evita crear una gráfica sin valores.
+- La confirmación nativa de desvinculación fue reemplazada por el `Modal` compartido; Escape, bloqueo y restauración de scroll se verificaron sin ejecutar la eliminación durante QA.
+- No se ejecutó `app:generate-daily-tips` ni se llamó a Claude/Gemini. Las métricas solo leyeron datos locales y el fallback ya existente.
+- QA real: `/caregiver`, título `Panel de cuidador - DiabTrack`, paciente y métricas correctos, canvas de Chart.js presente, enlace de captura correcto, modal accesible, consola de la versión final sin errores de Chart.js y F5 estable.
+- Suite específica: 2 pruebas, 30 assertions. Suite completa: 147 pruebas, 940 assertions, 13.58 s. Build Vite correcto con 670 módulos; `git diff --check` correcto.
+- `resources/views/caregiver/dashboard.blade.php` permanece hasta Fase 8.
