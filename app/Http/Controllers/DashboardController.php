@@ -92,6 +92,7 @@ class DashboardController extends Controller
                 'latestGlucose' => $metrics['ultimaMedicion']['glucose_level'] ?? null,
                 'measurementMoment' => $metrics['ultimaMedicion']['measurement_moment'] ?? null,
                 'glucoseStatus' => isset($metrics['ultimaMedicion']['status']) ? VitalSign::glucoseStatusUi($metrics['ultimaMedicion']['status'])['label'] : null,
+                'glucoseStatusKey' => $metrics['ultimaMedicion']['status'] ?? null,
                 'latestHba1c' => $metrics['ultimaHba1c']['hba1c'] ?? null,
                 'carbsToday' => $metrics['carbsHoy'], 'caloriesToday' => $metrics['caloriasHoy'],
                 'calorieGoal' => $metrics['metaCalorias'], 'caloriePercent' => $metrics['porcentajeCalorias'],

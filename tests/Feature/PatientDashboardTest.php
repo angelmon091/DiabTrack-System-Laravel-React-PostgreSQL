@@ -27,9 +27,29 @@ class PatientDashboardTest extends TestCase
         $this->withoutVite();
         $this->actingAs($patient)->get(route('dashboard'))->assertInertia(fn (Assert $page) => $page
             ->component('Dashboard')->where('metrics.latestGlucose', 125)->where('metrics.timeInRange', 100)
+            ->where('metrics.measurementMoment', 'Ayunas')->where('metrics.glucoseStatusKey', 'normal')
             ->has('metrics.glucoseLabels', 7)->where('tip.text', 'Tip local para QA')->where('tip.isAi', true)
             ->where('profile.targetMin', 70)->where('profile.targetMax', 140)->has('recentLogs', 1));
         Http::assertNothingSent();
+    }
+
+    public function test_weight_reminder_exposes_the_original_empty_and_expired_states(): void
+    {
+        $withoutWeight = User::factory()->create();
+        $withoutWeight->roles()->attach(Role::firstOrCreate(['name' => 'paciente']));
+        PatientProfile::create(['user_id' => $withoutWeight->id, 'birth_date' => '1990-01-01', 'gender' => 'Femenino', 'diabetes_type' => 'Tipo 2', 'weight' => 70, 'height' => 165]);
+
+        $withExpiredWeight = User::factory()->create();
+        $withExpiredWeight->roles()->attach(Role::firstOrCreate(['name' => 'paciente']));
+        PatientProfile::create(['user_id' => $withExpiredWeight->id, 'birth_date' => '1990-01-01', 'gender' => 'Masculino', 'diabetes_type' => 'Tipo 2', 'weight' => 82, 'height' => 175]);
+        $expiredWeight = VitalSign::create(['user_id' => $withExpiredWeight->id, 'weight' => 81.5]);
+        VitalSign::query()->whereKey($expiredWeight)->update(['created_at' => now()->subDays(31)]);
+
+        $this->withoutVite();
+        $this->actingAs($withoutWeight)->get(route('dashboard'))->assertInertia(fn (Assert $page) => $page
+            ->where('metrics.needsWeightUpdate', true)->where('metrics.lastWeight', null));
+        $this->actingAs($withExpiredWeight)->get(route('dashboard'))->assertInertia(fn (Assert $page) => $page
+            ->where('metrics.needsWeightUpdate', true)->where('metrics.lastWeight', 81.5));
     }
 
     public function test_invite_code_is_returned_as_inertia_flash_prop(): void
