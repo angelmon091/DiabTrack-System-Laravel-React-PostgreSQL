@@ -1055,3 +1055,17 @@ Completada el 29 de julio de 2026 con `AuthenticatedLayout`, `DataChart`, `Table
 - QA real: `/tracking/summary`, título `Resumen de salud - DiabTrack`, tres canvas con los datos disponibles y estado vacío para síntomas, pestañas de nutrición/actividad, filtro de siete días, tablas correctas, F5 estable y consola limpia.
 - Suite específica: 1 prueba, 24 assertions. Suite completa: 154 pruebas, 1059 assertions, 13.55 s. Build correcto con 674 módulos; `git diff --check` correcto.
 - `resources/views/tracking/summary.blade.php` permanece hasta Fase 8.
+
+## 44. Nivel 3: Alimentación inteligente
+
+Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout` y el `Modal` genérico.
+
+- `GET /tracking/nutrition` conserva URL y métricas del servicio, y ahora renderiza `Tracking/Nutrition/Index` mediante Inertia.
+- La revisión confirmó que el botón llamado “Generar recomendación IA” nunca llamaba a Claude, Gemini ni a un endpoint: elegía aleatoriamente entre cinco textos hardcodeados después de un temporizador. Se preservó como carrusel algorítmico local, ahora explícitamente serializado desde backend y ciclado con estado React.
+- El QA no ejecutó el job de tips ni una integración externa. El tip mostrado provino de un `DailyTip` local ya creado; `Http::fake()` confirma cero solicitudes en la prueba.
+- El carrusel de cinco comidas reemplaza funciones globales y recarga en resize por estado React, mostrando tres tarjetas y controles anterior/siguiente. Las imágenes y datos son los mismos del Blade.
+- El modal reemplaza Bootstrap JS y preserva estado actual, siguiente idea, Escape y bloqueo/restauración de scroll.
+- Se mantienen calorías, meta personalizada, carbohidratos, porcentajes, última glucosa y acceso a registrar comida.
+- QA real: `/tracking/nutrition`, título `Alimentación inteligente - DiabTrack`, carrusel, métricas, tip local, modal, cambio de idea, Escape, F5 y consola limpia.
+- Suite específica: 1 prueba, 20 assertions. Suite completa: 155 pruebas, 1079 assertions, 13.63 s. Build correcto con 675 módulos; `git diff --check` correcto.
+- `resources/views/tracking/nutrition/index.blade.php` permanece hasta Fase 8.
