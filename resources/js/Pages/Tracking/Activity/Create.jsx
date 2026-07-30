@@ -1,4 +1,4 @@
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 
 import ChoiceCards from '../../../Components/ChoiceCards';
 import FormInput from '../../../Components/FormInput';
@@ -34,8 +34,8 @@ export default function Create({ storeUrl, dashboardUrl, trackingNavigation, act
         <Head title="Registro de movimiento" />
         <section data-testid="activity-create">
             <div className="mb-7">
-                <h1 className="text-3xl font-extrabold text-slate-900">Registro de actividad física</h1>
-                <p className="mt-2 text-slate-500">Registra tu movimiento y nivel de energía diario.</p>
+                <h1 className="text-3xl font-extrabold text-slate-900">Registro de Actividad Física</h1>
+                <p className="mt-2 text-slate-500">Registra tu movimiento y nivel de energía diario</p>
             </div>
 
             <TrackingNav items={trackingNavigation} active="activity" />
@@ -43,14 +43,14 @@ export default function Create({ storeUrl, dashboardUrl, trackingNavigation, act
             <form onSubmit={submit} noValidate className="grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.75fr)]">
                 <div className="space-y-6">
                     <div className="space-y-7 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <FormSelect id="activity_type" name="activity_type" label="Tipo de actividad" value={form.data.activity_type} onChange={(event) => form.setData('activity_type', event.target.value)} error={form.errors.activity_type}>
+                        <FormSelect id="activity_type" name="activity_type" label="Tipo de Actividad" value={form.data.activity_type} onChange={(event) => form.setData('activity_type', event.target.value)} error={form.errors.activity_type}>
                             <option value="" disabled>Selecciona una actividad</option>
                             {activityTypes.map((activity) => <option key={activity.value} value={activity.value}>{activity.label}</option>)}
                         </FormSelect>
 
                         <RangeField id="duration_minutes" name="duration_minutes" label="Duración" value={form.data.duration_minutes} unit="min" min="1" max="180" onChange={(event) => form.setData('duration_minutes', Number(event.target.value))} error={form.errors.duration_minutes} />
 
-                        <ChoiceCards legend="Nivel de energía" name="energy_level" options={energyLevels} value={form.data.energy_level} onChange={(value) => form.setData('energy_level', value)} error={form.errors.energy_level} optional />
+                        <ChoiceCards legend="Nivel de Energía" name="energy_level" options={energyLevels} value={form.data.energy_level} onChange={(value) => form.setData('energy_level', value)} error={form.errors.energy_level} />
                     </div>
                 </div>
 
@@ -67,7 +67,6 @@ export default function Create({ storeUrl, dashboardUrl, trackingNavigation, act
                         <button type="button" onClick={reset} className="flex-1 rounded-2xl border px-4 py-3 text-sm font-semibold text-slate-600">Borrar</button>
                         <SubmitButton processing={form.processing} className="flex-1">Guardar</SubmitButton>
                     </div>
-                    <Link href={dashboardUrl} className="block text-center text-sm font-semibold text-cyan-700">Volver al dashboard</Link>
                 </aside>
             </form>
         </section>
