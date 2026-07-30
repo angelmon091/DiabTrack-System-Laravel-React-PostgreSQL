@@ -539,10 +539,10 @@ Se crearon `GuestLayout`, `BrandMark`, `FormInput`, `FormSelect`, `FormError`, `
 | Fase 2: plan de migración | Preparada para revisión |
 | Fase 2.5: estrategia JS legacy | Decisiones incorporadas en este plan |
 | Fase 3: infraestructura | Completada; pendiente de revisión |
-| Fase 4: arquitectura de componentes | Pendiente |
-| Fase 5: migración incremental | Pendiente, 33 páginas activas |
-| Fase 6: formularios y estado | Pendiente/transversal |
-| Fase 7: testing | Pendiente/transversal |
+| Fase 4: arquitectura de componentes | Completada |
+| Fase 5: migración incremental | Completada, 33 de 33 páginas activas migradas |
+| Fase 6: formularios y estado | Completada/transversal |
+| Fase 7: testing | Completada/transversal; limpieza final de selectores Blade reservada para Fase 8 |
 | Fase 8: limpieza y cierre | Pendiente |
 
 ## 13. Nivel 1: Login
@@ -1089,11 +1089,12 @@ Completada el 29 de julio de 2026 reutilizando `AdminLayout`, `DataChart`, `Tabl
 Completado el 29 de julio de 2026 sobre `AuthenticatedLayout`, `GlobalSearch` y `NotificationMenu`.
 
 - La búsqueda conserva el endpoint JSON con `throttle:60,1` y el debounce cliente de 250 ms. Las secciones ahora exponen `title` además del `label` legacy, por lo que comparten contrato visual con los resultados clínicos; la navegación usa `Link` de Inertia.
-- Las notificaciones conservan respuestas JSON para consumidores AJAX y devuelven redirección 303 cuando la petición lleva `X-Inertia`, evitando la respuesta JSON inválida de Inertia. El menú actualiza únicamente la prop compartida después de cada mutación.
-- Se verificaron lectura y borrado individual, lectura y borrado masivo, aislamiento por propietario y rechazo 403 de notificaciones ajenas. El menú incorpora cierre con Escape y clic exterior, además de semántica `aria-expanded`, `aria-haspopup` y `role="menu"`.
+- La auditoría de rutas confirmó que ningún controlador activo renderiza ya una vista que extienda `layouts.app`; los `fetch()` de notificaciones de ese layout solo permanecen en archivos Blade inactivos reservados para eliminarse en Fase 8. Al no existir consumidores AJAX reales, se retiró la respuesta JSON legacy: las cuatro mutaciones responden con redirección 303 y `NotificationMenu` usa exclusivamente el router de Inertia.
+- Se agregó cobertura automatizada del aislamiento por propietario en notificaciones, que ya existía correctamente tanto en el Blade original como en la query de Inertia. No hubo exposición cruzada de datos entre usuarios en ningún momento. Las pruebas verifican además el rechazo 403 de mutaciones sobre notificaciones ajenas.
+- Se verificaron lectura y borrado individual, lectura y borrado masivo. El menú incorpora cierre con Escape y clic exterior, además de semántica `aria-expanded`, `aria-haspopup` y `role="menu"`.
 - QA real: búsqueda de `glucosa` mostró `Registrar signo vital` con URL correcta; una notificación local controlada se marcó como leída y el borrado masivo dejó el estado vacío sin modal de error de Inertia. URL, título y F5 permanecieron estables.
-- El `fetch()` de `GlobalSearch` se mantiene por ser consulta de datos pura en segundo plano, conforme a las reglas permanentes. Las mutaciones soportan temporalmente tanto AJAX como Inertia mientras conviven los Blade preservados.
+- El `fetch()` de `GlobalSearch` se mantiene por ser una consulta de datos pura en segundo plano, conforme a las reglas permanentes. No queda compatibilidad AJAX temporal en las mutaciones de notificaciones.
 - La búsqueda final de consumidores confirmó que Alpine, Bootstrap JS, SweetAlert2 y Chart.js CDN solo permanecen en vistas Blade conservadas o legacy. `resources/js/app.js` sigue siendo entrada de esos Blade. Su eliminación se difiere a Fase 8, junto con los Blade, para no romper consumidores todavía activos.
 - No se ejecutó `app:generate-daily-tips` ni se realizaron solicitudes a Claude/Gemini durante ninguna prueba del Nivel 3.
-- Suite transversal específica: 7 pruebas, 27 assertions. Suite completa final: 161 pruebas, 1128 assertions, 16.94 s. Build Vite 8.1.5 correcto con 676 módulos; auditoría npm de producción con cero vulnerabilidades; `git diff --check` correcto.
+- Suite transversal específica final: 7 pruebas, 28 assertions. Suite completa final: 161 pruebas, 1130 assertions, 19.78 s. Build Vite 8.1.5 correcto con 676 módulos; el diagnóstico de tiempos indicó únicamente que el plugin de Laravel concentró 83% del trabajo del build. Auditoría npm de producción con cero vulnerabilidades; `git diff --check` correcto.
 - Con este gate quedan completadas todas las pantallas y comportamientos transversales del Nivel 3. La limpieza de Blade y JS legacy continúa reservada para Fase 8.

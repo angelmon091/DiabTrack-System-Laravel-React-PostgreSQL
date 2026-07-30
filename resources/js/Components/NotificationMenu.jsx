@@ -14,10 +14,11 @@ export default function NotificationMenu({ notifications, navigation }) {
         return () => { document.removeEventListener('keydown', closeOnEscape); document.removeEventListener('mousedown', closeOutside); };
     }, [open]);
 
-    const mutate = async (method, url) => {
-        await window.axios({ method, url });
-        router.reload({ only: ['notifications'], preserveScroll: true });
-    };
+    const mutate = (method, url) => router.visit(url, {
+        method,
+        only: ['notifications'],
+        preserveScroll: true,
+    });
 
     return <div ref={menuRef} className="relative">
         <button type="button" onClick={() => setOpen((value) => !value)} aria-expanded={open} aria-haspopup="menu" aria-label="Notificaciones" className="relative rounded-full p-2 text-slate-500 hover:bg-slate-100">

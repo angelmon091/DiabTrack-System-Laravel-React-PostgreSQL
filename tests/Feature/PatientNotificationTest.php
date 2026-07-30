@@ -16,10 +16,10 @@ class PatientNotificationTest extends TestCase
         $user = User::factory()->create();
         $notification = PatientNotification::create(['user_id' => $user->id, 'type' => 'system', 'title' => 'Aviso', 'body' => 'Detalle']);
 
-        $this->actingAs($user)->postJson(route('notifications.read', $notification))->assertOk()->assertJson(['ok' => true]);
+        $this->actingAs($user)->from(route('dashboard'))->post(route('notifications.read', $notification))->assertRedirect(route('dashboard'));
         $this->assertNotNull($notification->fresh()->read_at);
 
-        $this->actingAs($user)->deleteJson(route('notifications.destroy', $notification))->assertOk()->assertJson(['ok' => true]);
+        $this->actingAs($user)->from(route('dashboard'))->delete(route('notifications.destroy', $notification))->assertRedirect(route('dashboard'));
         $this->assertDatabaseMissing('patient_notifications', ['id' => $notification->id]);
     }
 
@@ -42,11 +42,11 @@ class PatientNotificationTest extends TestCase
         PatientNotification::create(['user_id' => $user->id, 'type' => 'system', 'title' => 'Dos', 'body' => 'Detalle']);
         $foreign = PatientNotification::create(['user_id' => $other->id, 'type' => 'system', 'title' => 'Ajeno', 'body' => 'Detalle']);
 
-        $this->actingAs($user)->postJson(route('notifications.read-all'))->assertOk();
+        $this->actingAs($user)->from(route('dashboard'))->post(route('notifications.read-all'))->assertRedirect(route('dashboard'));
         $this->assertSame(2, PatientNotification::where('user_id', $user->id)->whereNotNull('read_at')->count());
         $this->assertNull($foreign->fresh()->read_at);
 
-        $this->actingAs($user)->deleteJson(route('notifications.destroy-all'))->assertOk();
+        $this->actingAs($user)->from(route('dashboard'))->delete(route('notifications.destroy-all'))->assertRedirect(route('dashboard'));
         $this->assertDatabaseMissing('patient_notifications', ['user_id' => $user->id]);
         $this->assertDatabaseHas('patient_notifications', ['id' => $foreign->id]);
     }

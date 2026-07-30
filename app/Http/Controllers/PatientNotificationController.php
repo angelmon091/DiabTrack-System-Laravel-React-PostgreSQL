@@ -15,7 +15,7 @@ class PatientNotificationController extends Controller
         abort_if($notification->user_id !== Auth::id(), 403);
         $notification->markRead();
 
-        return $this->mutationResponse();
+        return back(303);
     }
 
     public function markAllRead()
@@ -24,7 +24,7 @@ class PatientNotificationController extends Controller
             ->whereNull('read_at')
             ->update(['read_at' => now()]);
 
-        return $this->mutationResponse();
+        return back(303);
     }
 
     public function destroy(PatientNotification $notification)
@@ -32,22 +32,13 @@ class PatientNotificationController extends Controller
         abort_if($notification->user_id !== Auth::id(), 403);
         $notification->delete();
 
-        return $this->mutationResponse();
+        return back(303);
     }
 
     public function destroyAll()
     {
         PatientNotification::where('user_id', Auth::id())->delete();
 
-        return $this->mutationResponse();
-    }
-
-    private function mutationResponse()
-    {
-        if (request()->header('X-Inertia')) {
-            return back(303);
-        }
-
-        return response()->json(['ok' => true]);
+        return back(303);
     }
 }
