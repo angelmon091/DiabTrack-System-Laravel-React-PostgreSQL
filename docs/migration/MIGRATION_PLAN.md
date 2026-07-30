@@ -1013,3 +1013,17 @@ Completada el 29 de julio de 2026 con `AuthenticatedLayout`, `Modal`, `Table` y 
 - QA real: `/caregiver`, título `Panel de cuidador - DiabTrack`, paciente y métricas correctos, canvas de Chart.js presente, enlace de captura correcto, modal accesible, consola de la versión final sin errores de Chart.js y F5 estable.
 - Suite específica: 2 pruebas, 30 assertions. Suite completa: 147 pruebas, 940 assertions, 13.58 s. Build Vite correcto con 670 módulos; `git diff --check` correcto.
 - `resources/views/caregiver/dashboard.blade.php` permanece hasta Fase 8.
+
+## 41. Nivel 3: Dashboard médico
+
+Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout`, `ChartCard`, `Table`, `Modal` y formularios del Nivel 0.
+
+- `GET /doctor` conserva URL, selección de paciente, estados pendiente/aprobado/rechazado y métricas clínicas, y ahora renderiza `Doctor/Dashboard` mediante Inertia.
+- Se preservaron última glucosa, tiempo en rango, HbA1c, calorías, tendencia semanal, presión, pulso, estado respecto a la meta y cinco registros recientes.
+- El formulario de metas conserva validaciones backend mínima 40–150 y máxima 100–300. El QA detectó un método `PUT` incompatible con la ruta `PATCH`; se corrigió y se añadió una prueba de regresión. Una actualización real a 80/150 persistió y reclasificó 145 mg/dL de fuera de rango a en rango.
+- Los perfiles no aprobados conservan el bloqueo del middleware para vincular pacientes y muestran el estado/revisión existente. Se actualizó la prueba antigua que buscaba copy Blade para afirmar el componente y props Inertia.
+- La confirmación de desvinculación reutiliza el `Modal` genérico. No se modificó la lógica de autorización ni el hallazgo preexistente de cobertura parcial de `doctor.approved` ya documentado.
+- No se ejecutó generación de tips ni llamadas a Claude/Gemini.
+- QA real: `/doctor` y `/doctor?patient_id=45`, título `Panel médico - DiabTrack`, canvas presente, métricas, tabla, límites del formulario, actualización exitosa, F5 y consola final sin errores.
+- Suite específica: 3 pruebas, 38 assertions. Suite completa: 150 pruebas, 989 assertions, 13.80 s. Build correcto con 671 módulos; `git diff --check` correcto.
+- `resources/views/doctor/dashboard.blade.php` permanece hasta Fase 8.

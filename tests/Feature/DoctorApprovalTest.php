@@ -37,7 +37,10 @@ class DoctorApprovalTest extends TestCase
 
     public function test_pending_doctor_can_view_dashboard_but_cannot_link_patients(): void
     {
-        $this->actingAs($this->doctor)->get(route('doctor.dashboard'))->assertOk()->assertSee('Estamos verificando tu perfil médico');
+        $this->withoutVite();
+        $this->actingAs($this->doctor)->get(route('doctor.dashboard'))->assertInertia(fn (Assert $page) => $page
+            ->component('Doctor/Dashboard')->where('approval.approved', false)->where('approval.rejected', false)
+            ->where('approval.licenseNumber', '12345678'));
         $this->actingAs($this->doctor)->get(route('doctor.link'))->assertRedirect(route('doctor.dashboard'))->assertSessionHas('warning');
     }
 

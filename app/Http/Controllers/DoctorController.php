@@ -7,6 +7,7 @@ use App\Models\PatientNotification;
 use App\Models\User;
 use App\Models\VitalSign;
 use App\Services\DashboardMetricsService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -17,7 +18,7 @@ use Inertia\Response as InertiaResponse;
  */
 class DoctorController extends Controller
 {
-    public function dashboard(Request $request, DashboardMetricsService $metricsService)
+    public function dashboard(Request $request, DashboardMetricsService $metricsService): InertiaResponse
     {
         $user = Auth::user();
         $patients = $user->linkedPatients()->with('patientProfile', 'vitalSigns')->get();
@@ -45,7 +46,47 @@ class DoctorController extends Controller
                 ->get();
         }
 
-        return view('doctor.dashboard', array_merge($metrics, compact('user', 'patients', 'selectedPatient', 'recentLogs')));
+        $doctorProfile = $user->doctorProfile;
+
+        return Inertia::render('Doctor/Dashboard', [
+            'approval' => [
+                'approved' => (bool) $doctorProfile?->isApproved(),
+                'rejected' => $doctorProfile?->approval_status === 'rejected',
+                'label' => $doctorProfile?->isApproved() ? 'Aprobado' : ($doctorProfile?->approval_status === 'rejected' ? 'Requiere corrección' : 'Pendiente'),
+                'notes' => $doctorProfile?->review_notes,
+                'licenseNumber' => $doctorProfile?->license_number,
+            ],
+            'patients' => $patients->map(fn (User $patient) => [
+                'id' => $patient->id, 'name' => $patient->name,
+                'diabetesType' => $patient->patientProfile?->diabetes_type ?? '--',
+                'latestGlucose' => $patient->vitalSigns->sortByDesc('created_at')->first()?->glucose_level,
+                'selected' => $selectedPatient?->id === $patient->id,
+                'dashboardUrl' => route('doctor.dashboard', ['patient_id' => $patient->id], absolute: false),
+                'unlinkUrl' => route('doctor.patient.unlink', $patient, absolute: false),
+            ])->values(),
+            'selectedPatient' => $selectedPatient ? [
+                'id' => $selectedPatient->id, 'name' => $selectedPatient->name,
+                'diabetesType' => $selectedPatient->patientProfile?->diabetes_type ?? '--',
+                'age' => $selectedPatient->patientProfile?->birth_date ? Carbon::parse($selectedPatient->patientProfile->birth_date)->age : null,
+                'weight' => $selectedPatient->patientProfile?->weight, 'height' => $selectedPatient->patientProfile?->height,
+                'targetMin' => $selectedPatient->patientProfile?->target_glucose_min ?? 70,
+                'targetMax' => $selectedPatient->patientProfile?->target_glucose_max ?? VitalSign::GLUCOSE_DEFAULT_MAX,
+                'targetsUrl' => route('doctor.patient.targets.update', $selectedPatient, absolute: false),
+            ] : null,
+            'metrics' => [
+                'latestGlucose' => $metrics['ultimaMedicion']['glucose_level'] ?? null,
+                'timeInRange' => $metrics['tiempoEnRango'] ?? 0,
+                'latestHba1c' => $metrics['ultimaHba1c']['hba1c'] ?? null,
+                'caloriesToday' => $metrics['caloriasHoy'] ?? 0,
+                'glucoseLabels' => $metrics['glucosaLabels'] ?? [], 'glucoseData' => $metrics['glucosaData'] ?? [],
+            ],
+            'recentLogs' => $recentLogs->map(fn (VitalSign $log) => [
+                'id' => $log->id, 'date' => $log->created_at->format('d/m/Y H:i'), 'glucose' => $log->glucose_level,
+                'systolic' => $log->systolic, 'diastolic' => $log->diastolic, 'heartRate' => $log->heart_rate,
+                'outOfRange' => $log->glucose_level > ($selectedPatient?->patientProfile?->target_glucose_max ?? VitalSign::GLUCOSE_DEFAULT_MAX),
+            ])->values(),
+            'urls' => ['link' => route('doctor.link', absolute: false), 'profile' => route('profile.edit', absolute: false)],
+        ]);
     }
 
     /**
