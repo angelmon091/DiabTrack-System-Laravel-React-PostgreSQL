@@ -1,4 +1,6 @@
-import { Head, router, useForm, usePage } from '@inertiajs/react';
+import { Head, Link, router, useForm, usePage } from '@inertiajs/react';
+import ArrowLeft from 'lucide-react/dist/esm/icons/arrow-left.mjs';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2.mjs';
 import { useState } from 'react';
 
 import FormInput from '../../../Components/FormInput';
@@ -21,7 +23,7 @@ export default function Edit({ role, updateUrl, indexUrl }) {
     return <AdminLayout adminNavigation={adminNavigation}>
         <Head title="Editar rol" />
         <section data-testid="role-edit">
-            <div className="mb-8"><a href={indexUrl} className="text-sm font-bold text-cyan-700">Volver al listado</a><div className="mt-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><h1 className="text-3xl font-extrabold text-slate-900">Editar rol: <span className="capitalize">{role.data.name}</span></h1><p className="mt-2 text-slate-500">Modifica el nombre y la descripción de este rol del sistema.</p></div><button type="button" onClick={() => setConfirmingDeletion(true)} className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-bold text-white">Eliminar rol</button></div></div>
+            <div className="mb-8"><Link href={indexUrl} className="inline-flex items-center gap-1 text-sm font-bold text-cyan-700"><ArrowLeft className="h-4 w-4" />Volver al listado</Link><div className="mt-4 flex flex-col justify-between gap-4 sm:flex-row sm:items-center"><div><h1 className="text-3xl font-extrabold text-slate-900">Editar Rol: <span className="capitalize">{role.data.name}</span></h1><p className="mt-2 text-slate-500">Modifica el nombre y la descripción de este rol del sistema.</p></div><button type="button" onClick={() => setConfirmingDeletion(true)} className="inline-flex items-center justify-center gap-2 rounded-2xl bg-red-600 px-5 py-3 text-sm font-bold text-white"><Trash2 className="h-4 w-4" />Eliminar Rol</button></div></div>
             <div className="mx-auto max-w-2xl rounded-3xl border border-slate-100 bg-white p-6 shadow-sm sm:p-8"><form onSubmit={submit} noValidate className="space-y-5">
                 <FormInput id="name" name="name" label="Nombre del rol" value={form.data.name} onChange={(event) => form.setData('name', event.target.value)} error={form.errors.name} required />
                 <FormTextarea id="description" name="description" label="Descripción (opcional)" rows={4} value={form.data.description} onChange={(event) => form.setData('description', event.target.value)} placeholder="Breve descripción de los alcances funcionales de este rol..." error={form.errors.description} />
