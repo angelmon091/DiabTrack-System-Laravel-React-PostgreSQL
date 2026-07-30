@@ -1069,3 +1069,17 @@ Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout` y el `Modal
 - QA real: `/tracking/nutrition`, título `Alimentación inteligente - DiabTrack`, carrusel, métricas, tip local, modal, cambio de idea, Escape, F5 y consola limpia.
 - Suite específica: 1 prueba, 20 assertions. Suite completa: 155 pruebas, 1079 assertions, 13.63 s. Build correcto con 675 módulos; `git diff --check` correcto.
 - `resources/views/tracking/nutrition/index.blade.php` permanece hasta Fase 8.
+
+## 45. Nivel 3: Métricas de uso de APIs
+
+Completada el 29 de julio de 2026 reutilizando `AdminLayout`, `DataChart`, `Table` y `Pagination`.
+
+- `GET /admin/api-usage` conserva URL y autorización administrativa, y ahora renderiza `Admin/ApiUsage/Index` mediante Inertia.
+- Se preservaron tokens totales, costo total, llamadas, costo promedio, desglose por proveedor, periodos de 7/30 días y 6 meses, y el registro paginado de llamadas.
+- Las tres visualizaciones usan Chart.js mediante `react-chartjs-2`: tokens comparados por periodo, llamadas por proveedor y costo por proveedor. Los botones de periodo exponen su estado con `aria-pressed`.
+- El controlador mantiene `ApiUsageService` como fuente de los agregados. Los arrays calculados se serializan explícitamente; los logs Eloquent se limitan a los campos necesarios para la tabla.
+- Las pruebas aíslan el servicio porque `getMonthlyStats()` usa `DATE_FORMAT`, propio del MySQL de producción y no disponible en SQLite. El QA real dentro del stack Docker sí ejercitó el servicio y MySQL reales.
+- No se llamó a Claude/Gemini ni se ejecutó generación de tips. Para QA se insertaron dos logs locales controlados, uno por proveedor.
+- QA real: `/admin/api-usage`, título `Uso de APIs - DiabTrack`, cifras agregadas correctas, tres canvas, periodos de 7/30 días y 6 meses, tabla, F5 estable y consola limpia.
+- Suite específica: 2 pruebas, 31 assertions. Suite completa: 157 pruebas, 1110 assertions, 15.23 s. Build correcto con 676 módulos; `git diff --check` correcto.
+- `resources/views/admin/api-usage/index.blade.php` permanece hasta Fase 8.
