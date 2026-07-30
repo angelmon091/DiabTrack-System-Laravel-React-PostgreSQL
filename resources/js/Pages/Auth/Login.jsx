@@ -42,7 +42,7 @@ export default function Login({
                         type="email"
                         value={form.data.email}
                         onChange={(event) => form.setData('email', event.target.value)}
-                        placeholder="Correo electrónico"
+                        placeholder="Correo Electrónico"
                         autoComplete="username"
                         autoFocus
                         required
@@ -80,7 +80,7 @@ export default function Login({
                 </div>
 
                 <SubmitButton processing={form.processing} className="mt-4">
-                    Iniciar sesión
+                    Iniciar Sesión
                 </SubmitButton>
 
                 <div className="relative my-6 text-center">
