@@ -33,7 +33,7 @@ export default function Register({ registerUrl, loginUrl, googleLoginUrl }) {
                         type="text"
                         value={form.data.name}
                         onChange={(event) => form.setData('name', event.target.value)}
-                        placeholder="Nombre completo"
+                        placeholder="Nombre Completo"
                         autoComplete="name"
                         autoFocus
                         required
@@ -46,7 +46,7 @@ export default function Register({ registerUrl, loginUrl, googleLoginUrl }) {
                         type="email"
                         value={form.data.email}
                         onChange={(event) => form.setData('email', event.target.value)}
-                        placeholder="Correo electrónico"
+                        placeholder="Correo Electrónico"
                         autoComplete="username"
                         required
                         error={form.errors.email}
@@ -70,7 +70,7 @@ export default function Register({ registerUrl, loginUrl, googleLoginUrl }) {
                         type="password"
                         value={form.data.password_confirmation}
                         onChange={(event) => form.setData('password_confirmation', event.target.value)}
-                        placeholder="Confirmar contraseña"
+                        placeholder="Confirmar Contraseña"
                         autoComplete="new-password"
                         required
                         error={form.errors.password_confirmation}
@@ -101,7 +101,7 @@ export default function Register({ registerUrl, loginUrl, googleLoginUrl }) {
                 <p className="mt-5 text-center text-sm text-slate-500">
                     ¿Ya tienes una cuenta?{' '}
                     <Link href={loginUrl} className="font-semibold text-cyan-600 hover:text-cyan-700 hover:underline">
-                        Inicia sesión
+                        Inicia Sesión
                     </Link>
                 </p>
             </form>
