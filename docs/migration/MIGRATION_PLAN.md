@@ -251,7 +251,7 @@ Esta tabla usa las 33 pantallas activas del inventario original. Los layouts de 
 | 18 | 2 | Usuarios: listado | `Pages/Admin/Users/Index.jsx` | Completa |
 | 19 | 2 | Usuarios: crear | `Pages/Admin/Users/Create.jsx` | Completa |
 | 20 | 2 | Usuarios: editar | `Pages/Admin/Users/Edit.jsx` | Completa |
-| 21 | 2 | Aprobación de médicos | `Pages/Admin/Doctors/Index.jsx` | Pendiente |
+| 21 | 2 | Aprobación de médicos | `Pages/Admin/Doctors/Index.jsx` | Completa |
 | 22 | 2 | Registrar signos vitales | `Pages/Tracking/Vitals/Create.jsx` | Pendiente |
 | 23 | 2 | Registrar actividad | `Pages/Tracking/Activity/Create.jsx` | Pendiente |
 | 24 | 2 | Registrar nutrición | `Pages/Tracking/Nutrition/Create.jsx` | Pendiente |
