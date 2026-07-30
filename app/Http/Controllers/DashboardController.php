@@ -7,6 +7,7 @@ use App\Models\NutritionLog;
 use App\Models\PatientLink;
 use App\Models\VitalSign;
 use App\Services\DashboardMetricsService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -254,9 +255,30 @@ class DashboardController extends Controller
         $extraMetrics['targetGlucoseMin'] = $targetMin;
         $extraMetrics['targetGlucoseMax'] = $targetMax;
 
-        return view('tracking.summary', array_merge($metrics, $extraMetrics, compact(
-            'vitalsHistory', 'nutritionHistory', 'activityHistory', 'symptomsHistory'
-        )));
+        $symptomFrequency = $symptomsHistory->groupBy('name')->map->count()->sortDesc();
+
+        return Inertia::render('Tracking/Summary', [
+            'metrics' => [
+                'avgGlucose' => $extraMetrics['avgGlucose'], 'timeInRange' => $metrics['tiempoEnRango'],
+                'latestHba1c' => $metrics['ultimaHba1c']['hba1c'] ?? null, 'weight' => $extraMetrics['totalWeight'],
+                'avgSystolic' => $extraMetrics['avgSystolic'], 'avgDiastolic' => $extraMetrics['avgDiastolic'],
+                'avgHeartRate' => $extraMetrics['avgHeartRate'], 'totalCarbs' => $nutritionHistory->sum('carbs_grams'),
+                'activityHours' => round($extraMetrics['totalActivityMinutes'] / 60, 1),
+                'glucoseStatus' => $extraMetrics['glucoseStatus']['label'], 'bpStatus' => $extraMetrics['bpStatus']['label'], 'hrStatus' => $extraMetrics['hrStatus']['label'],
+            ],
+            'charts' => [
+                'glucose' => ['labels' => $metrics['glucosaLabels'], 'values' => $metrics['glucosaData']],
+                'food' => ['labels' => $extraMetrics['foodCategoryLabels'], 'values' => $extraMetrics['foodCategoryData']],
+                'symptoms' => ['labels' => $symptomFrequency->keys()->values(), 'values' => $symptomFrequency->values()],
+                'moments' => ['labels' => $extraMetrics['glucoseByMomentLabels'], 'values' => $extraMetrics['glucoseByMomentData'], 'colors' => $extraMetrics['glucoseByMomentColors'], 'counts' => $extraMetrics['glucoseByMomentCounts'], 'statuses' => $extraMetrics['glucoseByMomentStatuses']],
+            ],
+            'histories' => [
+                'vitals' => $vitalsHistory->map(fn (VitalSign $vital) => ['isoDate' => $vital->created_at->toDateString(), 'date' => $vital->created_at->format('d M, H:i'), 'glucose' => $vital->glucose_level, 'moment' => $vital->measurement_moment, 'pressure' => $vital->systolic && $vital->diastolic ? "{$vital->systolic}/{$vital->diastolic}" : '--', 'heartRate' => $vital->heart_rate, 'weight' => $vital->weight, 'stress' => $vital->stress_level, 'notes' => $vital->notes])->values(),
+                'nutrition' => $nutritionHistory->map(fn (NutritionLog $log) => ['isoDate' => Carbon::parse($log->consumed_at)->toDateString(), 'date' => Carbon::parse($log->consumed_at)->format('d M, H:i'), 'mealType' => $log->meal_type, 'carbs' => $log->carbs_grams, 'categories' => $log->food_categories ?? [], 'medication' => $log->medication_taken])->values(),
+                'activity' => $activityHistory->map(fn (ActivityLog $log) => ['isoDate' => $log->created_at->toDateString(), 'date' => $log->created_at->format('d M'), 'type' => $log->activity_type, 'duration' => $log->duration_minutes, 'intensity' => $log->intensity, 'energy' => $log->energy_level])->values(),
+                'symptoms' => $symptomsHistory->map(fn ($log) => ['isoDate' => Carbon::parse($log->logged_at)->toDateString(), 'date' => Carbon::parse($log->logged_at)->format('d M'), 'name' => $log->name, 'category' => $log->category, 'time' => Carbon::parse($log->logged_at)->format('H:i')])->values(),
+            ],
+        ]);
     }
 
     /**

@@ -1042,3 +1042,16 @@ Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout`, `ChartCard
 - QA real: `/dashboard`, título `Dashboard - DiabTrack`, canvas presente, tip local, métricas, tabla, peso, código médico, flash, F5 y consola final sin errores.
 - Suite específica: 4 pruebas, 47 assertions. Suite completa: 153 pruebas, 1035 assertions, 13.92 s. Build correcto con 672 módulos; `git diff --check` correcto.
 - `resources/views/dashboard.blade.php` permanece hasta Fase 8.
+
+## 43. Nivel 3: Resumen de salud
+
+Completada el 29 de julio de 2026 con `AuthenticatedLayout`, `DataChart`, `Table` y estado React para pestañas, filtros y paginación.
+
+- `GET /tracking/summary` conserva URL y los cálculos existentes del controlador, y ahora renderiza `Tracking/Summary` mediante Inertia con historiales explícitamente serializados.
+- Se preservaron promedios de glucosa, presión y pulso, tiempo en rango, HbA1c, peso, carbohidratos, medicación, actividad, síntomas y clasificaciones clínicas.
+- Se migraron las cuatro visualizaciones: tendencia semanal lineal, composición nutricional en dona, frecuencia de síntomas y glucosa promedio por momento. Los datasets, colores clínicos y estados vacíos permanecen derivados del backend.
+- Las pestañas Bootstrap y funciones inline se reemplazaron por `useState`; el periodo de 7/30/90 días y todo el historial se filtran en React. La paginación cliente conserva ocho filas por página.
+- No se ejecutó generación de IA ni solicitudes externas; la prueba usa `Http::fake()` y confirma cero llamadas.
+- QA real: `/tracking/summary`, título `Resumen de salud - DiabTrack`, tres canvas con los datos disponibles y estado vacío para síntomas, pestañas de nutrición/actividad, filtro de siete días, tablas correctas, F5 estable y consola limpia.
+- Suite específica: 1 prueba, 24 assertions. Suite completa: 154 pruebas, 1059 assertions, 13.55 s. Build correcto con 674 módulos; `git diff --check` correcto.
+- `resources/views/tracking/summary.blade.php` permanece hasta Fase 8.
