@@ -1,8 +1,10 @@
 import { Head, Link, useForm } from '@inertiajs/react';
+import UserCog from 'lucide-react/dist/esm/icons/user-cog.mjs';
 
 import FormError from '../../Components/FormError';
 import FormInput from '../../Components/FormInput';
 import FormSelect from '../../Components/FormSelect';
+import OnboardingHeader from '../../Components/OnboardingHeader';
 import SubmitButton from '../../Components/SubmitButton';
 import GuestLayout from '../../Layouts/GuestLayout';
 
@@ -37,10 +39,7 @@ export default function PatientData({
         <GuestLayout>
             <Head title="Datos personales" />
 
-            <div className="mb-8 text-center">
-                <h2 className="text-3xl font-extrabold text-cyan-600">Datos personales</h2>
-                <p className="mt-2 text-sm text-slate-500">Completa tu perfil para una mejor experiencia.</p>
-            </div>
+            <OnboardingHeader icon={UserCog} title="Datos Personales" description="Completa tu perfil para una mejor experiencia." />
 
             <form onSubmit={submit} noValidate data-testid="patient-data-form" className="space-y-5">
                 <fieldset>
@@ -81,11 +80,7 @@ export default function PatientData({
                     <FormError message={form.errors.gender} />
                 </fieldset>
 
-                <SubmitButton processing={form.processing}>Registrar datos</SubmitButton>
-
-                <p className="text-center text-sm">
-                    <Link href={backUrl} className="font-semibold text-slate-500 hover:text-cyan-600">Volver a selección de rol</Link>
-                </p>
+                <SubmitButton processing={form.processing}>Registrar Datos</SubmitButton>
             </form>
         </GuestLayout>
     );
