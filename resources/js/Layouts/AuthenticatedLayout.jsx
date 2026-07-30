@@ -100,12 +100,12 @@ export default function AuthenticatedLayout({ children }) {
             </div>
         </header>
 
-        {(flash?.success || flash?.status || flash?.error) && <div className="mx-auto w-full max-w-7xl space-y-3 px-4 pt-4 sm:px-6 lg:px-8">
+        {(flash?.success || flash?.status || flash?.error) && <div className="w-full space-y-3 px-4 pt-4 sm:px-6 md:px-8 xl:px-12">
             <Alert>{flash?.success || flashMessages[flash?.status] || flash?.status}</Alert>
             <Alert tone="error">{flash?.error}</Alert>
         </div>}
 
-        <main className="mx-auto min-h-[calc(100vh-62px)] w-full min-w-0 max-w-7xl flex-1 px-4 py-8 pb-24 sm:px-6 md:min-h-[calc(100vh-72px)] md:pb-8 lg:px-8">
+        <main className="min-h-[calc(100vh-62px)] w-full min-w-0 flex-1 px-4 py-8 pb-24 sm:px-6 md:min-h-[calc(100vh-72px)] md:px-8 md:pb-8 xl:px-12">
             {children}
         </main>
 
