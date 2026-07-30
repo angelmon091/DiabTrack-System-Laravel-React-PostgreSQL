@@ -543,7 +543,7 @@ Se crearon `GuestLayout`, `BrandMark`, `FormInput`, `FormSelect`, `FormError`, `
 | Fase 5: migración incremental | Completada, 33 de 33 páginas activas migradas |
 | Fase 6: formularios y estado | Completada/transversal |
 | Fase 7: testing | Completada/transversal; limpieza final de selectores Blade reservada para Fase 8 |
-| Fase 8: limpieza y cierre | Pendiente |
+| Fase 8: limpieza y cierre | Completada; conservadas únicamente la raíz Inertia y cinco plantillas Blade de correo |
 
 ## 13. Nivel 1: Login
 
@@ -1098,3 +1098,16 @@ Completado el 29 de julio de 2026 sobre `AuthenticatedLayout`, `GlobalSearch` y 
 - No se ejecutó `app:generate-daily-tips` ni se realizaron solicitudes a Claude/Gemini durante ninguna prueba del Nivel 3.
 - Suite transversal específica final: 7 pruebas, 28 assertions. Suite completa final: 161 pruebas, 1130 assertions, 19.78 s. Build Vite 8.1.5 correcto con 676 módulos; el diagnóstico de tiempos indicó únicamente que el plugin de Laravel concentró 83% del trabajo del build. Auditoría npm de producción con cero vulnerabilidades; `git diff --check` correcto.
 - Con este gate quedan completadas todas las pantallas y comportamientos transversales del Nivel 3. La limpieza de Blade y JS legacy continúa reservada para Fase 8.
+
+## 47. Fase 8: limpieza y cierre final
+
+Completada el 29 de julio de 2026 después de migrar las 33 pantallas activas.
+
+- Se eliminaron 64 archivos Blade legacy: las 33 pantallas migradas, dos vistas de detalle con rutas muertas, layouts, partials y componentes sin consumidores.
+- `resources/views` conserva exclusivamente `app.blade.php` como raíz mínima de Inertia y las cinco plantillas Blade de correo excluidas del alcance.
+- Se eliminaron las clases Breeze `AppLayout` y `GuestLayout`, la entrada `resources/js/app.js` y la dependencia Alpine.js. La búsqueda final no encontró rastros de Alpine.js, Bootstrap JS ni SweetAlert2 en el código restante.
+- El frontend final contiene 33 páginas React y usa Inertia.js, React 19, Tailwind CSS 3.4 y Chart.js mediante `react-chartjs-2`.
+- Gate definitivo: 161 pruebas, 1130 assertions, cero fallos, 14.35 s; build Vite correcto con 674 módulos; `npm audit` con cero vulnerabilidades.
+- El Dockerfile se verificó con un build completo sin caché. La etapa Node ejecutó `npm ci` y compiló los 674 módulos; la imagen PHP instaló Composer de producción, incorporó RoadRunner 2025.1.15 y copió correctamente `public/build`.
+- La inspección dentro de la imagen confirmó el manifiesto de Vite, 85 líneas de rutas sin dependencias vendor y exactamente seis Blade: raíz Inertia más cinco correos.
+- QA visual final correcto en Welcome, Login, Usuarios administrativos, Dashboard del paciente y Resumen de salud.

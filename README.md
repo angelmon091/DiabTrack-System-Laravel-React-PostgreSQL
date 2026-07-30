@@ -1,63 +1,57 @@
-# DiabTrack - Sistema de Gestión de Salud para la Diabetes
+# DiabTrack
 
-[![Production](https://img.shields.io/badge/Production-diabtrack.app-blue?style=flat-square)](https://diabtrack.app)
-[![Framework](https://img.shields.io/badge/Framework-Laravel%2013-red?style=flat-square)](https://laravel.com)
-[![PHP](https://img.shields.io/badge/PHP-8.3-777BB4?style=flat-square)](https://php.net)
-[![Infrastructure](https://img.shields.io/badge/Infrastructure-Docker-2496ED?style=flat-square)](https://docker.com)
+DiabTrack es una plataforma para el monitoreo integral de la diabetes. Permite a pacientes, médicos y cuidadores gestionar indicadores glucémicos, nutrición, actividad física y signos vitales, con superficies administrativas para roles, usuarios, aprobación médica y métricas de uso de APIs.
 
-DiabTrack es una plataforma profesional diseñada para el monitoreo integral de la diabetes. Permite a pacientes, médicos y cuidadores gestionar indicadores glucémicos, nutrición, actividad física y signos vitales en un entorno seguro y centralizado.
+## Arquitectura
 
----
+La aplicación mantiene un backend monolítico Laravel y una capa de presentación React servida mediante Inertia.js.
 
-## 🏗️ Arquitectura del Proyecto
+- Backend: Laravel 13, PHP 8.4, Eloquent, Policies, middleware y validación en servidor.
+- Frontend: React 19 con componentes funcionales y hooks, Inertia.js y Tailwind CSS 3.4.
+- Gráficas: Chart.js mediante `react-chartjs-2`.
+- Base de datos: MySQL.
+- Cache: Redis.
+- Servidor: Laravel Octane con RoadRunner.
+- Bundler: Vite.
+- Correo transaccional: Resend.
+- Infraestructura: Docker y Docker Compose.
 
-DiabTrack utiliza una **Arquitectura Monolítica** basada en el patrón de diseño **MVC (Modelo-Vista-Controlador)**. Esta estructura permite un desarrollo cohesivo donde el frontend y el backend coexisten para facilitar el despliegue y la consistencia de los datos.
+Las páginas se encuentran en `resources/js/Pages`, los componentes compartidos en `resources/js/Components` y los layouts React en `resources/js/Layouts`. `resources/views/app.blade.php` es exclusivamente la plantilla raíz de Inertia. Las cinco plantillas bajo `resources/views/emails` permanecen en Blade para renderizado de correo en servidor.
 
-### 🧩 El Patrón MVC en DiabTrack:
+## Desarrollo local
 
-*   **Modelos (`app/Models/`):** Gestionan la lógica de datos y las reglas de negocio. Representan las entidades del sistema como `User`, `PatientProfile`, `VitalSign`, `NutritionLog`, etc.
-*   **Vistas (`resources/views/`):** La interfaz de usuario construida con el motor de plantillas **Blade**. Está organizada por módulos (Admin, Paciente, Médico, Cuidador) para ofrecer una experiencia personalizada según el rol.
-*   **Controladores (`app/Http/Controllers/`):** Actúan como intermediarios, procesando las solicitudes del usuario, interactuando con los modelos y devolviendo las vistas correspondientes.
+```bash
+docker compose up -d app
+npm install
+npm run build
+docker compose exec app php artisan test
+```
 
-### 🛠️ Capas Adicionales:
-*   **Service Layer (`app/Services/`):** Implementamos servicios como `DashboardMetricsService` para manejar cálculos complejos de salud fuera de los controladores, siguiendo el principio de responsabilidad única.
-*   **Middleware (`app/Http/Middleware/`):** Capas de seguridad y control de flujo que gestionan el acceso por roles y aseguran que el proceso de *onboarding* se complete.
+Los comandos de Composer, Artisan y PHPUnit/Pest deben ejecutarse dentro del contenedor `app` para evitar diferencias entre el PHP del host y el entorno del proyecto.
 
----
+Después de modificar controladores o middleware bajo Octane:
 
-## 🚀 Stack Tecnológico
+```bash
+docker compose exec app php artisan octane:reload
+```
 
-### Backend
-*   **Lenguaje:** PHP 8.3 con tipado estricto.
-*   **Framework:** [Laravel 13](https://laravel.com).
-*   **Autenticación:** Laravel Breeze y Socialite (Google OAuth).
-*   **Comunicaciones:** Resend API para correos transaccionales.
+## Funcionalidades principales
 
-### Frontend
-*   **Estilos:** [Tailwind CSS](https://tailwindcss.com) (Moderno, responsivo y optimizado).
-*   **Bundler:** [Vite](https://vitejs.dev) para una compilación ultra rápida de assets.
-*   **Plantillas:** Blade (Laravel native).
-*   **Gráficos:** Chart.js para visualización de tendencias glucémicas.
+- Registro, autenticación, verificación de correo y recuperación de contraseña.
+- Onboarding diferenciado por perfil.
+- Captura de glucosa, presión arterial, peso, estrés, nutrición, síntomas y actividad física.
+- Dashboards para pacientes, médicos y cuidadores.
+- Vinculación controlada entre pacientes, médicos y cuidadores.
+- Administración de usuarios, roles y aprobación médica.
+- Resúmenes clínicos y visualizaciones históricas.
+- Métricas administrativas de proveedores de IA.
 
-### Infraestructura y Base de Datos
-*   **Contenedores:** [Docker](https://www.docker.com) (Configuraciones para Desarrollo y Producción).
-*   **Base de Datos:** MySQL 8.0 optimizada con índices para series temporales de salud.
+## Verificación
 
----
+```bash
+docker compose exec app php artisan test
+npm run build
+npm audit
+```
 
-## 🔑 Funcionalidades Principales
-
-*   **Multi-Rol:** Interfaces específicas para Pacientes, Médicos, Cuidadores y Administradores.
-*   **Seguimiento Integral:** Registro de glucosa, presión arterial, peso, estrés, nutrición y actividad física.
-*   **Análisis de Datos:** Cálculo automático de promedios, estimación de A1c y cumplimiento de metas.
-*   **Onboarding Guiado:** Proceso paso a paso para configurar perfiles de salud detallados.
-
----
-
-## 🛡️ Seguridad
-*   Protección contra CSRF, XSS e inyección SQL nativa de Laravel.
-*   Gestión de permisos basada en roles (RBAC).
-*   Encriptación de datos sensibles.
-
----
-© 2026 DiabTrack App. Desarrollo profesional para el control de la salud.
+La documentación de la migración Blade a React/Inertia se encuentra en `docs/migration`.
