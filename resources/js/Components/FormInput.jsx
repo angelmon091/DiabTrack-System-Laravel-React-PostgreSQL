@@ -6,6 +6,7 @@ export default function FormInput({
     error,
     className = '',
     inputClassName = '',
+    icon: Icon,
     required = false,
     ...inputProps
 }) {
@@ -23,16 +24,19 @@ export default function FormInput({
                 </label>
             )}
 
-            <input
-                {...inputProps}
-                id={id}
-                required={required}
-                aria-invalid={Boolean(error)}
-                aria-describedby={errorId}
-                className={`w-full rounded-2xl border bg-cyan-50 px-4 py-3 text-[0.95rem] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 disabled:cursor-not-allowed disabled:opacity-60 ${
-                    error ? 'border-red-400' : 'border-cyan-500/20'
-                } ${inputClassName}`}
-            />
+            <div className="relative">
+                <input
+                    {...inputProps}
+                    id={id}
+                    required={required}
+                    aria-invalid={Boolean(error)}
+                    aria-describedby={errorId}
+                    className={`w-full rounded-2xl border bg-cyan-50 px-4 py-3 text-[0.95rem] text-slate-700 outline-none transition placeholder:text-slate-400 focus:border-cyan-500 focus:ring-4 focus:ring-cyan-500/10 disabled:cursor-not-allowed disabled:opacity-60 ${Icon ? 'pr-11' : ''} ${
+                        error ? 'border-red-400' : 'border-cyan-500/20'
+                    } ${inputClassName}`}
+                />
+                {Icon && <Icon aria-hidden="true" size={17} strokeWidth={1.9} className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-slate-500" />}
+            </div>
 
             <FormError id={errorId} message={error} />
         </div>

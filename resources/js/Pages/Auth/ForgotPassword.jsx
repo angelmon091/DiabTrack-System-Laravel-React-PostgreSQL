@@ -1,4 +1,5 @@
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import Mail from 'lucide-react/dist/esm/icons/mail.mjs';
 
 import AuthSessionStatus from '../../Components/AuthSessionStatus';
 import FormInput from '../../Components/FormInput';
@@ -29,21 +30,22 @@ export default function ForgotPassword({ passwordEmailUrl, loginUrl }) {
                     type="email"
                     value={form.data.email}
                     onChange={(event) => form.setData('email', event.target.value)}
-                    placeholder="Correo electrónico"
+                    placeholder="Correo Electrónico"
                     autoComplete="username"
                     autoFocus
                     required
                     error={form.errors.email}
+                    icon={Mail}
                 />
 
                 <SubmitButton processing={form.processing} className="mt-4">
-                    Enviar enlace
+                    Enviar Enlace
                 </SubmitButton>
 
                 <p className="mt-5 text-center text-sm text-slate-500">
                     ¿Recordaste tu contraseña?{' '}
                     <Link href={loginUrl} className="font-semibold text-cyan-600 hover:text-cyan-700 hover:underline">
-                        Inicia sesión
+                        Inicia Sesión
                     </Link>
                 </p>
             </form>
