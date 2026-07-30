@@ -71,15 +71,16 @@ export default function AuthenticatedLayout({ children }) {
 
     return <div className="flex min-h-screen min-w-0 flex-col overflow-x-clip bg-slate-50 text-slate-800">
         <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/95 shadow-[0_2px_8px_rgba(15,23,42,0.08)] backdrop-blur">
-            <div className="flex h-[62px] min-w-0 items-center gap-3 px-5 md:h-[72px] md:px-8 xl:px-12">
-                <Link href={navigation.dashboardUrl} className="shrink-0 no-underline" aria-label="Ir al inicio"><Brand /></Link>
-
-                {isPatient && navigation.searchUrl && <GlobalSearch searchUrl={navigation.searchUrl} />}
-                <div className="ml-auto hidden md:block">
+            <div className="flex h-[62px] min-w-0 items-center gap-3 px-5 md:grid md:h-[72px] md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:gap-4 md:px-8 xl:px-12">
+                <div className="flex min-w-0 items-center">
+                    <Link href={navigation.dashboardUrl} className="shrink-0 no-underline" aria-label="Ir al inicio"><Brand /></Link>
+                    {isPatient && navigation.searchUrl && <GlobalSearch searchUrl={navigation.searchUrl} />}
+                </div>
+                <div className="hidden md:block">
                     {isPatient && <PatientNavigation currentPath={currentPath} navigation={navigation} />}
                 </div>
 
-                <div className="ml-auto flex min-w-0 shrink-0 items-center gap-3 md:ml-4">
+                <div className="ml-auto flex min-w-0 shrink-0 items-center gap-3 md:ml-0 md:justify-self-end">
                     <NotificationMenu notifications={notifications} navigation={navigation} />
                     <div className="flex h-[46px] min-w-0 items-center rounded-full border border-slate-200 bg-white py-1 pl-3 pr-2 shadow-sm">
                         <div className="mr-3 hidden max-w-[220px] text-right xl:block">
