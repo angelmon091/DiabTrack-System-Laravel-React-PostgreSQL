@@ -1027,3 +1027,18 @@ Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout`, `ChartCard
 - QA real: `/doctor` y `/doctor?patient_id=45`, título `Panel médico - DiabTrack`, canvas presente, métricas, tabla, límites del formulario, actualización exitosa, F5 y consola final sin errores.
 - Suite específica: 3 pruebas, 38 assertions. Suite completa: 150 pruebas, 989 assertions, 13.80 s. Build correcto con 671 módulos; `git diff --check` correcto.
 - `resources/views/doctor/dashboard.blade.php` permanece hasta Fase 8.
+
+## 42. Nivel 3: Dashboard principal del paciente
+
+Completada el 29 de julio de 2026 reutilizando `AuthenticatedLayout`, `ChartCard`, `Table` y formularios compartidos.
+
+- `GET /dashboard` conserva todas las redirecciones por rol/onboarding y ahora renderiza `Dashboard` mediante Inertia para pacientes.
+- Se preservaron glucosa y clasificación clínica, tendencia semanal, HbA1c, calorías, carbohidratos, actividad, tiempo en rango, pasos, síntomas, objetivos, peso mensual, registros recientes y tip diario.
+- El tip de QA se insertó directamente como `DailyTip` aprobado. No se ejecutó el job `app:generate-daily-tips` ni se llamó a Claude/Gemini; una prueba con `Http::fake()` confirma ausencia de solicitudes externas.
+- Peso conserva validación 20–350 kg y actualización simultánea del perfil sin alterar la medición previa. QA guardó 72.5 kg, retiró el recordatorio y mostró flash.
+- El código de vinculación conserva roles `caregiver`/`doctor`, invalida códigos pendientes anteriores y muestra el nuevo código de seis caracteres. El QA detectó la respuesta JSON legacy incompatible con una petición Inertia; al no existir ya otro consumidor, se retiró esa rama y se añadió una prueba de regresión.
+- También se corrigió el selector React para usar opciones hijas reales de `FormSelect`; el control quedó navegable y seleccionable.
+- Se actualizó la prueba Blade obsoleta del distintivo IA para validar `tip.isAi` y `tip.text` en las props Inertia.
+- QA real: `/dashboard`, título `Dashboard - DiabTrack`, canvas presente, tip local, métricas, tabla, peso, código médico, flash, F5 y consola final sin errores.
+- Suite específica: 4 pruebas, 47 assertions. Suite completa: 153 pruebas, 1035 assertions, 13.92 s. Build correcto con 672 módulos; `git diff --check` correcto.
+- `resources/views/dashboard.blade.php` permanece hasta Fase 8.

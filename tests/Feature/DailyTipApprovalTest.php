@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\DashboardMetricsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class DailyTipApprovalTest extends TestCase
@@ -95,12 +96,9 @@ class DailyTipApprovalTest extends TestCase
             'ultimaHba1c' => null,
         ], 300);
 
-        $response = $this->actingAs($patient)->get(route('dashboard'));
-
-        $response->assertOk();
-        $response->assertSee('✦ IA', false);
-        $response->assertSee($tipText, false);
-        $response->assertDontSee('Tip viejo en caché que no debería mostrarse', false);
+        $this->withoutVite();
+        $this->actingAs($patient)->get(route('dashboard'))->assertInertia(fn (Assert $page) => $page
+            ->component('Dashboard')->where('tip.isAi', true)->where('tip.text', $tipText));
     }
 
     public function test_daily_tip_can_be_persisted_with_approved_status(): void
