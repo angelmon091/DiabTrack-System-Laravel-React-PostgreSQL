@@ -1,4 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
+import LockKeyhole from 'lucide-react/dist/esm/icons/lock-keyhole.mjs';
 
 import FormInput from '../../Components/FormInput';
 import SubmitButton from '../../Components/SubmitButton';
@@ -38,6 +39,7 @@ export default function ConfirmPassword({ confirmPasswordUrl }) {
                     autoFocus
                     required
                     error={form.errors.password}
+                    icon={LockKeyhole}
                 />
 
                 <SubmitButton processing={form.processing} className="mt-4">
