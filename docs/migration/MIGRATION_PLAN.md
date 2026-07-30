@@ -88,6 +88,17 @@
 - NINGUNA pantalla se marca como QA visual aprobado sin una captura de pantalla
   real comparada contra producción, guardada en `docs/migration/qa-visual/`. Un
   reporte de texto describiendo que "se ve bien" no es evidencia suficiente.
+- Ante cualquier duda visual, revisar primero el Blade y CSS originales. Si la
+  implementación React no coincide, corregirla de forma autónoma con base en esa
+  evidencia; no introducir reinterpretaciones o rediseños libres.
+- Para cada pantalla y layout corregido, guardar evidencia desktop `1920x1080`
+  y móvil `390x844` contra `localhost:8081` en `docs/migration/qa-visual/`.
+  Solo crear el commit atómico cuando estructura, colores, iconos y espaciado
+  sean reconocibles como la misma pantalla y tests/build permanezcan en verde.
+- La corrección visual continúa autónomamente en el orden del inventario y se
+  reporta de forma consolidada al cerrar cada Nivel. Solo se detiene por una
+  ambigüedad no resoluble desde el original, un problema arquitectónico que
+  exija propagación retroactiva, o una falla de tests/build sin causa evidente.
 
 ### Protocolo de ejecución en lote
 
