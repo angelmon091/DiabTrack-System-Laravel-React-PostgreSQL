@@ -35,7 +35,7 @@ export default function ResetPassword({ token, email, passwordStoreUrl }) {
                         type="email"
                         value={form.data.email}
                         onChange={(event) => form.setData('email', event.target.value)}
-                        placeholder="Correo electrónico"
+                        placeholder="Correo Electrónico"
                         autoComplete="username"
                         required
                         readOnly
@@ -49,7 +49,7 @@ export default function ResetPassword({ token, email, passwordStoreUrl }) {
                         type="password"
                         value={form.data.password}
                         onChange={(event) => form.setData('password', event.target.value)}
-                        placeholder="Nueva contraseña"
+                        placeholder="Nueva Contraseña"
                         autoComplete="new-password"
                         autoFocus
                         required
@@ -62,7 +62,7 @@ export default function ResetPassword({ token, email, passwordStoreUrl }) {
                         type="password"
                         value={form.data.password_confirmation}
                         onChange={(event) => form.setData('password_confirmation', event.target.value)}
-                        placeholder="Confirmar nueva contraseña"
+                        placeholder="Confirmar Nueva Contraseña"
                         autoComplete="new-password"
                         required
                         error={form.errors.password_confirmation}
@@ -70,7 +70,7 @@ export default function ResetPassword({ token, email, passwordStoreUrl }) {
                 </div>
 
                 <SubmitButton processing={form.processing} className="mt-4">
-                    Restablecer contraseña
+                    Restablecer Contraseña
                 </SubmitButton>
             </form>
         </GuestLayout>
