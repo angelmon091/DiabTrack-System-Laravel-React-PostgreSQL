@@ -256,7 +256,7 @@ Esta tabla usa las 33 pantallas activas del inventario original. Los layouts de 
 | 23 | 2 | Registrar actividad | `Pages/Tracking/Activity/Create.jsx` | Completa |
 | 24 | 2 | Registrar nutrición | `Pages/Tracking/Nutrition/Create.jsx` | Completa |
 | 25 | 2 | Registrar síntomas | `Pages/Tracking/Symptoms/Create.jsx` | Completa |
-| 26 | 2 | Registrar vital de paciente como cuidador | `Pages/Caregiver/Tracking/Vitals/Create.jsx` | Pendiente |
+| 26 | 2 | Registrar vital de paciente como cuidador | `Pages/Caregiver/Tracking/Vitals/Create.jsx` | Completa |
 | 27 | 2 | Editar perfil | `Pages/Profile/Edit.jsx` | Pendiente |
 | 28 | 3 | Dashboard de cuidador | `Pages/Caregiver/Dashboard.jsx` | Pendiente |
 | 29 | 3 | Dashboard de médico | `Pages/Doctor/Dashboard.jsx` | Pendiente |
