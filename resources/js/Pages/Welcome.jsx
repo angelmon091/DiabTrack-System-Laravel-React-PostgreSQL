@@ -1,4 +1,10 @@
 import { Head, Link, usePage } from '@inertiajs/react';
+import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3.mjs';
+import ChevronDown from 'lucide-react/dist/esm/icons/chevron-down.mjs';
+import Cpu from 'lucide-react/dist/esm/icons/cpu.mjs';
+import HeartPulse from 'lucide-react/dist/esm/icons/heart-pulse.mjs';
+import Menu from 'lucide-react/dist/esm/icons/menu.mjs';
+import X from 'lucide-react/dist/esm/icons/x.mjs';
 import { useState } from 'react';
 
 import BrandMark from '../Components/BrandMark';
@@ -8,34 +14,24 @@ const features = [
         title: 'Gestión de datos',
         description: 'Centraliza toda tu información de salud en un solo lugar seguro y accesible.',
         accent: 'bg-cyan-100 text-cyan-600',
-        icon: 'chart',
+        icon: BarChart3,
     },
     {
         title: 'Análisis con IA',
         description: 'Recibe información valiosa procesada por inteligencia artificial sobre tus hábitos.',
         accent: 'bg-emerald-100 text-emerald-600',
-        icon: 'processor',
+        icon: Cpu,
     },
     {
         title: 'Consejos vitales',
         description: 'Recomendaciones personalizadas basadas en tu monitoreo diario y necesidades.',
         accent: 'bg-amber-100 text-amber-600',
-        icon: 'heart',
+        icon: HeartPulse,
     },
 ];
 
-function FeatureIcon({ type }) {
-    const paths = {
-        chart: <path d="M5 19V9m7 10V5m7 14v-7M3 21h18" />,
-        processor: <path d="M9 3v3m6-3v3M9 18v3m6-3v3M3 9h3m-3 6h3m12-6h3m-3 6h3M7 7h10v10H7z" />,
-        heart: <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1.1L12 21l7.8-7.5 1.1-1.1a5.5 5.5 0 0 0-.1-7.8Z" />,
-    };
-
-    return (
-        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-8 w-8">
-            {paths[type]}
-        </svg>
-    );
+function FeatureIcon({ icon: Icon }) {
+    return <Icon aria-hidden="true" size={32} strokeWidth={2} />;
 }
 
 export default function Welcome({ homeUrl, loginUrl, registerUrl, dashboardUrl, ogImageUrl, year }) {
@@ -75,9 +71,7 @@ export default function Welcome({ homeUrl, loginUrl, registerUrl, dashboardUrl, 
                         onClick={() => setMenuOpen((open) => !open)}
                     >
                         <span className="sr-only">Abrir navegación</span>
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-6 w-6">
-                            <path d={menuOpen ? 'M6 6l12 12M18 6 6 18' : 'M4 7h16M4 12h16M4 17h16'} />
-                        </svg>
+                        {menuOpen ? <X aria-hidden="true" size={24} /> : <Menu aria-hidden="true" size={24} />}
                     </button>
 
                     <div
@@ -127,9 +121,7 @@ export default function Welcome({ homeUrl, loginUrl, registerUrl, dashboardUrl, 
                         </div>
                     </div>
                     <a href="#features" className="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/80" aria-label="Ir a características">
-                        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-8 w-8">
-                            <path d="m6 9 6 6 6-6" />
-                        </svg>
+                        <ChevronDown aria-hidden="true" size={32} />
                     </a>
                 </section>
 
@@ -146,7 +138,7 @@ export default function Welcome({ homeUrl, loginUrl, registerUrl, dashboardUrl, 
                             {features.map((feature) => (
                                 <article key={feature.title} className="rounded-3xl border border-slate-200 bg-white p-8 text-center shadow-sm">
                                     <div className={`mx-auto flex h-16 w-16 items-center justify-center rounded-2xl ${feature.accent}`}>
-                                        <FeatureIcon type={feature.icon} />
+                                        <FeatureIcon icon={feature.icon} />
                                     </div>
                                     <h3 className="mt-6 text-xl font-bold">{feature.title}</h3>
                                     <p className="mt-3 leading-7 text-slate-600">{feature.description}</p>
