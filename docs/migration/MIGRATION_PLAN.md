@@ -23,6 +23,10 @@
   pero nunca importarse ni consumirse como dependencias reales del bundle React.
   Esta regla aplica a `AuthenticatedLayout`, `AdminLayout`, `GuestLayout` y a
   todas las pantallas corregidas posteriormente.
+- Los iconos de `lucide-react` se importan siempre desde su submódulo directo
+  (`lucide-react/dist/esm/icons/<icono>.mjs`, o el subpath equivalente soportado
+  por la versión instalada), nunca desde el índice general `lucide-react`. Esto
+  evita que Vite recorra el catálogo completo de iconos durante cada build.
 
 ### Alcance y lógica de negocio
 

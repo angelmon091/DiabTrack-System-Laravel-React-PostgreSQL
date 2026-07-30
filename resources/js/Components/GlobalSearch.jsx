@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { Search } from 'lucide-react';
+import Search from 'lucide-react/dist/esm/icons/search.mjs';
 import { useEffect, useRef, useState } from 'react';
 
 export default function GlobalSearch({ searchUrl }) {

@@ -1,5 +1,10 @@
 import { router } from '@inertiajs/react';
-import { Bell, BellOff, CheckCheck, Sparkles, Trash2, X } from 'lucide-react';
+import Bell from 'lucide-react/dist/esm/icons/bell.mjs';
+import BellOff from 'lucide-react/dist/esm/icons/bell-off.mjs';
+import CheckCheck from 'lucide-react/dist/esm/icons/check-check.mjs';
+import Sparkles from 'lucide-react/dist/esm/icons/sparkles.mjs';
+import Trash2 from 'lucide-react/dist/esm/icons/trash-2.mjs';
+import X from 'lucide-react/dist/esm/icons/x.mjs';
 import { useEffect, useRef, useState } from 'react';
 
 export default function NotificationMenu({ notifications, navigation }) {

@@ -1,5 +1,9 @@
 import { Link, useForm, usePage } from '@inertiajs/react';
-import { BarChart3, CircleUserRound, Home, LogOut, Plus } from 'lucide-react';
+import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3.mjs';
+import CircleUserRound from 'lucide-react/dist/esm/icons/circle-user-round.mjs';
+import Home from 'lucide-react/dist/esm/icons/home.mjs';
+import LogOut from 'lucide-react/dist/esm/icons/log-out.mjs';
+import Plus from 'lucide-react/dist/esm/icons/plus.mjs';
 
 import Alert from '../Components/Alert';
 import GlobalSearch from '../Components/GlobalSearch';
