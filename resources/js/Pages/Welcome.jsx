@@ -8,6 +8,7 @@ import X from 'lucide-react/dist/esm/icons/x.mjs';
 import { useState } from 'react';
 
 import BrandMark from '../Components/BrandMark';
+import SocialLinks from '../Components/SocialLinks';
 
 const features = [
     {
@@ -157,18 +158,21 @@ export default function Welcome({ homeUrl, loginUrl, registerUrl, dashboardUrl, 
                 </section>
             </main>
 
-            <footer id="footer" className="bg-slate-950 px-4 py-12 text-slate-300 sm:px-8">
+            <footer id="footer" className="border-t border-slate-200 bg-white px-4 py-12 text-slate-600 sm:px-8">
                 <div className="mx-auto grid max-w-6xl gap-8 text-center md:grid-cols-3 md:items-center md:text-left">
                     <div>
-                        <BrandMark className="text-3xl text-white" />
-                        <p className="mt-2 text-sm text-slate-400">Tu compañero inteligente en el cuidado de la diabetes.</p>
+                        <BrandMark className="text-3xl" />
+                        <p className="mt-2 text-sm text-slate-500">Tu compañero inteligente en el cuidado de la diabetes.</p>
                     </div>
                     <nav className="flex justify-center gap-4 text-sm" aria-label="Información legal">
-                        <a href="#" className="hover:text-cyan-300">Privacidad</a>
-                        <a href="#" className="hover:text-cyan-300">Términos</a>
-                        <a href="#" className="hover:text-cyan-300">Soporte</a>
+                        <a href="#" className="hover:text-cyan-600">Privacidad</a>
+                        <a href="#" className="hover:text-cyan-600">Términos</a>
+                        <a href="#" className="hover:text-cyan-600">Soporte</a>
                     </nav>
-                    <p className="text-sm text-slate-400 md:text-right">© {year} DiabTrack. Todos los derechos reservados.</p>
+                    <div className="flex flex-col items-center gap-3 md:items-end">
+                        <SocialLinks networks={['Instagram', 'Facebook', 'Twitter']} linkClassName="text-slate-500 transition hover:text-cyan-600" />
+                        <p className="text-sm text-slate-500">© {year} DiabTrack. Todos los derechos reservados.</p>
+                    </div>
                 </div>
             </footer>
         </div>

@@ -225,6 +225,50 @@ resources/js/
 
 Los componentes se crearán cuando tengan al menos dos consumidores conocidos o cuando sean infraestructura transversal. Los bloques exclusivos de una página permanecerán locales si extraerlos no aporta reutilización o legibilidad clara.
 
+## Estado de corrección visual de las 33 pantallas
+
+Esta tabla usa las 33 pantallas activas del inventario original. Los layouts de infraestructura no se contabilizan como pantallas. `Completa` exige comparación real contra la versión de producción en escritorio y móvil, con evidencia guardada en `docs/migration/qa-visual/`.
+
+| Orden | Nivel | Pantalla | Página React | Corrección visual |
+|---:|---:|---|---|---|
+| 1 | 1 | Login | `Pages/Auth/Login.jsx` | Completa |
+| 2 | 1 | Registro | `Pages/Auth/Register.jsx` | Completa |
+| 3 | 1 | Solicitar restablecimiento | `Pages/Auth/ForgotPassword.jsx` | Completa |
+| 4 | 1 | Restablecer contraseña | `Pages/Auth/ResetPassword.jsx` | Completa |
+| 5 | 1 | Confirmar contraseña | `Pages/Auth/ConfirmPassword.jsx` | Completa |
+| 6 | 1 | Verificar correo por código | `Pages/Auth/VerifyEmail.jsx` | Completa |
+| 7 | 1 | Landing pública | `Pages/Welcome.jsx` | Completa |
+| 8 | 1 | Selección de rol de onboarding | `Pages/Onboarding/RoleSelection.jsx` | Completa |
+| 9 | 1 | Onboarding de paciente | `Pages/Onboarding/PatientData.jsx` | Completa |
+| 10 | 1 | Onboarding de cuidador | `Pages/Onboarding/CaregiverData.jsx` | Completa |
+| 11 | 1 | Onboarding de médico | `Pages/Onboarding/DoctorData.jsx` | Completa |
+| 12 | 1 | Vincular paciente como cuidador | `Pages/Caregiver/LinkPatient.jsx` | Completa |
+| 13 | 1 | Vincular paciente como médico | `Pages/Doctor/LinkPatient.jsx` | Completa |
+| 14 | 2 | Dashboard administrativo | `Pages/Admin/Dashboard.jsx` | Completa |
+| 15 | 2 | Roles: listado | `Pages/Admin/Roles/Index.jsx` | Pendiente |
+| 16 | 2 | Roles: crear | `Pages/Admin/Roles/Create.jsx` | Pendiente |
+| 17 | 2 | Roles: editar | `Pages/Admin/Roles/Edit.jsx` | Pendiente |
+| 18 | 2 | Usuarios: listado | `Pages/Admin/Users/Index.jsx` | Pendiente |
+| 19 | 2 | Usuarios: crear | `Pages/Admin/Users/Create.jsx` | Pendiente |
+| 20 | 2 | Usuarios: editar | `Pages/Admin/Users/Edit.jsx` | Pendiente |
+| 21 | 2 | Aprobación de médicos | `Pages/Admin/Doctors/Index.jsx` | Pendiente |
+| 22 | 2 | Registrar signos vitales | `Pages/Tracking/Vitals/Create.jsx` | Pendiente |
+| 23 | 2 | Registrar actividad | `Pages/Tracking/Activity/Create.jsx` | Pendiente |
+| 24 | 2 | Registrar nutrición | `Pages/Tracking/Nutrition/Create.jsx` | Pendiente |
+| 25 | 2 | Registrar síntomas | `Pages/Tracking/Symptoms/Create.jsx` | Pendiente |
+| 26 | 2 | Registrar vital de paciente como cuidador | `Pages/Caregiver/Tracking/Vitals/Create.jsx` | Pendiente |
+| 27 | 2 | Editar perfil | `Pages/Profile/Edit.jsx` | Pendiente |
+| 28 | 3 | Dashboard de cuidador | `Pages/Caregiver/Dashboard.jsx` | Pendiente |
+| 29 | 3 | Dashboard de médico | `Pages/Doctor/Dashboard.jsx` | Pendiente |
+| 30 | 3 | Dashboard de paciente | `Pages/Dashboard.jsx` | Pendiente |
+| 31 | 3 | Resumen/historial | `Pages/Tracking/Summary.jsx` | Pendiente |
+| 32 | 3 | Ideas de alimentación | `Pages/Tracking/Nutrition/Index.jsx` | Pendiente |
+| 33 | 3 | Uso de API/IA | `Pages/Admin/ApiUsage/Index.jsx` | Pendiente |
+
+Estado al 30 de julio de 2026: **14 completas y 19 pendientes**. `Admin/Dashboard` quedó corregida durante el bloque de `AdminLayout`: las tarjetas ahora son superficies blancas y el color se limita a los iconos/acento, conforme al Blade y `admin.css` originales. La página cuenta con capturas comparativas de escritorio y móvil, por lo que no se volverá a contabilizar como pendiente del Nivel 2.
+
+Corrección transversal posterior del footer del Nivel 1: `Welcome` y las diez páginas que consumen `GuestLayout` conservan estado `Completa` después de repetir su evidencia visual. En escritorio, el contenido principal de `GuestLayout` recupera el `min-height: 100vh` del Blade/CSS original, que empuja naturalmente el footer fuera del viewport inicial; no se oculta de forma artificial. Los footers usan superficie blanca, borde y texto gris como los originales. Los iconos oficiales de marca se sirven mediante imports específicos de `react-icons/fa`: Instagram, Facebook y Reddit en `GuestLayout`; Instagram, Facebook y Twitter en `Welcome`, conforme a sus Blade originales. El desplazamiento suave original de `index.css` se conserva globalmente mediante `scroll-behavior: smooth`, por lo que “Saber más” y la flecha del hero animan el recorrido hasta `#features`.
+
 ## 5. Orden de migración por nivel
 
 El orden dentro de cada nivel es obligatorio salvo que una dependencia descubierta durante implementación justifique documentar un cambio.
