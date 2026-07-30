@@ -1,6 +1,5 @@
+import PageHeader from './PageHeader';
+
 export default function TrackingPageHeader({ title, subtitle }) {
-    return <header className="mb-7">
-        <h1 className="text-[1.625rem] font-bold leading-tight text-slate-900 sm:text-3xl">{title}</h1>
-        <p className="mt-2 text-base font-normal text-slate-500">{subtitle}</p>
-    </header>;
+    return <PageHeader title={title} subtitle={subtitle} className="mb-7" />;
 }
