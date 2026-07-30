@@ -263,14 +263,14 @@ Esta tabla usa las 33 pantallas activas del inventario original. Los layouts de 
 | 25 | 2 | Registrar síntomas | `Pages/Tracking/Symptoms/Create.jsx` | Completa |
 | 26 | 2 | Registrar vital de paciente como cuidador | `Pages/Caregiver/Tracking/Vitals/Create.jsx` | Completa |
 | 27 | 2 | Editar perfil | `Pages/Profile/Edit.jsx` | Completa |
-| 28 | 3 | Dashboard de cuidador | `Pages/Caregiver/Dashboard.jsx` | Pendiente |
-| 29 | 3 | Dashboard de médico | `Pages/Doctor/Dashboard.jsx` | Pendiente |
-| 30 | 3 | Dashboard de paciente | `Pages/Dashboard.jsx` | Pendiente |
-| 31 | 3 | Resumen/historial | `Pages/Tracking/Summary.jsx` | Pendiente |
-| 32 | 3 | Ideas de alimentación | `Pages/Tracking/Nutrition/Index.jsx` | Pendiente |
-| 33 | 3 | Uso de API/IA | `Pages/Admin/ApiUsage/Index.jsx` | Pendiente |
+| 28 | 3 | Dashboard de cuidador | `Pages/Caregiver/Dashboard.jsx` | Completa |
+| 29 | 3 | Dashboard de médico | `Pages/Doctor/Dashboard.jsx` | Completa |
+| 30 | 3 | Dashboard de paciente | `Pages/Dashboard.jsx` | Completa |
+| 31 | 3 | Resumen/historial | `Pages/Tracking/Summary.jsx` | Completa |
+| 32 | 3 | Ideas de alimentación | `Pages/Tracking/Nutrition/Index.jsx` | Completa |
+| 33 | 3 | Uso de API/IA | `Pages/Admin/ApiUsage/Index.jsx` | Completa |
 
-Estado al 30 de julio de 2026: **14 completas y 19 pendientes**. `Admin/Dashboard` quedó corregida durante el bloque de `AdminLayout`: las tarjetas ahora son superficies blancas y el color se limita a los iconos/acento, conforme al Blade y `admin.css` originales. La página cuenta con capturas comparativas de escritorio y móvil, por lo que no se volverá a contabilizar como pendiente del Nivel 2.
+Estado al 30 de julio de 2026: **33 completas y 0 pendientes**. `Admin/Dashboard` quedó corregida durante el bloque de `AdminLayout`: las tarjetas ahora son superficies blancas y el color se limita a los iconos/acento, conforme al Blade y `admin.css` originales. Cada pantalla cuenta con evidencia de escritorio y móvil en `docs/migration/qa-visual/`.
 
 Corrección transversal posterior del footer del Nivel 1: `Welcome` y las diez páginas que consumen `GuestLayout` conservan estado `Completa` después de repetir su evidencia visual. En escritorio, el contenido principal de `GuestLayout` recupera el `min-height: 100vh` del Blade/CSS original, que empuja naturalmente el footer fuera del viewport inicial; no se oculta de forma artificial. Los footers usan superficie blanca, borde y texto gris como los originales. Los iconos oficiales de marca se sirven mediante imports específicos de `react-icons/fa`: Instagram, Facebook y Reddit en `GuestLayout`; Instagram, Facebook y Twitter en `Welcome`, conforme a sus Blade originales. El desplazamiento suave original de `index.css` se conserva globalmente mediante `scroll-behavior: smooth`, por lo que “Saber más” y la flecha del hero animan el recorrido hasta `#features`.
 
