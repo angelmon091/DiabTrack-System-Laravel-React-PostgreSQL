@@ -8,6 +8,8 @@ La aplicación mantiene un backend monolítico Laravel y una capa de presentaci�
 
 - Backend: Laravel 13, PHP 8.4, Eloquent, Policies, middleware y validación en servidor.
 - Frontend: React 19 con componentes funcionales y hooks, Inertia.js y Tailwind CSS 3.4.
+- Renderizado: Inertia SSR habilitado para las páginas React.
+- Iconos: `lucide-react` con imports directos y `react-icons` para redes sociales.
 - Gráficas: Chart.js mediante `react-chartjs-2`.
 - Base de datos: MySQL.
 - Cache: Redis.
@@ -15,6 +17,10 @@ La aplicación mantiene un backend monolítico Laravel y una capa de presentaci�
 - Bundler: Vite.
 - Correo transaccional: Resend.
 - Infraestructura: Docker y Docker Compose.
+
+La estructura frontend se organiza en `resources/js/Pages`, `Components`,
+`Layouts`, `Hooks` y `Utils`. `resources/views/app.blade.php` es únicamente la
+plantilla raíz de Inertia; las cinco plantillas de correo permanecen en Blade.
 
 Las páginas se encuentran en `resources/js/Pages`, los componentes compartidos en `resources/js/Components` y los layouts React en `resources/js/Layouts`. `resources/views/app.blade.php` es exclusivamente la plantilla raíz de Inertia. Las cinco plantillas bajo `resources/views/emails` permanecen en Blade para renderizado de correo en servidor.
 
