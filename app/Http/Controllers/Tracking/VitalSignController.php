@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tracking;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Tracking\VitalSignRequest;
 use App\Models\VitalSign;
+use App\Services\DashboardMetricsService;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use Inertia\Response as InertiaResponse;
@@ -54,10 +55,8 @@ class VitalSignController extends Controller
             'notes' => $request->notes,
         ]);
 
-        $response = redirect()->route('dashboard')->with('status', __('Registro de salud guardado con éxito.'));
+        DashboardMetricsService::forgetUserCache(Auth::id());
 
-        return $request->header('X-Inertia')
-            ? Inertia::location($response->getTargetUrl())
-            : $response;
+        return redirect()->route('tracking.vital.create')->with('status', __('Registro de salud guardado con éxito.'));
     }
 }
