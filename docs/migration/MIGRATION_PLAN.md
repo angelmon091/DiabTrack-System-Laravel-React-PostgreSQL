@@ -1188,3 +1188,7 @@ Completada el 29 de julio de 2026 después de migrar las 33 pantallas activas.
 ## Hallazgos técnicos
 
 - Inertia SSR está habilitado en el entorno de desarrollo mediante el endpoint interno `http://192.168.1.22:5173/__inertia_ssr`. Las pruebas de páginas Inertia permiten esta petición interna y bloquean explícitamente únicamente llamadas a los endpoints de Claude, Gemini y Anthropic.
+
+### Excepción a la estrategia de reemplazo de JS legacy (Fase 2.5)
+
+Se reintrodujo SweetAlert2 como dependencia de producción por decisión explícita del usuario, para reproducir fielmente ciertos avisos visuales específicos de producción (ej. confirmación al generar código de vinculación). Esta es una excepción puntual, no una reversión general de la estrategia — el resto de modales/confirmaciones del proyecto sigue usando los componentes Modal/Toast de React construidos durante la migración.
