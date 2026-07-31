@@ -7,6 +7,7 @@ import TriangleAlert from 'lucide-react/dist/esm/icons/triangle-alert.mjs';
 
 import FormError from '../../../Components/FormError';
 import SubmitButton from '../../../Components/SubmitButton';
+import InfoTooltip from '../../../Components/InfoTooltip';
 import TrackingNav from '../../../Components/TrackingNav';
 import TrackingPageHeader from '../../../Components/TrackingPageHeader';
 import AuthenticatedLayout from '../../../Layouts/AuthenticatedLayout';
@@ -42,7 +43,7 @@ export default function Create({ storeUrl, dashboardUrl, trackingNavigation, sym
             <form onSubmit={submit} noValidate>
                 {symptomGroups.length > 0 ? <div className="grid gap-5 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm md:grid-cols-2">
                     {symptomGroups.map((group) => { const GroupIcon = groupIcons[group.key] || ClipboardList; return <fieldset key={group.key} className="rounded-2xl border border-slate-100 p-4">
-                        <legend className="flex items-center gap-2 px-2 text-lg font-bold text-slate-800"><span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700"><GroupIcon size={19} /></span>{group.label}</legend>
+                        <legend className="flex items-center gap-2 px-2 text-lg font-bold text-slate-800"><span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-50 text-cyan-700"><GroupIcon size={19} /></span>{group.label}<InfoTooltip text="Marca los sintomas que presentas hoy para llevar un seguimiento de tu salud." /></legend>
                         <div className="mt-2 space-y-3">
                             {group.symptoms.map((symptom) => <label key={symptom.id} className={`flex cursor-pointer items-center gap-3 rounded-2xl border p-4 transition ${form.data.symptoms.includes(symptom.id) ? 'border-cyan-500 bg-cyan-50 ring-2 ring-cyan-500/10' : 'border-slate-200 hover:border-cyan-300'}`}>
                                 <input type="checkbox" name="symptoms[]" value={symptom.id} checked={form.data.symptoms.includes(symptom.id)} onChange={() => toggleSymptom(symptom.id)} className="rounded border-cyan-500/30 text-cyan-600 focus:ring-cyan-500/30" />

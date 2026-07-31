@@ -41,23 +41,23 @@ export default function Create({ storeUrl, dashboardUrl, trackingNavigation, act
             <form onSubmit={submit} noValidate className="grid gap-6 lg:grid-cols-[minmax(0,1.45fr)_minmax(300px,0.75fr)]">
                 <div className="space-y-6">
                     <div className="space-y-7 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <FormSelect id="activity_type" name="activity_type" label="Tipo de Actividad" value={form.data.activity_type} onChange={(event) => form.setData('activity_type', event.target.value)} error={form.errors.activity_type}>
+                        <FormSelect id="activity_type" name="activity_type" label="Tipo de Actividad" help="Elige el movimiento o ejercicio que realizaste." value={form.data.activity_type} onChange={(event) => form.setData('activity_type', event.target.value)} error={form.errors.activity_type}>
                             <option value="" disabled>Selecciona una actividad</option>
                             {activityTypes.map((activity) => <option key={activity.value} value={activity.value}>{activity.label}</option>)}
                         </FormSelect>
 
-                        <RangeField id="duration_minutes" name="duration_minutes" label="Duración" value={form.data.duration_minutes} unit="min" min="1" max="180" onChange={(event) => form.setData('duration_minutes', Number(event.target.value))} error={form.errors.duration_minutes} />
+                        <RangeField id="duration_minutes" name="duration_minutes" label="Duración" help="Indica cuantos minutos realizaste la actividad." value={form.data.duration_minutes} unit="min" min="1" max="180" onChange={(event) => form.setData('duration_minutes', Number(event.target.value))} error={form.errors.duration_minutes} />
 
-                        <ChoiceCards legend="Nivel de Energía" name="energy_level" options={energyLevels} value={form.data.energy_level} onChange={(value) => form.setData('energy_level', value)} error={form.errors.energy_level} />
+                        <ChoiceCards legend="Nivel de Energía" help="Como te sentiste de energia durante el dia." name="energy_level" options={energyLevels} value={form.data.energy_level} onChange={(value) => form.setData('energy_level', value)} error={form.errors.energy_level} />
                     </div>
                 </div>
 
                 <aside className="space-y-6">
                     <div className="space-y-6 rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-                        <ChoiceCards legend="Intensidad" name="intensity" options={intensities} value={form.data.intensity} onChange={(value) => form.setData('intensity', value)} error={form.errors.intensity} />
+                        <ChoiceCards legend="Intensidad" help="Que tan exigente fue la actividad para ti." name="intensity" options={intensities} value={form.data.intensity} onChange={(value) => form.setData('intensity', value)} error={form.errors.intensity} />
                         <div className="grid gap-4 sm:grid-cols-2">
-                            <FormInput id="start_time" name="start_time" type="time" label="Inicio (opcional)" value={form.data.start_time} onChange={(event) => form.setData('start_time', event.target.value)} error={form.errors.start_time} />
-                            <FormInput id="end_time" name="end_time" type="time" label="Fin (opcional)" value={form.data.end_time} onChange={(event) => form.setData('end_time', event.target.value)} error={form.errors.end_time} />
+                            <FormInput id="start_time" name="start_time" type="time" label="Inicio (opcional)" help="Hora en que comenzaste." value={form.data.start_time} onChange={(event) => form.setData('start_time', event.target.value)} error={form.errors.start_time} />
+                            <FormInput id="end_time" name="end_time" type="time" label="Fin (opcional)" help="Hora en que terminaste." value={form.data.end_time} onChange={(event) => form.setData('end_time', event.target.value)} error={form.errors.end_time} />
                         </div>
                     </div>
 

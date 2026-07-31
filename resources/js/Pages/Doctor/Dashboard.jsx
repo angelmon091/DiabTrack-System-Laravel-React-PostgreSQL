@@ -1,12 +1,18 @@
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import { useState } from 'react';
 import LinkIcon from 'lucide-react/dist/esm/icons/link.mjs';
+import Activity from 'lucide-react/dist/esm/icons/activity.mjs';
+import Gauge from 'lucide-react/dist/esm/icons/gauge.mjs';
+import HeartPulse from 'lucide-react/dist/esm/icons/heart-pulse.mjs';
+import Flame from 'lucide-react/dist/esm/icons/flame.mjs';
 import ShieldCheck from 'lucide-react/dist/esm/icons/shield-check.mjs';
 import SlidersHorizontal from 'lucide-react/dist/esm/icons/sliders-horizontal.mjs';
 import Stethoscope from 'lucide-react/dist/esm/icons/stethoscope.mjs';
 import UserRound from 'lucide-react/dist/esm/icons/user-round.mjs';
 
 import ChartCard from '../../Components/ChartCard';
+import DashboardMetricCard from '../../Components/DashboardMetricCard';
+import { GlucoseStatusBadge, MeasurementMomentBadge } from '../../Components/MeasurementBadges';
 import EmptyLinkedPatients from '../../Components/EmptyLinkedPatients';
 import EmptySidebarGuide from '../../Components/EmptySidebarGuide';
 import FormInput from '../../Components/FormInput';
@@ -14,10 +20,6 @@ import Modal from '../../Components/Modal';
 import SubmitButton from '../../Components/SubmitButton';
 import Table from '../../Components/Table';
 import AuthenticatedLayout from '../../Layouts/AuthenticatedLayout';
-
-function Metric({ label, value, unit }) {
-    return <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"><p className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</p><p className="mt-3 text-3xl font-extrabold text-cyan-700">{value ?? '--'} <span className="text-sm font-medium text-slate-400">{unit}</span></p></div>;
-}
 
 function TargetsForm({ patient }) {
     const form = useForm({ target_glucose_min: patient.targetMin, target_glucose_max: patient.targetMax });
@@ -37,11 +39,11 @@ export default function Dashboard({ approval, patients, selectedPatient, metrics
                 {approval.approved && patients.length === 0 && <EmptySidebarGuide profile="doctor" />}
             </aside>
             <section className="order-1 space-y-6 xl:order-2">{!approval.approved ? <section className="rounded-3xl border border-amber-200 bg-amber-50 p-8 text-center"><h2 className="text-2xl font-bold">{approval.rejected ? 'Perfil médico requiere corrección' : 'Perfil médico en revisión'}</h2><p className="mt-3 text-slate-600">{approval.rejected ? approval.notes : `La cédula ${approval.licenseNumber ?? '--'} será revisada por un administrador.`}</p></section> : selectedPatient ? <>
-                <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"><div className="flex items-center gap-4"><span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border-2 border-cyan-500 bg-cyan-50 text-cyan-700"><UserRound size={27} /></span><div><h2 className="text-2xl font-bold">{selectedPatient.name}</h2><p className="mt-1 text-sm text-slate-500">{selectedPatient.diabetesType} · {selectedPatient.age ?? '--'} años · {selectedPatient.weight ?? '--'} kg · {selectedPatient.height ?? '--'} cm</p></div></div></header>
+                <header className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm"><div className="flex items-center gap-4"><span className="flex h-14 w-14 shrink-0 overflow-hidden items-center justify-center rounded-full border-2 border-cyan-500 bg-cyan-50 text-cyan-700">{selectedPatient.avatarUrl ? <img src={selectedPatient.avatarUrl} alt={selectedPatient.name} className="h-full w-full object-cover" /> : <UserRound size={27} />}</span><div><h2 className="text-2xl font-bold">{selectedPatient.name}</h2><p className="mt-1 text-sm text-slate-500">{selectedPatient.diabetesType} · {selectedPatient.age ?? '--'} años · {selectedPatient.weight ?? '--'} kg · {selectedPatient.height ?? '--'} cm</p></div></div></header>
                 <TargetsForm patient={selectedPatient} />
-                <div className="grid gap-4 sm:grid-cols-4"><Metric label="Última glucosa" value={metrics.latestGlucose} unit="mg/dL" /><Metric label="Tiempo en rango" value={metrics.timeInRange} unit="%" /><Metric label="Última HbA1c" value={metrics.latestHba1c} unit="%" /><Metric label="Calorías hoy" value={metrics.caloriesToday} unit="kcal" /></div>
+                <div className="grid gap-4 sm:grid-cols-4"><DashboardMetricCard label="Última glucosa" value={metrics.latestGlucose} unit="mg/dL" icon={Gauge} /><DashboardMetricCard label="Tiempo en rango" value={metrics.timeInRange} unit="%" icon={Activity} tone="emerald" /><DashboardMetricCard label="Última HbA1c" value={metrics.latestHba1c} unit="%" icon={HeartPulse} tone="violet" /><DashboardMetricCard label="Calorías hoy" value={metrics.caloriesToday} unit="kcal" icon={Flame} tone="orange" /></div>
                 <ChartCard title="Tendencia semanal (glucosa)" labels={metrics.glucoseLabels} values={metrics.glucoseData} />
-                <Table headers={['Fecha', 'Glucosa', 'Presión', 'Pulso', 'Estado']}>{recentLogs.length ? recentLogs.map((log) => <tr key={log.id}><td className="px-5 py-4 text-sm">{log.date}</td><td className="px-5 py-4 font-bold text-cyan-700">{log.glucose ?? '--'} mg/dL</td><td className="px-5 py-4 text-sm">{log.systolic ?? '--'}/{log.diastolic ?? '--'} mmHg</td><td className="px-5 py-4 text-sm">{log.heartRate ?? '--'} bpm</td><td className="px-5 py-4 text-sm">{log.outOfRange ? 'Fuera de rango' : 'En rango'}</td></tr>) : <tr><td colSpan="5" className="px-5 py-8 text-center text-sm text-slate-500">No hay registros recientes.</td></tr>}</Table>
+                <Table headers={['Fecha', 'Glucosa', 'Momento', 'Presión', 'Pulso', 'Estado']}>{recentLogs.length ? recentLogs.map((log) => <tr key={log.id}><td className="px-5 py-4 text-sm">{log.date}</td><td className="px-5 py-4 font-bold text-cyan-700">{log.glucose ?? '--'} mg/dL</td><td className="px-5 py-4"><MeasurementMomentBadge value={log.moment} /></td><td className="px-5 py-4 text-sm">{log.systolic ?? '--'}/{log.diastolic ?? '--'} mmHg</td><td className="px-5 py-4 text-sm">{log.heartRate ?? '--'} bpm</td><td className="px-5 py-4"><GlucoseStatusBadge statusKey={log.statusKey} label={log.status} /></td></tr>) : <tr><td colSpan="6" className="px-5 py-8 text-center text-sm text-slate-500">No hay registros recientes.</td></tr>}</Table>
             </> : <EmptyLinkedPatients profile="doctor" linkUrl={urls.link} />}</section>
         </div>
         <Modal open={Boolean(unlinkPatient)} title="Desvincular paciente" onClose={() => setUnlinkPatient(null)} actions={<><button type="button" onClick={() => setUnlinkPatient(null)} className="rounded-xl px-4 py-2 font-semibold">Cancelar</button><button type="button" onClick={() => router.delete(unlinkPatient.unlinkUrl, { onFinish: () => setUnlinkPatient(null) })} className="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white">Desvincular</button></>}><p className="text-sm text-slate-600">El paciente dejará de aparecer en tu panel clínico.</p></Modal>

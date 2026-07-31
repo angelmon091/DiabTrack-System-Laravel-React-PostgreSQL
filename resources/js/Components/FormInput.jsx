@@ -1,4 +1,5 @@
 import FormError from './FormError';
+import InfoTooltip from './InfoTooltip';
 
 export default function FormInput({
     id,
@@ -8,6 +9,7 @@ export default function FormInput({
     inputClassName = '',
     icon: Icon,
     required = false,
+    help,
     ...inputProps
 }) {
     const errorId = error ? `${id}-error` : undefined;
@@ -19,7 +21,7 @@ export default function FormInput({
                     htmlFor={id}
                     className="mb-1.5 block text-sm font-semibold text-slate-500"
                 >
-                    {label}
+                    <span className="inline-flex items-center gap-1.5">{label}{help && <InfoTooltip text={help} />}</span>
                     {required && <span className="ml-1 text-red-600" aria-hidden="true">*</span>}
                 </label>
             )}
