@@ -54,6 +54,7 @@ class SearchController extends Controller
             })
             ->map(fn (array $s) => [
                 'label' => $s['label'],
+                'title' => $s['label'],
                 'icon' => $s['icon'],
                 'url' => route($s['route']),
             ])

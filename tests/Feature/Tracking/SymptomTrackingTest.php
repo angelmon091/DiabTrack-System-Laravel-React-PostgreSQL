@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Services\DashboardMetricsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class SymptomTrackingTest extends TestCase
@@ -43,16 +44,15 @@ class SymptomTrackingTest extends TestCase
         $this->symptom2 = Symptom::create(['name' => 'Sudoracion nocturna', 'category' => 'nocturnal']);
     }
 
-    /**
-     * Prueba: Acceso al formulario de síntomas clasificados por categorías.
-     */
     public function test_patient_can_view_create_symptoms_form(): void
     {
-        $response = $this->actingAs($this->patient)->get(route('tracking.symptom.create'));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('tracking.symptom.create');
-        $response->assertViewHas('symptoms');
+        $this->withoutVite();
+        $this->actingAs($this->patient)->get(route('tracking.symptom.create'))->assertInertia(fn (Assert $page) => $page
+            ->component('Tracking/Symptoms/Create')->url('/tracking/symptoms')
+            ->where('storeUrl', '/tracking/symptoms')->has('trackingNavigation', 4)
+            ->has('symptomGroups', 2)
+            ->where('symptomGroups.0.key', 'physical')
+            ->where('symptomGroups.0.symptoms.0.name', 'Dolor de cabeza'));
     }
 
     /**
@@ -71,7 +71,7 @@ class SymptomTrackingTest extends TestCase
             ->from(route('tracking.symptom.create'))
             ->post(route('tracking.symptom.store'), $data);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('tracking.symptom.create'));
         $response->assertSessionHas('status', __('Registro de síntomas guardado con éxito.'));
 
         // Validar asociación en la tabla pivot
@@ -83,25 +83,6 @@ class SymptomTrackingTest extends TestCase
         $this->assertDatabaseHas('symptom_user', [
             'user_id' => $this->patient->id,
             'symptom_id' => $this->symptom2->id,
-        ]);
-    }
-
-    /**
-     * Prueba: Guardar síntomas mediante peticiones AJAX.
-     */
-    public function test_patient_can_store_symptoms_via_ajax(): void
-    {
-        $data = [
-            'symptoms' => [$this->symptom1->id],
-        ];
-
-        $response = $this->actingAs($this->patient)
-            ->postJson(route('tracking.symptom.store'), $data);
-
-        $response->assertStatus(200);
-        $response->assertJson([
-            'success' => true,
-            'message' => 'Registro de síntomas guardado con éxito.',
         ]);
     }
 
@@ -120,6 +101,22 @@ class SymptomTrackingTest extends TestCase
 
         $response->assertRedirect(route('tracking.symptom.create'));
         $response->assertSessionHasErrors('symptoms');
+    }
+
+    public function test_store_symptoms_rejects_unknown_ids(): void
+    {
+        $this->actingAs($this->patient)->from(route('tracking.symptom.create'))->post(route('tracking.symptom.store'), [
+            'symptoms' => [PHP_INT_MAX],
+        ])->assertRedirect(route('tracking.symptom.create'))->assertSessionHasErrors('symptoms.0');
+        $this->assertDatabaseCount('symptom_user', 0);
+    }
+
+    public function test_inertia_store_redirects_back_to_create_page(): void
+    {
+        $this->actingAs($this->patient)
+            ->withHeaders(['X-Inertia' => 'true', 'X-Requested-With' => 'XMLHttpRequest'])
+            ->post(route('tracking.symptom.store'), ['symptoms' => [$this->symptom1->id]])
+            ->assertRedirect(route('tracking.symptom.create'));
     }
 
     /**

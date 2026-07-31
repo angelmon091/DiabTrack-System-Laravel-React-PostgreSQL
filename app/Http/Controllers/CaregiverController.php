@@ -2,20 +2,24 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\LinkedPatientResource;
 use App\Models\PatientLink;
 use App\Models\PatientNotification;
 use App\Models\User;
 use App\Models\VitalSign;
 use App\Services\DashboardMetricsService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Dashboard y gestión de pacientes para cuidadores.
  */
 class CaregiverController extends Controller
 {
-    public function dashboard(Request $request, DashboardMetricsService $metricsService)
+    public function dashboard(Request $request, DashboardMetricsService $metricsService): InertiaResponse
     {
         $user = Auth::user();
         $patients = $user->linkedPatients()->with('patientProfile', 'vitalSigns')->get();
@@ -43,15 +47,69 @@ class CaregiverController extends Controller
                 ->get();
         }
 
-        return view('caregiver.dashboard', array_merge($metrics, compact('user', 'patients', 'selectedPatient', 'recentLogs')));
+        return Inertia::render('Caregiver/Dashboard', [
+            'patients' => $patients->map(fn (User $patient) => [
+                'id' => $patient->id,
+                'name' => $patient->name,
+                'relationship' => $patient->pivot->relationship ?? $user->caregiverProfile?->relationship ?? 'Paciente',
+                'latestGlucose' => $patient->vitalSigns->sortByDesc('created_at')->first()?->glucose_level,
+                'selected' => $selectedPatient?->id === $patient->id,
+                'dashboardUrl' => route('caregiver.dashboard', ['patient_id' => $patient->id], absolute: false),
+                'unlinkUrl' => route('caregiver.patient.unlink', $patient, absolute: false),
+            ])->values(),
+            'selectedPatient' => $selectedPatient ? [
+                'id' => $selectedPatient->id,
+                'name' => $selectedPatient->name,
+                'avatarUrl' => $selectedPatient->avatar
+                    ? (str_starts_with($selectedPatient->avatar, 'http') ? $selectedPatient->avatar : asset('storage/'.$selectedPatient->avatar))
+                    : null,
+                'diabetesType' => $selectedPatient->patientProfile?->diabetes_type ?? '--',
+                'age' => $selectedPatient->patientProfile?->birth_date
+                    ? Carbon::parse($selectedPatient->patientProfile->birth_date)->age
+                    : null,
+                'weight' => $selectedPatient->patientProfile?->weight,
+                'vitalCreateUrl' => route('caregiver.patient.vital.create', $selectedPatient, absolute: false),
+            ] : null,
+            'metrics' => [
+                'latestGlucose' => $metrics['ultimaMedicion']['glucose_level'] ?? null,
+                'timeInRange' => $metrics['tiempoEnRango'] ?? 0,
+                'latestHba1c' => $metrics['ultimaHba1c']['hba1c'] ?? null,
+                'glucoseLabels' => $metrics['glucosaLabels'] ?? [],
+                'glucoseData' => $metrics['glucosaData'] ?? [],
+            ],
+            'recentLogs' => $recentLogs->map(fn (VitalSign $log) => [
+                'id' => $log->id,
+                'date' => $log->created_at->format('d/m/Y H:i'),
+                'glucose' => $log->glucose_level,
+                'moment' => $log->measurement_moment,
+                'elevated' => $log->glucose_level > 140,
+                'statusKey' => VitalSign::clasificarGlucosa((int) $log->glucose_level, $log->measurement_moment, $selectedPatient->patientProfile?->target_glucose_min, $selectedPatient->patientProfile?->target_glucose_max),
+                'status' => VitalSign::glucoseStatusUi(VitalSign::clasificarGlucosa((int) $log->glucose_level, $log->measurement_moment, $selectedPatient->patientProfile?->target_glucose_min, $selectedPatient->patientProfile?->target_glucose_max))['badge'],
+            ])->values(),
+            'urls' => [
+                'link' => route('caregiver.link', absolute: false),
+                'profile' => route('profile.edit', absolute: false),
+            ],
+        ]);
     }
 
     /**
      * Muestra el formulario para vincular un paciente con código.
      */
-    public function showLinkForm()
+    public function showLinkForm(): InertiaResponse
     {
-        return view('caregiver.link-patient');
+        return Inertia::render('Caregiver/LinkPatient', [
+            'storeUrl' => route('caregiver.link.store', absolute: false),
+            'dashboardUrl' => route('caregiver.dashboard', absolute: false),
+            'relationships' => [
+                ['value' => 'Padre/Madre', 'label' => __('Padre / Madre')],
+                ['value' => 'Hijo/a', 'label' => __('Hijo / a')],
+                ['value' => 'Hermano/a', 'label' => __('Hermano / a')],
+                ['value' => 'Pareja', 'label' => __('Pareja')],
+                ['value' => 'Médico Particular', 'label' => __('Médico Particular')],
+                ['value' => 'Otro', 'label' => __('Otro')],
+            ],
+        ]);
     }
 
     /**
@@ -87,8 +145,12 @@ class CaregiverController extends Controller
             'icon' => 'fa-solid fa-user-nurse',
         ]);
 
-        return redirect()->route('caregiver.dashboard')
+        $response = redirect()->route('caregiver.dashboard')
             ->with('status', '¡Paciente vinculado exitosamente!');
+
+        return $request->header('X-Inertia')
+            ? Inertia::location($response->getTargetUrl())
+            : $response;
     }
 
     /**
@@ -131,26 +193,35 @@ class CaregiverController extends Controller
             'hba1c' => $validated['hba1c'] ?? null,
         ]);
 
-        if ($request->expectsJson() || $request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'message' => __('Registro de salud guardado con éxito.'),
-                'redirect_url' => route('caregiver.dashboard', ['patient_id' => $patient->id]),
-            ]);
-        }
-
-        return redirect()->route('caregiver.dashboard', ['patient_id' => $patient->id])
+        $response = redirect()->route('caregiver.dashboard', ['patient_id' => $patient->id])
             ->with('status', 'Registro de salud añadido correctamente.');
+
+        return $request->header('X-Inertia') ? Inertia::location($response->getTargetUrl()) : $response;
     }
 
     /**
      * Muestra el formulario premium para registrar signos vitales.
      */
-    public function createVital(User $patient)
+    public function createVital(User $patient): InertiaResponse
     {
         $this->checkLink($patient->id);
 
-        return view('caregiver.tracking.vital-create', compact('patient'));
+        return Inertia::render('Caregiver/Tracking/Vitals/Create', [
+            'patient' => LinkedPatientResource::make($patient)->resolve(),
+            'storeUrl' => route('caregiver.patient.vital.store', $patient, absolute: false),
+            'dashboardUrl' => route('caregiver.dashboard', ['patient_id' => $patient->id], absolute: false),
+            'measurementMoments' => [
+                ['value' => 'Ayunas', 'label' => 'En ayunas', 'description' => 'Al despertar, sin haber comido durante 8 horas o más.'],
+                ['value' => 'Antes de Comer', 'label' => 'Antes de comer', 'description' => 'Justo antes de desayunar, comer o cenar.'],
+                ['value' => 'Después de Comer', 'label' => 'Después de comer', 'description' => 'Entre una y dos horas después de la comida.'],
+                ['value' => 'Al Dormir', 'label' => 'Al dormir', 'description' => 'Antes de acostarse.'],
+            ],
+            'stressLevels' => [
+                ['value' => 'Bajo', 'label' => 'Bajo', 'description' => 'Relajado, sin tensión.'],
+                ['value' => 'Medio', 'label' => 'Medio', 'description' => 'Algo de presión o ansiedad.'],
+                ['value' => 'Alto', 'label' => 'Alto', 'description' => 'Muy estresado o tenso.'],
+            ],
+        ]);
     }
 
     /**

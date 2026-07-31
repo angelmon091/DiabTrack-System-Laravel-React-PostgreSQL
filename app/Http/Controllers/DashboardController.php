@@ -7,11 +7,13 @@ use App\Models\NutritionLog;
 use App\Models\PatientLink;
 use App\Models\VitalSign;
 use App\Services\DashboardMetricsService;
+use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Clase DashboardController
@@ -46,7 +48,7 @@ class DashboardController extends Controller
      *
      * @return View|RedirectResponse
      */
-    public function index()
+    public function index(): InertiaResponse|RedirectResponse
     {
         $user = auth()->user();
 
@@ -85,7 +87,33 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
-        return view('dashboard', array_merge($metrics, compact('recentLogs')));
+        return Inertia::render('Dashboard', [
+            'metrics' => [
+                'latestGlucose' => $metrics['ultimaMedicion']['glucose_level'] ?? null,
+                'measurementMoment' => $metrics['ultimaMedicion']['measurement_moment'] ?? null,
+                'glucoseStatus' => isset($metrics['ultimaMedicion']['status']) ? VitalSign::glucoseStatusUi($metrics['ultimaMedicion']['status'])['label'] : null,
+                'glucoseStatusKey' => $metrics['ultimaMedicion']['status'] ?? null,
+                'latestHba1c' => $metrics['ultimaHba1c']['hba1c'] ?? null,
+                'carbsToday' => $metrics['carbsHoy'], 'caloriesToday' => $metrics['caloriasHoy'],
+                'calorieGoal' => $metrics['metaCalorias'], 'caloriePercent' => $metrics['porcentajeCalorias'],
+                'activityMinutes' => $metrics['actividadMinutos'], 'activityGoal' => $metrics['metaActividad'], 'activityPercent' => $metrics['porcentajeActividad'],
+                'estimatedSteps' => $metrics['pasosEstimados'], 'stepGoal' => $metrics['metaPasos'], 'stepPercent' => $metrics['porcentajePasos'],
+                'timeInRange' => $metrics['tiempoEnRango'], 'symptomsToday' => $metrics['sintomasHoy'],
+                'glucoseInRangePercent' => $metrics['tiempoEnRango'],
+                'glucoseLabels' => $metrics['glucosaLabels'], 'glucoseData' => $metrics['glucosaData'],
+                'needsWeightUpdate' => $metrics['needsWeightUpdate'], 'lastWeight' => $metrics['ultimoPesoValor'],
+            ],
+            'recentLogs' => $recentLogs->map(fn (VitalSign $log) => [
+                'id' => $log->id, 'date' => $log->created_at->format('d M, Y H:i'), 'glucose' => $log->glucose_level,
+                'moment' => $log->measurement_moment ?? 'Ayunas', 'hba1c' => $log->hba1c,
+                'status' => VitalSign::glucoseStatusUi(VitalSign::clasificarGlucosa((int) $log->glucose_level, $log->measurement_moment, $user->patientProfile?->target_glucose_min, $user->patientProfile?->target_glucose_max))['badge'],
+                'statusKey' => VitalSign::clasificarGlucosa((int) $log->glucose_level, $log->measurement_moment, $user->patientProfile?->target_glucose_min, $user->patientProfile?->target_glucose_max),
+            ])->values(),
+            'tip' => ['text' => $metrics['tipDelDia'] ?? '', 'isAi' => (bool) ($metrics['tipEsIA'] ?? false)],
+            'profile' => ['targetMin' => $user->patientProfile?->target_glucose_min ?? VitalSign::GLUCOSE_DEFAULT_MIN, 'targetMax' => $user->patientProfile?->target_glucose_max ?? VitalSign::GLUCOSE_DEFAULT_MAX],
+            'urls' => ['summary' => route('tracking.summary', absolute: false), 'vitals' => route('tracking.vital.create', absolute: false), 'profile' => route('profile.edit', absolute: false), 'weight' => route('dashboard.weight.store', absolute: false), 'invite' => route('dashboard.invite', absolute: false)],
+            'inviteCode' => session('invite_code'),
+        ]);
     }
 
     /**
@@ -230,9 +258,30 @@ class DashboardController extends Controller
         $extraMetrics['targetGlucoseMin'] = $targetMin;
         $extraMetrics['targetGlucoseMax'] = $targetMax;
 
-        return view('tracking.summary', array_merge($metrics, $extraMetrics, compact(
-            'vitalsHistory', 'nutritionHistory', 'activityHistory', 'symptomsHistory'
-        )));
+        $symptomFrequency = $symptomsHistory->groupBy('name')->map->count()->sortDesc();
+
+        return Inertia::render('Tracking/Summary', [
+            'metrics' => [
+                'avgGlucose' => $extraMetrics['avgGlucose'], 'timeInRange' => $metrics['tiempoEnRango'],
+                'latestHba1c' => $metrics['ultimaHba1c']['hba1c'] ?? null, 'weight' => $extraMetrics['totalWeight'],
+                'avgSystolic' => $extraMetrics['avgSystolic'], 'avgDiastolic' => $extraMetrics['avgDiastolic'],
+                'avgHeartRate' => $extraMetrics['avgHeartRate'], 'totalCarbs' => $nutritionHistory->sum('carbs_grams'),
+                'activityHours' => round($extraMetrics['totalActivityMinutes'] / 60, 1),
+                'glucoseStatus' => $extraMetrics['glucoseStatus']['label'], 'bpStatus' => $extraMetrics['bpStatus']['label'], 'hrStatus' => $extraMetrics['hrStatus']['label'],
+            ],
+            'charts' => [
+                'glucose' => ['labels' => $metrics['glucosaLabels'], 'values' => $metrics['glucosaData']],
+                'food' => ['labels' => $extraMetrics['foodCategoryLabels'], 'values' => $extraMetrics['foodCategoryData']],
+                'symptoms' => ['labels' => $symptomFrequency->keys()->values(), 'values' => $symptomFrequency->values()],
+                'moments' => ['labels' => $extraMetrics['glucoseByMomentLabels'], 'values' => $extraMetrics['glucoseByMomentData'], 'colors' => $extraMetrics['glucoseByMomentColors'], 'counts' => $extraMetrics['glucoseByMomentCounts'], 'statuses' => $extraMetrics['glucoseByMomentStatuses']],
+            ],
+            'histories' => [
+                'vitals' => $vitalsHistory->map(fn (VitalSign $vital) => ['isoDate' => $vital->created_at->toDateString(), 'date' => $vital->created_at->format('d M, H:i'), 'glucose' => $vital->glucose_level, 'moment' => $vital->measurement_moment, 'pressure' => $vital->systolic && $vital->diastolic ? "{$vital->systolic}/{$vital->diastolic}" : '--', 'heartRate' => $vital->heart_rate, 'weight' => $vital->weight, 'stress' => $vital->stress_level, 'notes' => $vital->notes])->values(),
+                'nutrition' => $nutritionHistory->map(fn (NutritionLog $log) => ['isoDate' => Carbon::parse($log->consumed_at)->toDateString(), 'date' => Carbon::parse($log->consumed_at)->format('d M, H:i'), 'mealType' => $log->meal_type, 'carbs' => $log->carbs_grams, 'categories' => $log->food_categories ?? [], 'medication' => $log->medication_taken])->values(),
+                'activity' => $activityHistory->map(fn (ActivityLog $log) => ['isoDate' => $log->created_at->toDateString(), 'date' => $log->created_at->format('d M'), 'type' => $log->activity_type, 'duration' => $log->duration_minutes, 'intensity' => $log->intensity, 'energy' => $log->energy_level])->values(),
+                'symptoms' => $symptomsHistory->map(fn ($log) => ['isoDate' => Carbon::parse($log->logged_at)->toDateString(), 'date' => Carbon::parse($log->logged_at)->format('d M'), 'name' => $log->name, 'category' => $log->category, 'time' => Carbon::parse($log->logged_at)->format('H:i')])->values(),
+            ],
+        ]);
     }
 
     /**
@@ -320,16 +369,6 @@ class DashboardController extends Controller
             'expires_at' => now()->addHours(24),
         ]);
 
-        if ($request->expectsJson() || $request->ajax()) {
-            return response()->json([
-                'success' => true,
-                'code' => $code,
-                'message' => 'Código de invitación generado. Compártelo con tu cuidador o médico.',
-            ]);
-        }
-
-        return redirect()->route('dashboard')
-            ->with('invite_code', $code)
-            ->with('status', 'Código de invitación generado. Compártelo con tu cuidador o médico.');
+        return redirect()->route('dashboard')->with('invite_code', $code);
     }
 }

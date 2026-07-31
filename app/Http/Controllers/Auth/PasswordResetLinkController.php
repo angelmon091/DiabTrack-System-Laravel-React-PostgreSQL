@@ -8,7 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Clase PasswordResetLinkController
@@ -24,9 +25,12 @@ class PasswordResetLinkController extends Controller
      * Se accede a esta vista cuando el usuario ha olvidado su contraseña y
      * necesita solicitar un enlace para restablecerla.
      */
-    public function create(): View
+    public function create(): InertiaResponse
     {
-        return view('auth.forgot-password');
+        return Inertia::render('Auth/ForgotPassword', [
+            'passwordEmailUrl' => route('password.email', absolute: false),
+            'loginUrl' => route('login', absolute: false),
+        ]);
     }
 
     /**

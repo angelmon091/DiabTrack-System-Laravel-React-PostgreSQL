@@ -5,16 +5,17 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Models\EmailVerificationCode;
 use Illuminate\Auth\Events\Verified;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Valida el código temporal utilizado para confirmar la dirección de correo del usuario.
  */
 class VerifyEmailCodeController extends Controller
 {
-    public function __invoke(Request $request): RedirectResponse
+    public function __invoke(Request $request): Response
     {
         $request->validate([
             'code' => ['required', 'digits:6'],
@@ -23,7 +24,11 @@ class VerifyEmailCodeController extends Controller
         $user = $request->user();
 
         if ($user->hasVerifiedEmail()) {
-            return redirect()->route('onboarding.index');
+            $response = redirect()->route('onboarding.index');
+
+            return $request->header('X-Inertia')
+                ? Inertia::location($response->getTargetUrl())
+                : $response;
         }
 
         $verification = EmailVerificationCode::whereBelongsTo($user)->first();
@@ -58,6 +63,10 @@ class VerifyEmailCodeController extends Controller
 
         $verification->delete();
 
-        return redirect()->route('onboarding.index')->with('status', 'email-verified');
+        $response = redirect()->route('onboarding.index')->with('status', 'email-verified');
+
+        return $request->header('X-Inertia')
+            ? Inertia::location($response->getTargetUrl())
+            : $response;
     }
 }

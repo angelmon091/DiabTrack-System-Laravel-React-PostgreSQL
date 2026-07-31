@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Services\DashboardMetricsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class ActivityTrackingTest extends TestCase
@@ -34,15 +36,13 @@ class ActivityTrackingTest extends TestCase
         ]);
     }
 
-    /**
-     * Prueba: Paciente puede visualizar la vista para crear actividades.
-     */
     public function test_patient_can_view_create_activity_form(): void
     {
-        $response = $this->actingAs($this->patient)->get(route('tracking.activity.create'));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('tracking.activity.create');
+        $this->withoutVite();
+        $this->actingAs($this->patient)->get(route('tracking.activity.create'))->assertInertia(fn (Assert $page) => $page
+            ->component('Tracking/Activity/Create')->url('/tracking/activity')
+            ->where('storeUrl', '/tracking/activity')->has('activityTypes', 9)
+            ->has('intensities', 3)->has('energyLevels', 5)->has('trackingNavigation', 4));
     }
 
     /**
@@ -50,6 +50,7 @@ class ActivityTrackingTest extends TestCase
      */
     public function test_patient_can_store_valid_activity_log(): void
     {
+        Http::fake();
         $data = [
             'activity_type' => 'caminar',
             'duration_minutes' => 45,
@@ -63,7 +64,7 @@ class ActivityTrackingTest extends TestCase
             ->from(route('tracking.activity.create'))
             ->post(route('tracking.activity.store'), $data);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('tracking.activity.create'));
         $response->assertSessionHas('status', __('Registro de actividad guardado con éxito.'));
 
         $this->assertDatabaseHas('activity_logs', [
@@ -73,27 +74,7 @@ class ActivityTrackingTest extends TestCase
             'intensity' => 'media',
             'energy_level' => 'alta',
         ]);
-    }
-
-    /**
-     * Prueba: Guardar actividad deportiva mediante llamada AJAX.
-     */
-    public function test_patient_can_store_activity_via_ajax(): void
-    {
-        $data = [
-            'activity_type' => 'natacion',
-            'duration_minutes' => 60,
-            'intensity' => 'alta',
-        ];
-
-        $response = $this->actingAs($this->patient)
-            ->postJson(route('tracking.activity.store'), $data);
-
-        $response->assertStatus(200);
-        $response->assertJson([
-            'success' => true,
-            'message' => 'Registro de actividad guardado con éxito.',
-        ]);
+        Http::assertNothingSent();
     }
 
     /**
@@ -113,6 +94,32 @@ class ActivityTrackingTest extends TestCase
 
         $response->assertRedirect(route('tracking.activity.create'));
         $response->assertSessionHasErrors('duration_minutes');
+    }
+
+    public function test_all_activity_fields_are_validated_by_backend(): void
+    {
+        $this->actingAs($this->patient)->from(route('tracking.activity.create'))->post(route('tracking.activity.store'), [
+            'activity_type' => str_repeat('x', 101),
+            'duration_minutes' => 0,
+            'intensity' => 'extrema',
+            'start_time' => '25:00',
+            'end_time' => 'no-es-hora',
+            'energy_level' => 'agotada',
+        ])->assertRedirect(route('tracking.activity.create'))->assertSessionHasErrors([
+            'activity_type', 'duration_minutes', 'intensity', 'start_time', 'end_time', 'energy_level',
+        ]);
+        $this->assertDatabaseCount('activity_logs', 0);
+    }
+
+    public function test_inertia_store_redirects_back_to_create_page(): void
+    {
+        $this->actingAs($this->patient)
+            ->withHeaders(['X-Inertia' => 'true', 'X-Requested-With' => 'XMLHttpRequest'])
+            ->post(route('tracking.activity.store'), [
+                'activity_type' => 'caminar',
+                'duration_minutes' => 30,
+                'intensity' => 'media',
+            ])->assertRedirect(route('tracking.activity.create'));
     }
 
     /**

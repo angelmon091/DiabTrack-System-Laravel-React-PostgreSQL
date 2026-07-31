@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
+import react from '@vitejs/plugin-react';
 import os from 'os';
 
 // Obtiene dinámicamente tu IP dependiendo de a qué Wi-Fi estés conectado
@@ -27,13 +28,9 @@ export default defineConfig({
         laravel({
             input: [
                 'resources/css/app.css',
-                'resources/js/app.js',
-                'resources/css/admin.css',
+                'resources/js/app.jsx',
                 'resources/css/alimentacion.css',
-                'resources/css/auth-global.css',
                 'resources/css/dashboard_admin.css',
-                'resources/css/dashboardc.css',
-                'resources/css/design-system.css',
                 'resources/css/index.css',
                 'resources/css/ingreso_de_datos_global.css',
                 'resources/css/segunda_opcion_dashboard.css',
@@ -42,5 +39,6 @@ export default defineConfig({
             ],
             refresh: true,
         }),
+        react(),
     ],
 });

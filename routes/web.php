@@ -17,9 +17,17 @@ use App\Http\Controllers\Tracking\SymptomLogController;
 use App\Http\Controllers\Tracking\VitalSignController;
 use App\Services\TipService;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 Route::get('/', function () {
-    return view('welcome');
+    return Inertia::render('Welcome', [
+        'homeUrl' => url('/'),
+        'loginUrl' => route('login', absolute: false),
+        'registerUrl' => route('register', absolute: false),
+        'dashboardUrl' => route('dashboard', absolute: false),
+        'ogImageUrl' => asset('og-image.jpg'),
+        'year' => now()->year,
+    ]);
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -102,7 +110,7 @@ require __DIR__.'/auth.php';
 // Admin Routes
 Route::middleware(['auth', 'verified', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', function () {
-        return view('admin.dashboard');
+        return Inertia::render('Admin/Dashboard');
     })->name('dashboard');
 
     Route::resource('users', UserController::class);

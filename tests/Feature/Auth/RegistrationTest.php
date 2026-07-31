@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Notifications\VerifyEmailCodeNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class RegistrationTest extends TestCase
@@ -14,9 +15,32 @@ class RegistrationTest extends TestCase
 
     public function test_registration_screen_can_be_rendered(): void
     {
+        $this->withoutVite();
+
         $response = $this->get('/register');
 
-        $response->assertStatus(200);
+        $response->assertStatus(200)
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Auth/Register')
+                ->url('/register')
+                ->where('registerUrl', '/register')
+                ->where('loginUrl', '/login')
+                ->where('googleLoginUrl', '/auth/google/redirect'));
+    }
+
+    public function test_login_and_registration_pages_expose_reciprocal_inertia_links(): void
+    {
+        $this->withoutVite();
+
+        $this->get('/login')->assertInertia(fn (Assert $page) => $page
+            ->component('Auth/Login')
+            ->url('/login')
+            ->where('registerUrl', '/register'));
+
+        $this->get('/register')->assertInertia(fn (Assert $page) => $page
+            ->component('Auth/Register')
+            ->url('/register')
+            ->where('loginUrl', '/login'));
     }
 
     public function test_new_users_can_register(): void

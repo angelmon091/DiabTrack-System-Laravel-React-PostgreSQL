@@ -59,6 +59,7 @@ class SearchFeatureTest extends TestCase
         $response->assertStatus(200);
         $response->assertJsonFragment([
             'label' => 'Registrar signo vital',
+            'title' => 'Registrar signo vital',
             'url' => route('tracking.vital.create'),
         ]);
     }

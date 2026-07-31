@@ -15,7 +15,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 use Intervention\Image\Drivers\Gd\Driver;
 use Intervention\Image\Encoders\JpegEncoder;
 use Intervention\Image\ImageManager;
@@ -31,10 +32,58 @@ class ProfileController extends Controller
     /**
      * Muestra el formulario de edición del perfil.
      */
-    public function edit(Request $request): View
+    public function edit(Request $request): InertiaResponse
     {
-        return view('profile.edit', [
-            'user' => $request->user(),
+        $user = $request->user()->loadMissing('patientProfile');
+        $linkedUsers = $user->isPatient()
+            ? $user->linkedCarers()->with('roles')->get()->map(function (User $linkedUser) {
+                $isDoctor = $linkedUser->roles->contains('name', 'médico');
+
+                return [
+                    'id' => $linkedUser->id,
+                    'name' => $linkedUser->name,
+                    'email' => $linkedUser->email,
+                    'avatarUrl' => $linkedUser->avatar
+                        ? (str_starts_with($linkedUser->avatar, 'http') ? $linkedUser->avatar : asset('storage/'.$linkedUser->avatar))
+                        : null,
+                    'roleLabel' => $isDoctor ? 'Médico' : 'Cuidador',
+                    'unlinkUrl' => route('profile.unlink', $linkedUser, absolute: false),
+                ];
+            })->values()
+            : collect();
+
+        $pendingEmailChange = EmailChangeRequest::where('user_id', $user->id)->first();
+
+        return Inertia::render('Profile/Edit', [
+            'profile' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'timezone' => $user->timezone ?? 'America/Monterrey',
+                'avatarUrl' => $user->avatar
+                    ? (str_starts_with($user->avatar, 'http') ? $user->avatar : asset('storage/'.$user->avatar))
+                    : null,
+                'gender' => strtolower($user->patientProfile?->gender ?? ''),
+            ],
+            'updateUrl' => route('profile.update', absolute: false),
+            'passwordUrl' => route('password.update', absolute: false),
+            'destroyUrl' => route('profile.destroy', absolute: false),
+            'linkedUsers' => $linkedUsers,
+            'pendingEmailChange' => $pendingEmailChange ? [
+                'newEmail' => $pendingEmailChange->new_email,
+                'expiresAt' => $pendingEmailChange->expires_at->toISOString(),
+            ] : null,
+            'timezones' => [
+                ['value' => 'America/Monterrey', 'label' => 'Monterrey (GMT-6)'],
+                ['value' => 'America/Mexico_City', 'label' => 'Ciudad de México (GMT-6)'],
+                ['value' => 'America/Tijuana', 'label' => 'Tijuana (GMT-7)'],
+                ['value' => 'America/Hermosillo', 'label' => 'Hermosillo (GMT-7)'],
+                ['value' => 'America/Bogota', 'label' => 'Bogotá / Colombia (GMT-5)'],
+                ['value' => 'America/Santiago', 'label' => 'Santiago / Chile (GMT-4)'],
+                ['value' => 'America/Buenos_Aires', 'label' => 'Buenos Aires / Argentina (GMT-3)'],
+                ['value' => 'America/New_York', 'label' => 'New York (GMT-5)'],
+                ['value' => 'America/Los_Angeles', 'label' => 'Los Angeles (GMT-8)'],
+                ['value' => 'UTC', 'label' => 'Coordinated Universal Time (UTC)'],
+            ],
         ]);
     }
 

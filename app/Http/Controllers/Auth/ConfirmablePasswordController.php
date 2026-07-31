@@ -3,11 +3,12 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use Illuminate\View\View;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Clase ConfirmablePasswordController
@@ -23,15 +24,17 @@ class ConfirmablePasswordController extends Controller
      * Esta vista se presenta al usuario cuando su sesión ha expirado o
      * cuando intenta acceder a rutas protegidas que requieren reautenticación.
      */
-    public function show(): View
+    public function show(): InertiaResponse
     {
-        return view('auth.confirm-password');
+        return Inertia::render('Auth/ConfirmPassword', [
+            'confirmPasswordUrl' => route('password.confirm', absolute: false),
+        ]);
     }
 
     /**
      * Confirma la contraseña actual del usuario antes de una operación sensible.
      */
-    public function store(Request $request): RedirectResponse
+    public function store(Request $request): Response
     {
         if (! Auth::guard('web')->validate([
             'email' => $request->user()->email,
@@ -44,6 +47,10 @@ class ConfirmablePasswordController extends Controller
 
         $request->session()->put('auth.password_confirmed_at', time());
 
-        return redirect()->intended(route('dashboard', absolute: false));
+        $response = redirect()->intended(route('dashboard', absolute: false));
+
+        return $request->header('X-Inertia')
+            ? Inertia::location($response->getTargetUrl())
+            : $response;
     }
 }

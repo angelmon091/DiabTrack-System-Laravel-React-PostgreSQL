@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\AdminRoleRequest;
+use App\Http\Resources\RoleResource;
 use App\Models\Role;
-use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Inertia\Inertia;
+use Inertia\Response as InertiaResponse;
 
 /**
  * Clase RoleController
@@ -21,11 +23,14 @@ class RoleController extends Controller
      *
      * @return View
      */
-    public function index()
+    public function index(): InertiaResponse
     {
         $roles = Role::withCount('users')->latest()->paginate(10);
 
-        return view('admin.roles.index', compact('roles'));
+        return Inertia::render('Admin/Roles/Index', [
+            'roles' => RoleResource::collection($roles),
+            'createUrl' => route('admin.roles.create', absolute: false),
+        ]);
     }
 
     /**
@@ -33,9 +38,12 @@ class RoleController extends Controller
      *
      * @return View
      */
-    public function create()
+    public function create(): InertiaResponse
     {
-        return view('admin.roles.create');
+        return Inertia::render('Admin/Roles/Create', [
+            'storeUrl' => route('admin.roles.store', absolute: false),
+            'indexUrl' => route('admin.roles.index', absolute: false),
+        ]);
     }
 
     /**
@@ -55,9 +63,15 @@ class RoleController extends Controller
      *
      * @return View
      */
-    public function edit(Role $role)
+    public function edit(Role $role): InertiaResponse
     {
-        return view('admin.roles.edit', compact('role'));
+        $role->loadCount('users');
+
+        return Inertia::render('Admin/Roles/Edit', [
+            'role' => RoleResource::make($role),
+            'updateUrl' => route('admin.roles.update', $role, absolute: false),
+            'indexUrl' => route('admin.roles.index', absolute: false),
+        ]);
     }
 
     /**

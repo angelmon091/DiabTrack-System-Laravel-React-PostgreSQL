@@ -8,6 +8,8 @@ use App\Models\User;
 use App\Services\DashboardMetricsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Http;
+use Inertia\Testing\AssertableInertia as Assert;
 use Tests\TestCase;
 
 class NutritionTrackingTest extends TestCase
@@ -39,10 +41,11 @@ class NutritionTrackingTest extends TestCase
      */
     public function test_patient_can_view_create_nutrition_form(): void
     {
-        $response = $this->actingAs($this->patient)->get(route('tracking.nutrition.create'));
-
-        $response->assertStatus(200);
-        $response->assertViewIs('tracking.nutrition.create');
+        $this->withoutVite();
+        $this->actingAs($this->patient)->get(route('tracking.nutrition.create'))->assertInertia(fn (Assert $page) => $page
+            ->component('Tracking/Nutrition/Create')->url('/tracking/nutrition/create')
+            ->where('storeUrl', '/tracking/nutrition')->has('trackingNavigation', 4)
+            ->has('mealTypes', 5)->has('foodCategories', 8));
     }
 
     /**
@@ -50,6 +53,7 @@ class NutritionTrackingTest extends TestCase
      */
     public function test_patient_can_store_valid_nutrition_log(): void
     {
+        Http::fake();
         $data = [
             'meal_type' => 'desayuno',
             'carbs_grams' => 45,
@@ -63,7 +67,7 @@ class NutritionTrackingTest extends TestCase
             ->from(route('tracking.nutrition.create'))
             ->post(route('tracking.nutrition.store'), $data);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('tracking.nutrition.create'));
         $response->assertSessionHas('status', __('Registro de nutrición guardado con éxito.'));
 
         $this->assertDatabaseHas('nutrition_logs', [
@@ -73,26 +77,7 @@ class NutritionTrackingTest extends TestCase
             'medication_taken' => 'Insulina Rápida',
             'medication_dose' => '4 unidades',
         ]);
-    }
-
-    /**
-     * Prueba: Guardar datos nutricionales mediante AJAX.
-     */
-    public function test_patient_can_store_nutrition_via_ajax(): void
-    {
-        $data = [
-            'meal_type' => 'cena',
-            'carbs_grams' => 60,
-        ];
-
-        $response = $this->actingAs($this->patient)
-            ->postJson(route('tracking.nutrition.store'), $data);
-
-        $response->assertStatus(200);
-        $response->assertJson([
-            'success' => true,
-            'message' => 'Registro de nutrición guardado con éxito.',
-        ]);
+        Http::assertNothingSent();
     }
 
     /**
@@ -111,6 +96,25 @@ class NutritionTrackingTest extends TestCase
 
         $response->assertRedirect(route('tracking.nutrition.create'));
         $response->assertSessionHasErrors(['meal_type', 'carbs_grams']);
+    }
+
+    public function test_all_nutrition_limits_are_enforced_by_backend(): void
+    {
+        $this->actingAs($this->patient)->from(route('tracking.nutrition.create'))->post(route('tracking.nutrition.store'), [
+            'meal_type' => 'desayuno', 'carbs_grams' => 501, 'consumed_at' => '25:00',
+            'food_categories' => [123], 'medication_taken' => str_repeat('x', 101),
+            'medication_dose' => str_repeat('x', 51),
+        ])->assertRedirect(route('tracking.nutrition.create'))->assertSessionHasErrors([
+            'carbs_grams', 'consumed_at', 'food_categories.0', 'medication_taken', 'medication_dose',
+        ]);
+        $this->assertDatabaseCount('nutrition_logs', 0);
+    }
+
+    public function test_inertia_store_redirects_back_to_create_page(): void
+    {
+        $this->actingAs($this->patient)->withHeaders(['X-Inertia' => 'true', 'X-Requested-With' => 'XMLHttpRequest'])
+            ->post(route('tracking.nutrition.store'), ['meal_type' => 'cena', 'carbs_grams' => 60])
+            ->assertRedirect(route('tracking.nutrition.create'));
     }
 
     /**

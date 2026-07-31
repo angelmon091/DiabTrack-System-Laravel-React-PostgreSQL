@@ -451,7 +451,7 @@ PROMPT;
         // ── Instrucción final ───────────────────────────────────────────────
         $lines[] = '';
         $lines[] = 'Analiza el patrón más relevante cruzando el perfil demográfico (edad, género, IMC y condición glucémica declarada) con los datos del día (glucosa por momento, alimentación, actividad, estrés y síntomas). No diagnostiques ni cambies la condición declarada.';
-        $lines[] = 'Genera UN mensaje breve, cálido y accionable de máximo 220 caracteres. Recuerda: eres un asistente de bienestar. Si hay valores fuera de rango, menciona con calma que vale la pena comentárselo al médico en la próxima visita. Sin saludos, títulos ni diagnósticos.';
+        $lines[] = 'Genera UN TIP personalizado, breve, calido y accionable de maximo 220 caracteres, usando el analisis de los datos del paciente. Puede recomendar hidratacion, alimentacion, actividad, descanso, autocuidado o consultar al medico si detectas algo llamativo. Varia el consejo: no lo conviertas siempre en recordatorio. Solo ocasionalmente, si aporta valor, incluye una invitacion positiva a anotar o registrar datos en un maximo de 10 palabras. No diagnostiques ni alarmes. Sin saludos, titulos ni emojis.';
 
         return implode("\n", $lines);
     }
