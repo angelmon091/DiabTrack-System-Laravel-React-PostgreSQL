@@ -60,7 +60,7 @@ class VitalSignTrackingTest extends TestCase
             'notes' => 'Medición rutinaria matutina.',
         ];
         $this->actingAs($this->patient)->from(route('tracking.vital.create'))->post(route('tracking.vital.store'), $data)
-            ->assertRedirect(route('dashboard'))->assertSessionHas('status', __('Registro de salud guardado con éxito.'));
+            ->assertRedirect(route('tracking.vital.create'))->assertSessionHas('status', __('Registro de salud guardado con éxito.'));
         $this->assertDatabaseHas('vital_signs', ['user_id' => $this->patient->id, ...$data]);
         Http::assertNothingSent();
     }
@@ -92,14 +92,14 @@ class VitalSignTrackingTest extends TestCase
         $this->assertDatabaseCount('vital_signs', 0);
     }
 
-    public function test_inertia_store_uses_full_page_location_for_blade_dashboard(): void
+    public function test_inertia_store_redirects_back_to_create_page(): void
     {
         $this->actingAs($this->patient)
             ->withHeaders(['X-Inertia' => 'true', 'X-Requested-With' => 'XMLHttpRequest'])
             ->post(route('tracking.vital.store'), [
             'glucose_level' => 120,
             'measurement_moment' => 'Ayunas',
-        ])->assertStatus(409)->assertHeader('X-Inertia-Location', route('dashboard'));
+        ])->assertRedirect(route('tracking.vital.create'));
     }
 
     public function test_storing_vital_sign_invalidates_dashboard_cache(): void

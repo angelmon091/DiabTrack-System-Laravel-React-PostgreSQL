@@ -67,7 +67,7 @@ class NutritionTrackingTest extends TestCase
             ->from(route('tracking.nutrition.create'))
             ->post(route('tracking.nutrition.store'), $data);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('tracking.nutrition.create'));
         $response->assertSessionHas('status', __('Registro de nutrición guardado con éxito.'));
 
         $this->assertDatabaseHas('nutrition_logs', [
@@ -110,11 +110,11 @@ class NutritionTrackingTest extends TestCase
         $this->assertDatabaseCount('nutrition_logs', 0);
     }
 
-    public function test_inertia_store_uses_full_page_location_for_blade_dashboard(): void
+    public function test_inertia_store_redirects_back_to_create_page(): void
     {
         $this->actingAs($this->patient)->withHeaders(['X-Inertia' => 'true', 'X-Requested-With' => 'XMLHttpRequest'])
             ->post(route('tracking.nutrition.store'), ['meal_type' => 'cena', 'carbs_grams' => 60])
-            ->assertStatus(409)->assertHeader('X-Inertia-Location', route('dashboard'));
+            ->assertRedirect(route('tracking.nutrition.create'));
     }
 
     /**

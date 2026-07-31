@@ -64,7 +64,7 @@ class ActivityTrackingTest extends TestCase
             ->from(route('tracking.activity.create'))
             ->post(route('tracking.activity.store'), $data);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('tracking.activity.create'));
         $response->assertSessionHas('status', __('Registro de actividad guardado con éxito.'));
 
         $this->assertDatabaseHas('activity_logs', [
@@ -111,7 +111,7 @@ class ActivityTrackingTest extends TestCase
         $this->assertDatabaseCount('activity_logs', 0);
     }
 
-    public function test_inertia_store_uses_full_page_location_for_blade_dashboard(): void
+    public function test_inertia_store_redirects_back_to_create_page(): void
     {
         $this->actingAs($this->patient)
             ->withHeaders(['X-Inertia' => 'true', 'X-Requested-With' => 'XMLHttpRequest'])
@@ -119,7 +119,7 @@ class ActivityTrackingTest extends TestCase
                 'activity_type' => 'caminar',
                 'duration_minutes' => 30,
                 'intensity' => 'media',
-            ])->assertStatus(409)->assertHeader('X-Inertia-Location', route('dashboard'));
+            ])->assertRedirect(route('tracking.activity.create'));
     }
 
     /**

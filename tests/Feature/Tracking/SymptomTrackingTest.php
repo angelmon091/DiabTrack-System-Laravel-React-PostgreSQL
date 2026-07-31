@@ -71,7 +71,7 @@ class SymptomTrackingTest extends TestCase
             ->from(route('tracking.symptom.create'))
             ->post(route('tracking.symptom.store'), $data);
 
-        $response->assertRedirect(route('dashboard'));
+        $response->assertRedirect(route('tracking.symptom.create'));
         $response->assertSessionHas('status', __('Registro de síntomas guardado con éxito.'));
 
         // Validar asociación en la tabla pivot
@@ -111,12 +111,12 @@ class SymptomTrackingTest extends TestCase
         $this->assertDatabaseCount('symptom_user', 0);
     }
 
-    public function test_inertia_store_uses_full_page_location_for_blade_dashboard(): void
+    public function test_inertia_store_redirects_back_to_create_page(): void
     {
         $this->actingAs($this->patient)
             ->withHeaders(['X-Inertia' => 'true', 'X-Requested-With' => 'XMLHttpRequest'])
             ->post(route('tracking.symptom.store'), ['symptoms' => [$this->symptom1->id]])
-            ->assertStatus(409)->assertHeader('X-Inertia-Location', route('dashboard'));
+            ->assertRedirect(route('tracking.symptom.create'));
     }
 
     /**
