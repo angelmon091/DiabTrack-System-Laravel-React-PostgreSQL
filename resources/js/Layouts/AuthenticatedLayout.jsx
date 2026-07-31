@@ -1,4 +1,6 @@
 import { Link, useForm, usePage } from '@inertiajs/react';
+import { useEffect, useRef } from 'react';
+import Swal from 'sweetalert2';
 import BarChart3 from 'lucide-react/dist/esm/icons/bar-chart-3.mjs';
 import CircleUserRound from 'lucide-react/dist/esm/icons/circle-user-round.mjs';
 import Home from 'lucide-react/dist/esm/icons/home.mjs';
@@ -63,6 +65,30 @@ export default function AuthenticatedLayout({ children }) {
     const currentPath = usePage().url.split('?')[0];
     const logoutForm = useForm({});
     const isPatient = auth.permissions.puedeBuscar;
+    const lastFlash = useRef(null);
+
+    useEffect(() => {
+        const message = flash?.success || flash?.status;
+        if (!message || message === lastFlash.current) return;
+        lastFlash.current = message;
+
+        Swal.fire({
+            icon: 'success',
+            title: '¡Guardado!',
+            text: message,
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#08a9c4',
+            background: '#ffffff',
+            color: '#17233b',
+            buttonsStyling: true,
+            customClass: {
+                popup: 'diabtrack-swal-popup',
+                title: 'diabtrack-swal-title',
+                htmlContainer: 'diabtrack-swal-text',
+                confirmButton: 'diabtrack-swal-confirm',
+            },
+        });
+    }, [flash?.success, flash?.status]);
 
     const submitLogout = (event) => {
         event.preventDefault();
@@ -100,8 +126,7 @@ export default function AuthenticatedLayout({ children }) {
             </div>
         </header>
 
-        {(flash?.success || flash?.status || flash?.error) && <div className="w-full space-y-3 px-4 pt-4 sm:px-6 md:px-8 xl:px-12">
-            <Alert>{flash?.success || flashMessages[flash?.status] || flash?.status}</Alert>
+        {flash?.error && <div className="w-full space-y-3 px-4 pt-4 sm:px-6 md:px-8 xl:px-12">
             <Alert tone="error">{flash?.error}</Alert>
         </div>}
 
@@ -110,9 +135,20 @@ export default function AuthenticatedLayout({ children }) {
         </main>
 
         <footer className="border-t border-slate-200 bg-white py-10">
-            <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-5 px-8 text-center md:flex-row md:text-left">
-                <div><Brand /><div className="mt-3 flex gap-6 text-xs text-slate-500"><a href="#">Políticas</a><a href="#">Términos</a><a href="#">Ayuda</a></div></div>
-                <p className="text-xs text-slate-500">© {new Date().getFullYear()} DiabTrack App. Cuidando tu salud.</p>
+            <div className="mx-auto flex w-full flex-col items-center justify-between gap-5 px-4 sm:px-6 md:px-8 xl:px-12 text-center md:flex-row">
+                <div className="flex flex-1 justify-center md:justify-start">
+                    <Brand />
+                </div>
+                <div className="flex flex-1 justify-center">
+                    <div className="flex gap-6 text-xs text-slate-500">
+                        <a href="#" className="hover:text-cyan-600 transition">Políticas</a>
+                        <a href="#" className="hover:text-cyan-600 transition">Términos</a>
+                        <a href="#" className="hover:text-cyan-600 transition">Ayuda</a>
+                    </div>
+                </div>
+                <div className="flex flex-1 justify-center md:justify-end">
+                    <p className="text-xs text-slate-500">© {new Date().getFullYear()} DiabTrack App. Cuidando tu salud.</p>
+                </div>
             </div>
         </footer>
 
