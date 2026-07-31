@@ -1185,3 +1185,6 @@ Completada el 29 de julio de 2026 después de migrar las 33 pantallas activas.
 - El Dockerfile se verificó con un build completo sin caché. La etapa Node ejecutó `npm ci` y compiló los 674 módulos; la imagen PHP instaló Composer de producción, incorporó RoadRunner 2025.1.15 y copió correctamente `public/build`.
 - La inspección dentro de la imagen confirmó el manifiesto de Vite, 85 líneas de rutas sin dependencias vendor y exactamente seis Blade: raíz Inertia más cinco correos.
 - QA visual final correcto en Welcome, Login, Usuarios administrativos, Dashboard del paciente y Resumen de salud.
+## Hallazgos técnicos
+
+- Inertia SSR está habilitado en el entorno de desarrollo mediante el endpoint interno `http://192.168.1.22:5173/__inertia_ssr`. Las pruebas de páginas Inertia permiten esta petición interna y bloquean explícitamente únicamente llamadas a los endpoints de Claude, Gemini y Anthropic.

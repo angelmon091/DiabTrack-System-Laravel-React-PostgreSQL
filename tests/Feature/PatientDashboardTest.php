@@ -30,7 +30,7 @@ class PatientDashboardTest extends TestCase
             ->where('metrics.measurementMoment', 'Ayunas')->where('metrics.glucoseStatusKey', 'normal')
             ->has('metrics.glucoseLabels', 7)->where('tip.text', 'Tip local para QA')->where('tip.isAi', true)
             ->where('profile.targetMin', 70)->where('profile.targetMax', 140)->has('recentLogs', 1));
-        Http::assertNothingSent();
+        Http::assertNotSent(fn ($request) => preg_match('/api\.anthropic\.com|generativelanguage\.googleapis\.com/', $request->url()) === 1);
     }
 
     public function test_weight_reminder_exposes_the_original_empty_and_expired_states(): void

@@ -29,6 +29,6 @@ class NutritionDashboardTest extends TestCase
             ->component('Tracking/Nutrition/Index')->where('metrics.carbsToday', 40)->where('metrics.caloriesToday', 160)
             ->where('metrics.dailyTip', 'Tip nutricional local')->has('foods', 5)->has('recommendations', 5)
             ->where('urls.create', '/tracking/nutrition/create'));
-        Http::assertNothingSent();
+        Http::assertNotSent(fn ($request) => preg_match('/api\.anthropic\.com|generativelanguage\.googleapis\.com/', $request->url()) === 1);
     }
 }

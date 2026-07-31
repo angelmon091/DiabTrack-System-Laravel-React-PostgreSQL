@@ -31,6 +31,6 @@ class TrackingSummaryTest extends TestCase
             ->component('Tracking/Summary')->where('metrics.avgGlucose', 125)->where('metrics.totalCarbs', 40)
             ->has('charts.glucose.labels', 7)->has('charts.moments.labels', 4)
             ->has('histories.vitals', 1)->has('histories.nutrition', 1)->has('histories.activity', 1)->has('histories.symptoms', 0));
-        Http::assertNothingSent();
+        Http::assertNotSent(fn ($request) => preg_match('/api\.anthropic\.com|generativelanguage\.googleapis\.com/', $request->url()) === 1);
     }
 }
