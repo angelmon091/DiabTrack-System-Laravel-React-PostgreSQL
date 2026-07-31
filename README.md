@@ -1,30 +1,28 @@
 # DiabTrack
 
-DiabTrack es una plataforma para el monitoreo integral de la diabetes. Permite a pacientes, médicos y cuidadores gestionar indicadores glucémicos, nutrición, actividad física y signos vitales, con superficies administrativas para roles, usuarios, aprobación médica y métricas de uso de APIs.
+DiabTrack is a comprehensive platform for diabetes monitoring. It enables patients, doctors, and caregivers to manage glycemic indicators, nutrition, physical activity, and vital signs, featuring administrative surfaces for roles, users, medical approval, and API usage metrics.
 
-## Arquitectura
+## Architecture
 
-La aplicación mantiene un backend monolítico Laravel y una capa de presentación React servida mediante Inertia.js.
+The application maintains a monolithic Laravel backend and a React presentation layer served via Inertia.js.
 
-- Backend: Laravel 13, PHP 8.4, Eloquent, Policies, middleware y validación en servidor.
-- Frontend: React 19 con componentes funcionales y hooks, Inertia.js y Tailwind CSS 3.4.
-- Renderizado: Inertia SSR habilitado para las páginas React.
-- Iconos: `lucide-react` con imports directos y `react-icons` para redes sociales.
-- Gráficas: Chart.js mediante `react-chartjs-2`.
-- Base de datos: MySQL.
+- Backend: Laravel 13, PHP 8.4, Eloquent, Policies, middleware, and server-side validation.
+- Frontend: React 19 with functional components and hooks, Inertia.js, and Tailwind CSS 3.4.
+- Rendering: Inertia SSR enabled for React pages.
+- Icons: `lucide-react` with direct imports and `react-icons` for social networks.
+- Charts: Chart.js via `react-chartjs-2`.
+- Database: MySQL.
 - Cache: Redis.
-- Servidor: Laravel Octane con RoadRunner.
+- Server: Laravel Octane with RoadRunner.
 - Bundler: Vite.
-- Correo transaccional: Resend.
-- Infraestructura: Docker y Docker Compose.
+- Transactional Email: Resend.
+- Infrastructure: Docker and Docker Compose.
 
-La estructura frontend se organiza en `resources/js/Pages`, `Components`,
-`Layouts`, `Hooks` y `Utils`. `resources/views/app.blade.php` es únicamente la
-plantilla raíz de Inertia; las cinco plantillas de correo permanecen en Blade.
+The frontend structure is organized into `resources/js/Pages`, `Components`, `Layouts`, `Hooks`, and `Utils`. `resources/views/app.blade.php` is exclusively the Inertia root template; the five email templates remain in Blade.
 
-Las páginas se encuentran en `resources/js/Pages`, los componentes compartidos en `resources/js/Components` y los layouts React en `resources/js/Layouts`. `resources/views/app.blade.php` es exclusivamente la plantilla raíz de Inertia. Las cinco plantillas bajo `resources/views/emails` permanecen en Blade para renderizado de correo en servidor.
+Pages are located in `resources/js/Pages`, shared components in `resources/js/Components`, and React layouts in `resources/js/Layouts`. `resources/views/app.blade.php` is exclusively the Inertia root template. The five templates under `resources/views/emails` remain in Blade for server-side email rendering.
 
-## Desarrollo local
+## Local Development
 
 ```bash
 docker compose up -d app
@@ -33,26 +31,26 @@ npm run build
 docker compose exec app php artisan test
 ```
 
-Los comandos de Composer, Artisan y PHPUnit/Pest deben ejecutarse dentro del contenedor `app` para evitar diferencias entre el PHP del host y el entorno del proyecto.
+Composer, Artisan, and PHPUnit/Pest commands must be executed inside the `app` container to prevent differences between the host PHP and the project environment.
 
-Después de modificar controladores o middleware bajo Octane:
+After modifying controllers or middleware under Octane:
 
 ```bash
 docker compose exec app php artisan octane:reload
 ```
 
-## Funcionalidades principales
+## Main Features
 
-- Registro, autenticación, verificación de correo y recuperación de contraseña.
-- Onboarding diferenciado por perfil.
-- Captura de glucosa, presión arterial, peso, estrés, nutrición, síntomas y actividad física.
-- Dashboards para pacientes, médicos y cuidadores.
-- Vinculación controlada entre pacientes, médicos y cuidadores.
-- Administración de usuarios, roles y aprobación médica.
-- Resúmenes clínicos y visualizaciones históricas.
-- Métricas administrativas de proveedores de IA.
+- Registration, authentication, email verification, and password recovery.
+- Differentiated onboarding by profile.
+- Tracking of glucose, blood pressure, weight, stress, nutrition, symptoms, and physical activity.
+- Dashboards for patients, doctors, and caregivers.
+- Controlled linking between patients, doctors, and caregivers.
+- User management, roles, and medical approval.
+- Clinical summaries and historical visualizations.
+- Administrative metrics for AI providers.
 
-## Verificación
+## Verification
 
 ```bash
 docker compose exec app php artisan test
@@ -60,4 +58,4 @@ npm run build
 npm audit
 ```
 
-La documentación de la migración Blade a React/Inertia se encuentra en `docs/migration`.
+Documentation for the Blade to React/Inertia migration can be found in `docs/migration`.
