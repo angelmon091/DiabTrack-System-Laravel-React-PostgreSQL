@@ -61,10 +61,6 @@ class SymptomLogController extends Controller
         // Invalidar el caché de métricas del dashboard del usuario
         Cache::forget("dashboard_metrics_{$user->id}_v2");
 
-        $response = redirect()->route('dashboard')->with('status', __('Registro de síntomas guardado con éxito.'));
-
-        return $request->header('X-Inertia')
-            ? Inertia::location($response->getTargetUrl())
-            : $response;
+        return redirect()->route('tracking.symptom.create')->with('status', __('Registro de síntomas guardado con éxito.'));
     }
 }

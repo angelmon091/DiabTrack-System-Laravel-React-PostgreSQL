@@ -63,10 +63,6 @@ class ActivityLogController extends Controller
             'energy_level' => $request->energy_level,
         ]);
 
-        $response = redirect()->route('dashboard')->with('status', __('Registro de actividad guardado con éxito.'));
-
-        return $request->header('X-Inertia')
-            ? Inertia::location($response->getTargetUrl())
-            : $response;
+        return redirect()->route('tracking.activity.create')->with('status', __('Registro de actividad guardado con éxito.'));
     }
 }

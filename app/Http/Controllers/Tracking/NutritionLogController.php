@@ -94,10 +94,6 @@ class NutritionLogController extends Controller
             'medication_dose' => $request->medication_dose,
         ]);
 
-        $response = redirect()->route('dashboard')->with('status', __('Registro de nutrición guardado con éxito.'));
-
-        return $request->header('X-Inertia')
-            ? Inertia::location($response->getTargetUrl())
-            : $response;
+        return redirect()->route('tracking.nutrition.create')->with('status', __('Registro de nutrición guardado con éxito.'));
     }
 }
