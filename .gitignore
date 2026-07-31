@@ -1,4 +1,5 @@
 *.log
+*.pdf
 .DS_Store
 .env
 .env.bak
@@ -17,6 +18,7 @@
 /.phpunit.cache/
 /docs/**/qa-*/
 /docs/**/render-temp*/
+/docs/migration/qa-visual/
 **/__pycache__/
 *.py[cod]
 
@@ -27,17 +29,19 @@
 /.codex-docx-qa/
 /.codex-notion-export/
 /outputs/
+/diabtrack-container/
 /.claude/
+/.claude*
 /.cursor/
 /.continue/
 /.aider*/
 .phpactor.json
 .phpunit.result.cache
 /.fleet
-/.idea
+/.idea/
 /.nova
 /.phpunit.cache
-/.vscode
+/.vscode/
 /.zed
 /auth.json
 /node_modules
@@ -59,7 +63,8 @@ CLAUDE.md.swp
 .CLAUDE.md.swp
 /docs/*
 !/docs/migration/
-!/docs/migration/*.md
+!/docs/migration/**
+/docs/migration/qa-visual/
 /scripts/build_phase1_docx.py
 /scripts/make_docx_contact_sheets.py
 /scripts/report_full_sections.py
