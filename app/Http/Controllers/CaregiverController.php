@@ -60,6 +60,9 @@ class CaregiverController extends Controller
             'selectedPatient' => $selectedPatient ? [
                 'id' => $selectedPatient->id,
                 'name' => $selectedPatient->name,
+                'avatarUrl' => $selectedPatient->avatar
+                    ? (str_starts_with($selectedPatient->avatar, 'http') ? $selectedPatient->avatar : asset('storage/'.$selectedPatient->avatar))
+                    : null,
                 'diabetesType' => $selectedPatient->patientProfile?->diabetes_type ?? '--',
                 'age' => $selectedPatient->patientProfile?->birth_date
                     ? Carbon::parse($selectedPatient->patientProfile->birth_date)->age
@@ -80,6 +83,8 @@ class CaregiverController extends Controller
                 'glucose' => $log->glucose_level,
                 'moment' => $log->measurement_moment,
                 'elevated' => $log->glucose_level > 140,
+                'statusKey' => VitalSign::clasificarGlucosa((int) $log->glucose_level, $log->measurement_moment, $selectedPatient->patientProfile?->target_glucose_min, $selectedPatient->patientProfile?->target_glucose_max),
+                'status' => VitalSign::glucoseStatusUi(VitalSign::clasificarGlucosa((int) $log->glucose_level, $log->measurement_moment, $selectedPatient->patientProfile?->target_glucose_min, $selectedPatient->patientProfile?->target_glucose_max))['badge'],
             ])->values(),
             'urls' => [
                 'link' => route('caregiver.link', absolute: false),

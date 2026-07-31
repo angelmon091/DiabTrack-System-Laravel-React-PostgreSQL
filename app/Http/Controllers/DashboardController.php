@@ -99,6 +99,7 @@ class DashboardController extends Controller
                 'activityMinutes' => $metrics['actividadMinutos'], 'activityGoal' => $metrics['metaActividad'], 'activityPercent' => $metrics['porcentajeActividad'],
                 'estimatedSteps' => $metrics['pasosEstimados'], 'stepGoal' => $metrics['metaPasos'], 'stepPercent' => $metrics['porcentajePasos'],
                 'timeInRange' => $metrics['tiempoEnRango'], 'symptomsToday' => $metrics['sintomasHoy'],
+                'glucoseInRangePercent' => $metrics['tiempoEnRango'],
                 'glucoseLabels' => $metrics['glucosaLabels'], 'glucoseData' => $metrics['glucosaData'],
                 'needsWeightUpdate' => $metrics['needsWeightUpdate'], 'lastWeight' => $metrics['ultimoPesoValor'],
             ],
@@ -106,6 +107,7 @@ class DashboardController extends Controller
                 'id' => $log->id, 'date' => $log->created_at->format('d M, Y H:i'), 'glucose' => $log->glucose_level,
                 'moment' => $log->measurement_moment ?? 'Ayunas', 'hba1c' => $log->hba1c,
                 'status' => VitalSign::glucoseStatusUi(VitalSign::clasificarGlucosa((int) $log->glucose_level, $log->measurement_moment, $user->patientProfile?->target_glucose_min, $user->patientProfile?->target_glucose_max))['badge'],
+                'statusKey' => VitalSign::clasificarGlucosa((int) $log->glucose_level, $log->measurement_moment, $user->patientProfile?->target_glucose_min, $user->patientProfile?->target_glucose_max),
             ])->values(),
             'tip' => ['text' => $metrics['tipDelDia'] ?? '', 'isAi' => (bool) ($metrics['tipEsIA'] ?? false)],
             'profile' => ['targetMin' => $user->patientProfile?->target_glucose_min ?? VitalSign::GLUCOSE_DEFAULT_MIN, 'targetMax' => $user->patientProfile?->target_glucose_max ?? VitalSign::GLUCOSE_DEFAULT_MAX],
@@ -367,8 +369,6 @@ class DashboardController extends Controller
             'expires_at' => now()->addHours(24),
         ]);
 
-        return redirect()->route('dashboard')
-            ->with('invite_code', $code)
-            ->with('status', 'Código de invitación generado. Compártelo con tu cuidador o médico.');
+        return redirect()->route('dashboard')->with('invite_code', $code);
     }
 }

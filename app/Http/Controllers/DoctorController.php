@@ -66,6 +66,9 @@ class DoctorController extends Controller
             ])->values(),
             'selectedPatient' => $selectedPatient ? [
                 'id' => $selectedPatient->id, 'name' => $selectedPatient->name,
+                'avatarUrl' => $selectedPatient->avatar
+                    ? (str_starts_with($selectedPatient->avatar, 'http') ? $selectedPatient->avatar : asset('storage/'.$selectedPatient->avatar))
+                    : null,
                 'diabetesType' => $selectedPatient->patientProfile?->diabetes_type ?? '--',
                 'age' => $selectedPatient->patientProfile?->birth_date ? Carbon::parse($selectedPatient->patientProfile->birth_date)->age : null,
                 'weight' => $selectedPatient->patientProfile?->weight, 'height' => $selectedPatient->patientProfile?->height,
@@ -84,6 +87,8 @@ class DoctorController extends Controller
                 'id' => $log->id, 'date' => $log->created_at->format('d/m/Y H:i'), 'glucose' => $log->glucose_level,
                 'systolic' => $log->systolic, 'diastolic' => $log->diastolic, 'heartRate' => $log->heart_rate,
                 'outOfRange' => $log->glucose_level > ($selectedPatient?->patientProfile?->target_glucose_max ?? VitalSign::GLUCOSE_DEFAULT_MAX),
+                'statusKey' => VitalSign::clasificarGlucosa((int) $log->glucose_level, $log->measurement_moment, $selectedPatient?->patientProfile?->target_glucose_min, $selectedPatient?->patientProfile?->target_glucose_max),
+                'status' => VitalSign::glucoseStatusUi(VitalSign::clasificarGlucosa((int) $log->glucose_level, $log->measurement_moment, $selectedPatient?->patientProfile?->target_glucose_min, $selectedPatient?->patientProfile?->target_glucose_max))['badge'],
             ])->values(),
             'urls' => ['link' => route('doctor.link', absolute: false), 'profile' => route('profile.edit', absolute: false)],
         ]);
