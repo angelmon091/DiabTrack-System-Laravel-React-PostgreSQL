@@ -29,3 +29,19 @@ html {
     font-weight: 700 !important;
     padding: 0.7rem 1.8rem !important;
 }
+
+/* Dashboard del paciente: evita que sus tarjetas y gráficas impongan el
+   ancho mínimo de escritorio en pantallas pequeñas. */
+@media (max-width: 767px) {
+    main > div > section.order-1,
+    main > div > section.order-1 > div,
+    main > div > section.order-1 section,
+    main > div > section.order-1 canvas {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    main > div > section.order-1 canvas {
+        width: 100% !important;
+    }
+}
