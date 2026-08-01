@@ -1,6 +1,7 @@
 # DiabTrack
 
-##DOMAIN
+## DOMAIN
+
 https://Diabtrack.app
 
 DiabTrack is a comprehensive platform for diabetes monitoring. It enables patients, doctors, and caregivers to manage glycemic indicators, nutrition, physical activity, and vital signs, featuring administrative surfaces for roles, users, medical approval, and API usage metrics.
